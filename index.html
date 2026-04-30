@@ -705,14 +705,34 @@ function parseItemCodsPDF(rest) {
 
 function parseOrderPDF(lines) {
   const data={pedido:'',ref:'',cliente:'',endereco:'',vendedor:'',itens:[]};
-  let lastItem=null,inItems=false;
+  let lastItem=null,inItems=false,nextIsCliente=false,nextIsEndereco=false;
   const units=['UN','MT','RL','PC','CX','KG','PT','M','CM','LT'];
   for(let i=0;i<lines.length;i++){
     const line=lines[i]; let m;
+
+    // Captura linha seguinte quando label está sozinho
+    if(nextIsCliente && line.trim().length>2){ data.cliente=line.trim().replace(/\s+/g,' '); nextIsCliente=false; continue; }
+    if(nextIsEndereco && line.trim().length>2){ data.endereco=line.trim().replace(/\s+/g,' '); nextIsEndereco=false; continue; }
+
     if(m=line.match(/PEDIDO[:\s#]+(\d+)/i))data.pedido=m[1];
     if(m=line.match(/Cód\.?Cliente[:\s]+(\S+)/i))data.ref=m[1].trim();
-    if(m=line.match(/^Nome[:\s]+(.+)/i)){const v=m[1].trim().replace(/\s+/g,' ');if(v&&v.length>1)data.cliente=v;}
-    if(m=line.match(/Endere[çc]o[:\s]+(.+?)(?:\s+Bairro|$)/i)){const v=m[1].trim();if(v&&v.length>3)data.endereco=v;}
+
+    // Nome: pode ter o valor na mesma linha ou na próxima
+    if(m=line.match(/Nome\s*[:\s]+(.+)/i)){
+      const v=m[1].trim().replace(/\s+/g,' ');
+      if(v&&v.length>2) data.cliente=v;
+      else nextIsCliente=true;
+    } else if(line.match(/^Nome\s*:?\s*$/i)){
+      nextIsCliente=true;
+    }
+
+    // Endereço: mesmo tratamento
+    if(m=line.match(/Endere[çc]o\s*[:\s]+(.+?)(?:\s+Bairro|$)/i)){
+      const v=m[1].trim().replace(/\s+/g,' ');
+      if(v&&v.length>2) data.endereco=v;
+      else nextIsEndereco=true;
+    }
+
     if(m=line.match(/Vendedor[:\s]+(.+)/i))data.vendedor=m[1].trim();
     if(line.match(/Qtde.*Descri/i)){inItems=true;continue;}
     if(line.match(/^Total[:\s\d]/i)){inItems=false;continue;}
