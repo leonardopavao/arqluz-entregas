@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Arq Luz — Entregas</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f0f0;color:#1a1a1a}
+    .screen{display:none;min-height:100vh}
+    .screen.active{display:block}
+    #screen-login.active{display:flex}
+    #screen-login{align-items:center;justify-content:center;background:linear-gradient(160deg,#1a1a1a 60%,#2d2d2d)}
+    .login-box{background:#fff;border-radius:16px;padding:36px 28px;width:100%;max-width:360px;margin:20px;box-shadow:0 20px 60px rgba(0,0,0,0.4)}
+    .login-logo{text-align:center;margin-bottom:28px}
+    .login-logo h2{font-size:26px;font-weight:800;letter-spacing:4px}
+    .login-logo p{color:#999;font-size:13px;margin-top:4px;letter-spacing:1px}
+    .login-divider{width:40px;height:3px;background:#1a1a1a;margin:12px auto 0;border-radius:2px}
+    .fg{margin-bottom:14px}
+    .fg label{display:block;font-size:12px;font-weight:600;color:#666;margin-bottom:6px;letter-spacing:.5px;text-transform:uppercase}
+    .fg input,.fg select,.fg textarea{width:100%;padding:11px 14px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:15px;background:#fafafa;color:#1a1a1a;font-family:inherit;transition:all .2s}
+    .fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:#1a1a1a;background:#fff}
+    .fg textarea{resize:none}
+    .btn-dark{width:100%;padding:13px;background:#1a1a1a;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s}
+    .btn-dark:active{transform:scale(.98)}
+    .btn-dark:disabled{background:#bbb;cursor:not-allowed}
+    .btn-grey{width:100%;padding:11px;background:#f5f5f5;color:#555;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px}
+    .btn-blue{width:100%;padding:12px;background:#185FA5;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:14px}
+    .btn-green{width:100%;padding:14px;background:#27ae60;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;margin-top:14px}
+    .btn-green:disabled{background:#aaa}
+    .err{color:#e74c3c;font-size:13px;margin-top:10px;text-align:center;min-height:18px}
+    .header{background:#1a1a1a;color:#fff;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+    .header h1{font-size:17px;font-weight:700}
+    .header small{font-size:11px;color:#888;display:block;margin-top:1px}
+    .btn-out{background:none;border:1px solid #444;color:#aaa;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:12px}
+    .content{padding:14px;max-width:860px;margin:0 auto}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+    .stat{background:#fff;border-radius:12px;padding:12px 10px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+    .stat .n{font-size:26px;font-weight:800;line-height:1}
+    .stat .l{font-size:11px;color:#999;margin-top:3px}
+    .stat.pend .n{color:#e67e22}
+    .stat.ent .n{color:#27ae60}
+    .stat.tot .n{color:#1a1a1a}
+    .tabs{display:flex;border-bottom:2px solid #e8e8e8;margin-bottom:12px}
+    .tab{padding:9px 16px;font-size:13px;font-weight:600;color:#999;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
+    .tab.active{color:#1a1a1a;border-bottom-color:#1a1a1a}
+    .search{display:flex;gap:8px;margin-bottom:12px}
+    .search input{flex:1;padding:9px 12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;background:#fff}
+    .search input:focus{outline:none;border-color:#1a1a1a}
+    .card{background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:9px;box-shadow:0 1px 4px rgba(0,0,0,.07);cursor:pointer;border-left:4px solid #ddd;transition:transform .12s}
+    .card:active{transform:scale(.99)}
+    .card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;gap:8px}
+    .card-nome{font-size:15px;font-weight:700}
+    .card-info{font-size:12px;color:#888;display:flex;flex-wrap:wrap;gap:6px}
+    .card-itens{font-size:12px;color:#185FA5;margin-top:4px;font-weight:600}
+    .card-pend{border-left-color:#e67e22}
+    .card-ent{border-left-color:#27ae60;opacity:.75}
+    .badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+    .bp{background:#fdebd0;color:#ca6f1e}
+    .be{background:#d5f5e3;color:#1e8449}
+    .empty{text-align:center;padding:50px 20px}
+    .empty .ic{font-size:52px;margin-bottom:12px}
+    .empty p{font-size:15px;color:#bbb}
+    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:flex-end;justify-content:center}
+    .overlay.active{display:flex}
+    .modal{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:600px;max-height:92vh;overflow-y:auto;padding:20px 20px 40px;animation:su .25s ease}
+    @keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+    .mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+    .mh h3{font-size:18px;font-weight:800}
+    .xbtn{background:#f0f0f0;border:none;width:30px;height:30px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#666}
+    .dr{display:flex;gap:10px;margin-bottom:8px}
+    .dl{font-size:12px;color:#aaa;min-width:100px;flex-shrink:0;padding-top:2px}
+    .dv{font-size:14px;color:#1a1a1a;font-weight:500}
+    .dimg{width:100%;border-radius:10px;margin-top:6px;cursor:zoom-in}
+    .ic-row{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid #f0f0f0;cursor:pointer}
+    .ic-row:last-child{border-bottom:none}
+    .cb{width:26px;height:26px;border-radius:7px;border:2px solid #ddd;flex-shrink:0;transition:all .15s}
+    .cb.on{background:#27ae60;border-color:#27ae60;position:relative}
+    .cb.on::after{content:'';display:block;position:absolute;left:7px;top:3px;width:6px;height:10px;border:2.5px solid #fff;border-top:none;border-left:none;transform:rotate(45deg)}
+    .ii .id{font-size:14px;line-height:1.4}
+    .ii .iq{font-size:12px;color:#185FA5;font-weight:700;margin-top:2px}
+    .ii .io{font-size:12px;color:#888;font-style:italic;margin-top:2px}
+    .ii .ic2{font-size:11px;color:#bbb;margin-top:2px}
+    .foto-wrap{border:2px dashed #ddd;border-radius:12px;min-height:130px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;background:#fafafa}
+    .foto-wrap.ok{border-style:solid;border-color:#27ae60}
+    .foto-wrap img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+    .foto-ph{text-align:center;color:#ccc}
+    .foto-ph .fi{font-size:32px;margin-bottom:6px}
+    .foto-ph p{font-size:13px}
+    #cv{width:100%;border:2px solid #ddd;border-radius:10px;display:block;cursor:crosshair;touch-action:none;background:#fff}
+    #cv.s{border-color:#27ae60}
+    .ar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+    .btnlimpar{background:none;border:1px solid #ddd;padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;color:#888}
+    .gps{font-size:12px;color:#888;margin:8px 0;min-height:18px}
+    .lod{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+    .lod.on{display:flex}
+    .sp{width:42px;height:42px;border:4px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .75s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .lmsg{color:#fff;font-size:14px;font-weight:600}
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a1a1a;color:#fff;padding:11px 22px;border-radius:24px;font-size:14px;font-weight:500;z-index:1000;opacity:0;transition:all .3s;white-space:nowrap;pointer-events:none}
+    .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+    .cli-card{background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:9px;box-shadow:0 1px 4px rgba(0,0,0,.07);cursor:pointer;border-left:4px solid #185FA5;transition:transform .12s}
+    .cli-card:active{transform:scale(.99)}
+    .cli-nome{font-size:15px;font-weight:700;margin-bottom:6px}
+    .cli-info{font-size:12px;color:#888;display:flex;flex-wrap:wrap;gap:8px}
+    .cli-hist-item{background:#f8f8f8;border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;border-left:3px solid #ddd}
+    .cli-hist-item:hover{background:#f0f0f0}
+    .cli-hist-item.pend{border-left-color:#e67e22}
+    .cli-hist-item.ent{border-left-color:#27ae60}
+    @media(max-width:480px){.search{flex-wrap:wrap}}
+  </style>
+</head>
+<body>
+
+<div class="lod" id="lod"><div class="sp"></div><div class="lmsg" id="lmsg">Carregando...</div></div>
+<div class="toast" id="toast"></div>
+
+<!-- LOGIN -->
+<div class="screen active" id="screen-login">
+  <div class="login-box">
+    <div class="login-logo"><h2>ARQ LUZ</h2><p>SISTEMA DE ENTREGAS</p><div class="login-divider"></div></div>
+    <div class="fg"><label>E-mail</label><input type="email" id="lemail" placeholder="seu@email.com" autocomplete="email"></div>
+    <div class="fg"><label>Senha</label><input type="password" id="lsenha" placeholder="••••••" autocomplete="current-password"></div>
+    <button class="btn-dark" id="btnentrar" onclick="login()">Entrar</button>
+    <p class="err" id="lerro"></p>
+  </div>
+</div>
+
+<!-- PAINEL DONO / VENDEDORA -->
+<div class="screen" id="screen-painel">
+  <div class="header">
+    <div><h1>🚚 Entregas</h1><small id="hnome"></small></div>
+    <button class="btn-out" onclick="logout()">Sair</button>
+  </div>
+  <div class="content">
+    <div class="stats">
+      <div class="stat pend"><div class="n" id="sp">0</div><div class="l">Pendentes</div></div>
+      <div class="stat ent"><div class="n" id="se">0</div><div class="l">Entregues</div></div>
+      <div class="stat tot"><div class="n" id="st">0</div><div class="l">Total</div></div>
+    </div>
+    <button class="btn-blue" onclick="abrirImport()">📄 Importar PDF do Apollo</button>
+    <div class="tabs">
+      <div class="tab active" onclick="tab('pendentes',this)">Pendentes</div>
+      <div class="tab" onclick="tab('entregues',this)">Entregues</div>
+      <div class="tab" onclick="tab('todas',this)">Todas</div>
+      <div class="tab" onclick="tab('clientes',this)">📁 Clientes</div>
+    </div>
+    <div class="search"><input type="text" id="sbusca" placeholder="🔍 Buscar por cliente..." oninput="render()"></div>
+    <div id="lista"></div>
+  </div>
+</div>
+
+<!-- PAINEL ENTREGADOR -->
+<div class="screen" id="screen-ent">
+  <div class="header">
+    <div><h1>📦 Minhas Entregas</h1><small id="hnome2"></small></div>
+    <button class="btn-out" onclick="logout()">Sair</button>
+  </div>
+  <div class="content">
+    <div class="stats">
+      <div class="stat pend"><div class="n" id="ep">0</div><div class="l">Pendentes</div></div>
+      <div class="stat ent"><div class="n" id="ee">0</div><div class="l">Entregues</div></div>
+      <div class="stat tot"><div class="n" id="et">0</div><div class="l">Total</div></div>
+    </div>
+    <div id="lista-ent"></div>
+  </div>
+</div>
+
+<!-- MODAL: HISTÓRICO DO CLIENTE -->
+<div class="overlay" id="mod-cliente">
+  <div class="modal">
+    <div class="mh"><h3 id="cli-nome">Cliente</h3><button class="xbtn" onclick="fModal('mod-cliente')">×</button></div>
+    <div id="cli-corpo"></div>
+  </div>
+</div>
+
+<!-- MODAL: DETALHE -->
+<div class="overlay" id="mod-detalhe">
+  <div class="modal">
+    <div class="mh"><h3 id="d-titulo">Detalhe</h3><button class="xbtn" onclick="fModal('mod-detalhe')">×</button></div>
+    <div id="d-corpo"></div>
+  </div>
+</div>
+
+<!-- MODAL: CONFIRMAR (ENTREGADOR) -->
+<div class="overlay" id="mod-conf">
+  <div class="modal">
+    <div class="mh"><h3 id="c-titulo">Confirmar Entrega</h3><button class="xbtn" onclick="fModal('mod-conf')">×</button></div>
+
+    <div style="background:#f8f8f8;border-radius:10px;padding:12px;margin-bottom:16px;">
+      <div style="font-size:11px;color:#999;margin-bottom:2px;">PEDIDO Nº</div>
+      <div id="c-pedido" style="font-size:15px;font-weight:800;color:#185FA5;"></div>
+      <div id="c-end" style="font-size:13px;color:#666;margin-top:4px;"></div>
+    </div>
+
+    <div id="c-itens-wrap" style="display:none;margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div style="font-size:12px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.5px;">📋 Conferência de itens</div>
+        <div style="font-size:12px;color:#185FA5;font-weight:700;"><span id="c-marc">0</span>/<span id="c-tot">0</span></div>
+      </div>
+      <div id="c-itens" style="background:#fafafa;border-radius:10px;padding:8px 12px;max-height:240px;overflow-y:auto;"></div>
+    </div>
+
+    <div class="fg">
+      <label>📷 Foto da entrega</label>
+      <div class="foto-wrap" id="fw" onclick="document.getElementById('finput').click()">
+        <img id="fimg" style="display:none;">
+        <div class="foto-ph" id="fph"><div class="fi">📷</div><p>Toque para tirar foto</p></div>
+      </div>
+      <input type="file" id="finput" accept="image/*" capture="environment" style="display:none;" onchange="prevFoto(this)">
+    </div>
+
+    <div class="fg">
+      <div class="ar">
+        <label style="font-size:12px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.5px;">✍️ Assinatura do cliente</label>
+        <button class="btnlimpar" onclick="limparAss()">Limpar</button>
+      </div>
+      <canvas id="cv" height="150"></canvas>
+    </div>
+
+    <div class="gps" id="gpsinfo">📍 Aguardando localização...</div>
+    <button class="btn-green" id="btnconf" onclick="confirmar()">✅ Confirmar Entrega</button>
+    <button class="btn-grey" onclick="fModal('mod-conf')">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL: IMPORTAR PDF -->
+<div class="overlay" id="mod-import">
+  <div class="modal">
+    <div class="mh"><h3>📄 Importar PDF do Apollo</h3><button class="xbtn" onclick="fModal('mod-import')">×</button></div>
+
+    <div id="imp1">
+      <div id="impzone" style="border:2px dashed #c8c4be;border-radius:12px;padding:36px 20px;text-align:center;cursor:pointer;background:#fafafa;"
+        onclick="document.getElementById('impfile').click()"
+        ondragover="event.preventDefault();this.style.borderColor='#185FA5'"
+        ondragleave="this.style.borderColor='#c8c4be'"
+        ondrop="onDrop(event)">
+        <div style="font-size:40px;margin-bottom:10px;">📄</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px;">Arraste o PDF aqui</div>
+        <div style="font-size:13px;color:#999;">ou clique para selecionar</div>
+      </div>
+      <input type="file" id="impfile" accept=".pdf" style="display:none;" onchange="onFile(this)">
+      <div id="implod" style="display:none;text-align:center;padding:30px;">
+        <div class="sp" style="border-top-color:#185FA5;margin:0 auto 12px;"></div>
+        <div style="font-size:14px;color:#666;">Lendo o PDF...</div>
+      </div>
+    </div>
+
+    <div id="imp2" style="display:none;">
+      <div style="background:#d5f5e3;border-radius:10px;padding:10px 14px;font-size:13px;color:#1e8449;margin-bottom:14px;">✅ PDF lido! Verifique e salve.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+        <div><div style="font-size:11px;color:#999;font-weight:700;text-transform:uppercase;margin-bottom:3px;">Pedido Nº</div><div id="ipedido" style="font-size:16px;font-weight:800;color:#185FA5;"></div></div>
+        <div><div style="font-size:11px;color:#999;font-weight:700;text-transform:uppercase;margin-bottom:3px;">Vendedor</div><div id="ivendedor" style="font-size:14px;font-weight:700;"></div></div>
+      </div>
+      <div class="fg"><label>Cliente *</label><input type="text" id="icliente" placeholder="Nome do cliente"></div>
+      <div id="iendereco" style="font-size:12px;color:#888;margin-top:-8px;margin-bottom:12px;padding-left:2px;"></div>
+      <div style="background:#f5f5f5;border-radius:10px;padding:10px 12px;margin-bottom:14px;">
+        <div style="font-size:11px;color:#999;margin-bottom:8px;font-weight:700;text-transform:uppercase;">ITENS — <span id="itotal">0</span> produto(s)</div>
+        <div id="ilitens" style="max-height:200px;overflow-y:auto;"></div>
+      </div>
+      <button class="btn-dark" onclick="salvar()" style="background:#185FA5;">💾 Salvar Comprovante no Sistema</button>
+      <button class="btn-grey" onclick="resetImp()">Importar outro PDF</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyBmk79ts8iPrS_Rc1gyDPbA2OzDOODYMYk",
+  authDomain:"arqluz-entregas.firebaseapp.com",
+  projectId:"arqluz-entregas",
+  storageBucket:"arqluz-entregas.firebasestorage.app",
+  messagingSenderId:"294162415165",
+  appId:"1:294162415165:web:d8b4f6cb47fae7e235b454"
+});
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+const auth=firebase.auth(), db=firebase.firestore();
+
+// ESTADO
+let me=null, perfil=null, nomeMe='';
+let docs=[], tabAtual='pendentes';
+let docAberto=null, marcados=[], gps=null, assinado=false, ctx=null, draw=false, pdfData=null;
+
+// ── AUTH ─────────────────────────────────────────
+auth.onAuthStateChanged(async u=>{
+  if(!u){tela('screen-login');return;}
+  load('Carregando...');
+  me=u;
+  const d=await db.collection('usuarios').doc(u.uid).get();
+  if(!d.exists){await auth.signOut();load(false);return;}
+  perfil=d.data().perfil; nomeMe=d.data().nome||u.email;
+  if(perfil==='entregador'){
+    document.getElementById('hnome2').textContent=nomeMe;
+    tela('screen-ent');
+  } else {
+    document.getElementById('hnome').textContent=`${nomeMe} · ${perfil}`;
+    tela('screen-painel');
+  }
+  escutar();
+  load(false);
+});
+
+async function login(){
+  const email=document.getElementById('lemail').value.trim();
+  const senha=document.getElementById('lsenha').value;
+  const err=document.getElementById('lerro'), btn=document.getElementById('btnentrar');
+  err.textContent='';
+  if(!email||!senha){err.textContent='Preencha e-mail e senha.';return;}
+  btn.disabled=true; btn.textContent='Entrando...';
+  load('Verificando...');
+  try{await auth.signInWithEmailAndPassword(email,senha);}
+  catch(e){err.textContent='E-mail ou senha incorretos.';load(false);btn.disabled=false;btn.textContent='Entrar';}
+}
+document.getElementById('lsenha').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
+async function logout(){await auth.signOut();tela('screen-login');}
+
+// ── ESCUTAR COMPROVANTES ─────────────────────────
+let unsub=null;
+function escutar(){
+  if(unsub)unsub();
+  unsub=db.collection('comprovantes')
+    .orderBy('criadoEm','desc')
+    .onSnapshot(snap=>{
+      docs=snap.docs.map(d=>({id:d.id,...d.data()}));
+      atualizarStats();
+      if(perfil==='entregador') renderEnt();
+      else render();
+    });
+}
+
+function atualizarStats(){
+  const pend=docs.filter(d=>d.status==='pendente').length;
+  const ent=docs.filter(d=>d.status==='entregue').length;
+  if(perfil==='entregador'){
+    document.getElementById('ep').textContent=pend;
+    document.getElementById('ee').textContent=ent;
+    document.getElementById('et').textContent=docs.length;
+  } else {
+    document.getElementById('sp').textContent=pend;
+    document.getElementById('se').textContent=ent;
+    document.getElementById('st').textContent=docs.length;
+  }
+}
+
+// ── LISTA PRINCIPAL ──────────────────────────────
+function tab(t,el){
+  tabAtual=t;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+function render(){
+  const busca=document.getElementById('sbusca').value.toLowerCase().trim();
+
+  if(tabAtual==='clientes'){
+    renderClientes(busca);
+    return;
+  }
+
+  let lista=[...docs];
+  if(tabAtual==='pendentes') lista=lista.filter(d=>d.status==='pendente');
+  if(tabAtual==='entregues') lista=lista.filter(d=>d.status==='entregue');
+  if(busca) lista=lista.filter(d=>(d.clienteNome||'').toLowerCase().includes(busca));
+  const el=document.getElementById('lista');
+  if(!lista.length){el.innerHTML=`<div class="empty"><div class="ic">📭</div><p>Nenhum comprovante encontrado</p></div>`;return;}
+  el.innerHTML=lista.map(d=>cardHtml(d,'abrirDetalhe')).join('');
+}
+
+function renderClientes(busca){
+  const el=document.getElementById('lista');
+  // Agrupa por clienteNome
+  const grupos={};
+  docs.forEach(d=>{
+    const nome=(d.clienteNome||'SEM NOME').toUpperCase();
+    if(!grupos[nome]) grupos[nome]=[];
+    grupos[nome].push(d);
+  });
+
+  let nomes=Object.keys(grupos).sort();
+  if(busca) nomes=nomes.filter(n=>n.toLowerCase().includes(busca));
+
+  if(!nomes.length){el.innerHTML=`<div class="empty"><div class="ic">📭</div><p>Nenhum cliente encontrado</p></div>`;return;}
+
+  el.innerHTML=nomes.map(nome=>{
+    const lista=grupos[nome];
+    const pend=lista.filter(d=>d.status==='pendente').length;
+    const ent=lista.filter(d=>d.status==='entregue').length;
+    return `
+      <div class="cli-card" onclick="abrirCliente('${nome.replace(/'/g,"\\'")}')">
+        <div class="cli-nome">${nome}</div>
+        <div class="cli-info">
+          <span>📦 ${lista.length} entrega(s)</span>
+          ${pend?`<span style="color:#e67e22;font-weight:600;">🚚 ${pend} pendente(s)</span>`:''}
+          ${ent?`<span style="color:#27ae60;font-weight:600;">✅ ${ent} entregue(s)</span>`:''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function abrirCliente(nome){
+  const lista=docs.filter(d=>(d.clienteNome||'').toUpperCase()===nome).sort((a,b)=>{
+    const da=a.criadoEm?.toDate?a.criadoEm.toDate():new Date(a.criadoEm||0);
+    const db2=b.criadoEm?.toDate?b.criadoEm.toDate():new Date(b.criadoEm||0);
+    return db2-da; // mais recente primeiro
+  });
+
+  document.getElementById('cli-nome').textContent=nome;
+
+  document.getElementById('cli-corpo').innerHTML=lista.map(d=>{
+    const isPend=d.status==='pendente';
+    const data=d.criadoEm?(d.criadoEm.toDate?d.criadoEm.toDate():new Date(d.criadoEm)):null;
+    const dataStr=data?data.toLocaleDateString('pt-BR'):'—';
+    const entEm=d.entregueEm?(d.entregueEm.toDate?d.entregueEm.toDate():new Date(d.entregueEm)):null;
+    return `
+      <div class="cli-hist-item ${isPend?'pend':'ent'}" onclick="fModal('mod-cliente');abrirDetalhe('${d.id}')">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <div style="font-size:14px;font-weight:700;">${d.numeroPedido?`Pedido #${d.numeroPedido}`:'Sem nº'}</div>
+          <span class="badge ${isPend?'bp':'be'}">${isPend?'🚚 PENDENTE':'✅ ENTREGUE'}</span>
+        </div>
+        <div style="font-size:12px;color:#888;display:flex;gap:10px;flex-wrap:wrap;">
+          <span>📅 Importado: ${dataStr}</span>
+          ${entEm?`<span>✅ Entregue: ${entEm.toLocaleDateString('pt-BR')}</span>`:''}
+          <span>📦 ${(d.itens||[]).length} itens</span>
+          ${d.assinaturaUrl?'<span style="color:#27ae60;">✍️ Assinado</span>':''}
+          ${d.fotoUrl?'<span style="color:#27ae60;">📷 Com foto</span>':''}
+        </div>
+      </div>`;
+  }).join('');
+
+  aModal('mod-cliente');
+}
+
+function renderEnt(){
+  const pend=docs.filter(d=>d.status==='pendente');
+  const el=document.getElementById('lista-ent');
+  if(!pend.length){el.innerHTML=`<div class="empty"><div class="ic">🎉</div><p>Nenhuma entrega pendente!</p></div>`;return;}
+  el.innerHTML=pend.map(d=>cardHtml(d,'abrirConf')).join('');
+}
+
+function cardHtml(d,fn){
+  const isPend=d.status==='pendente';
+  const data=d.criadoEm ? (d.criadoEm.toDate ? d.criadoEm.toDate() : new Date(d.criadoEm)) : null;
+  const dataStr=data ? data.toLocaleDateString('pt-BR') : '—';
+  return `
+    <div class="card ${isPend?'card-pend':'card-ent'}" onclick="${fn}('${d.id}')">
+      <div class="card-top">
+        <div class="card-nome">${d.clienteNome||'—'}</div>
+        <span class="badge ${isPend?'bp':'be'}">${isPend?'🚚 PENDENTE':'✅ ENTREGUE'}</span>
+      </div>
+      <div class="card-info">
+        ${d.numeroPedido?`<span>📋 Pedido #${d.numeroPedido}</span>`:''}
+        ${d.vendedor?`<span>👤 ${d.vendedor}</span>`:''}
+        <span>📅 ${dataStr}</span>
+      </div>
+      <div class="card-itens">📦 ${(d.itens||[]).length} itens</div>
+    </div>`;
+}
+
+// ── DETALHE ──────────────────────────────────────
+function abrirDetalhe(id){
+  const d=docs.find(x=>x.id===id); if(!d) return;
+  document.getElementById('d-titulo').textContent=d.clienteNome||'Comprovante';
+  const data=d.criadoEm?(d.criadoEm.toDate?d.criadoEm.toDate():new Date(d.criadoEm)):null;
+
+  let html=`
+    <div style="margin-bottom:12px;"><span class="badge ${d.status==='pendente'?'bp':'be'}">${d.status==='pendente'?'🚚 PENDENTE':'✅ ENTREGUE'}</span></div>
+    <div class="dr"><span class="dl">Pedido Nº</span><span class="dv" style="color:#185FA5;font-weight:800;">${d.numeroPedido||'—'}</span></div>
+    <div class="dr"><span class="dl">Vendedor</span><span class="dv">${d.vendedor||'—'}</span></div>
+    <div class="dr"><span class="dl">Endereço</span><span class="dv">${d.endereco||'—'}</span></div>
+    <div class="dr"><span class="dl">Importado em</span><span class="dv">${data?data.toLocaleString('pt-BR'):'—'}</span></div>`;
+
+  if(d.itens?.length){
+    html+=`<div style="margin:14px 0 8px;font-size:11px;font-weight:700;color:#999;text-transform:uppercase;">📦 ${d.itens.length} Itens</div>
+    <div style="background:#f5f5f5;border-radius:10px;padding:8px 12px;max-height:220px;overflow-y:auto;">
+    ${d.itens.map((it,i)=>{
+      const marc=d.itensMarcados?.[i];
+      return `<div style="padding:6px 0;border-bottom:1px solid #eee;display:flex;gap:10px;align-items:flex-start;">
+        <div style="font-size:16px;flex-shrink:0">${marc?'✅':'⬜'}</div>
+        <div><div style="font-size:13px;${marc?'text-decoration:line-through;color:#aaa':''}">${it.desc}</div>
+        <div style="font-size:11px;color:#185FA5;font-weight:700;">${it.qty} ${it.unit||'UN'}</div>
+        ${it.obs?`<div style="font-size:11px;color:#888;">${it.obs}</div>`:''}
+        </div></div>`;
+    }).join('')}
+    </div>`;
+  }
+
+  if(d.status==='entregue'){
+    const entEm=d.entregueEm?(d.entregueEm.toDate?d.entregueEm.toDate():new Date(d.entregueEm)):null;
+    html+=`<div style="margin-top:14px;">
+      <div class="dr"><span class="dl">Entregue em</span><span class="dv">${entEm?entEm.toLocaleString('pt-BR'):'—'}</span></div>
+      ${d.gps?`<div class="dr"><span class="dl">Localização</span><span class="dv"><a href="https://maps.google.com/?q=${d.gps.lat},${d.gps.lng}" target="_blank" style="color:#185FA5;">📍 Ver no Maps</a></span></div>`:''}
+    </div>`;
+    if(d.fotoUrl) html+=`<div style="margin-top:12px;"><div style="font-size:11px;color:#999;font-weight:700;margin-bottom:5px;">📷 FOTO DA ENTREGA</div><img src="${d.fotoUrl}" class="dimg" onclick="window.open('${d.fotoUrl}','_blank')"></div>`;
+    if(d.assinaturaUrl) html+=`<div style="margin-top:12px;"><div style="font-size:11px;color:#999;font-weight:700;margin-bottom:5px;">✍️ ASSINATURA</div><img src="${d.assinaturaUrl}" class="dimg" onclick="window.open('${d.assinaturaUrl}','_blank')"></div>`;
+  }
+
+  document.getElementById('d-corpo').innerHTML=html;
+  aModal('mod-detalhe');
+}
+
+// ── CONFIRMAR (ENTREGADOR) ────────────────────────
+function abrirConf(id){
+  const d=docs.find(x=>x.id===id); if(!d) return;
+  docAberto=d;
+  document.getElementById('c-titulo').textContent=d.clienteNome||'Confirmar Entrega';
+  document.getElementById('c-pedido').textContent=d.numeroPedido?`#${d.numeroPedido}`:'—';
+  document.getElementById('c-end').textContent=d.endereco||'';
+
+  // Reset foto
+  document.getElementById('fimg').style.display='none'; document.getElementById('fimg').src='';
+  document.getElementById('finput').value='';
+  document.getElementById('fw').classList.remove('ok');
+  document.getElementById('fph').style.display='flex'; document.getElementById('fph').style.flexDirection='column'; document.getElementById('fph').style.alignItems='center';
+
+  // Reset assinatura
+  assinado=false;
+  setTimeout(()=>{initCanvas();limparAss();},50);
+
+  // GPS
+  gps=null; document.getElementById('gpsinfo').textContent='📍 Buscando localização...';
+  buscarGPS();
+
+  // Itens
+  if(d.itens?.length){
+    marcados=d.itens.map(()=>false);
+    document.getElementById('c-tot').textContent=d.itens.length;
+    document.getElementById('c-marc').textContent=0;
+    document.getElementById('c-itens').innerHTML=d.itens.map((it,i)=>`
+      <div class="ic-row" id="ir${i}" onclick="toggleItem(${i})">
+        <div class="cb" id="ib${i}"></div>
+        <div class="ii">
+          <div class="id">${it.desc||'—'}</div>
+          <div class="iq">${it.qty} ${it.unit||'UN'}</div>
+          ${it.obs?`<div class="io">${it.obs}</div>`:''}
+          ${it.codFab||it.codProd?`<div class="ic2">Fab: ${it.codFab||'—'} · Prod: ${it.codProd||'—'}</div>`:''}
+        </div>
+      </div>`).join('');
+    document.getElementById('c-itens-wrap').style.display='block';
+  } else {
+    document.getElementById('c-itens-wrap').style.display='none';
+    marcados=[];
+  }
+
+  aModal('mod-conf');
+}
+
+function toggleItem(i){
+  marcados[i]=!marcados[i];
+  const b=document.getElementById('ib'+i);
+  if(marcados[i])b.classList.add('on'); else b.classList.remove('on');
+  document.getElementById('c-marc').textContent=marcados.filter(Boolean).length;
+}
+
+function prevFoto(inp){
+  if(!inp.files?.[0])return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    const img=document.getElementById('fimg');
+    img.src=ev.target.result; img.style.display='block';
+    document.getElementById('fph').style.display='none';
+    document.getElementById('fw').classList.add('ok');
+  };
+  r.readAsDataURL(inp.files[0]);
+}
+
+function buscarGPS(){
+  if(!navigator.geolocation){document.getElementById('gpsinfo').textContent='📍 GPS não disponível';return;}
+  navigator.geolocation.getCurrentPosition(
+    p=>{gps={lat:p.coords.latitude,lng:p.coords.longitude};document.getElementById('gpsinfo').textContent='📍 Localização obtida ✅';},
+    ()=>{document.getElementById('gpsinfo').textContent='📍 Localização não obtida';},
+    {timeout:10000,enableHighAccuracy:true}
+  );
+}
+
+function initCanvas(){
+  const c=document.getElementById('cv');
+  c.width=c.offsetWidth||320;
+  ctx=c.getContext('2d');
+  ctx.strokeStyle='#1a1a1a'; ctx.lineWidth=2.5; ctx.lineCap='round'; ctx.lineJoin='round';
+  const p=e=>{const r=c.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return{x:t.clientX-r.left,y:t.clientY-r.top};};
+  c.ontouchstart=e=>{e.preventDefault();draw=true;const pt=p(e);ctx.beginPath();ctx.moveTo(pt.x,pt.y);};
+  c.ontouchmove=e=>{e.preventDefault();if(!draw)return;const pt=p(e);ctx.lineTo(pt.x,pt.y);ctx.stroke();assinado=true;c.classList.add('s');};
+  c.ontouchend=()=>draw=false;
+  c.onmousedown=e=>{draw=true;const pt=p(e);ctx.beginPath();ctx.moveTo(pt.x,pt.y);};
+  c.onmousemove=e=>{if(!draw)return;const pt=p(e);ctx.lineTo(pt.x,pt.y);ctx.stroke();assinado=true;c.classList.add('s');};
+  c.onmouseup=()=>draw=false;
+}
+
+function limparAss(){
+  if(!ctx)return;
+  const c=document.getElementById('cv');
+  ctx.clearRect(0,0,c.width,c.height); c.classList.remove('s'); assinado=false;
+}
+
+async function confirmar(){
+  if(!docAberto)return;
+  if(!assinado){toast('⚠️ O cliente precisa assinar');return;}
+  const btn=document.getElementById('btnconf');
+  btn.disabled=true; load('Salvando...');
+  try{
+    const ass=document.getElementById('cv').toDataURL('image/png');
+    let foto=null;
+    const fi=document.getElementById('finput');
+    if(fi.files?.[0]){load('Comprimindo foto...');foto=await comprimirImg(fi.files[0]);}
+    load('Registrando...');
+    await db.collection('comprovantes').doc(docAberto.id).update({
+      status:'entregue', assinaturaUrl:ass, fotoUrl:foto||null,
+      itensMarcados:marcados, gps:gps||null,
+      entregueEm:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    fModal('mod-conf'); toast('✅ Entrega confirmada!');
+  }catch(e){console.error(e);toast('Erro ao confirmar. Tente novamente.');}
+  btn.disabled=false; load(false);
+}
+
+async function comprimirImg(file){
+  return new Promise(res=>{
+    const img=new Image(),url=URL.createObjectURL(file);
+    img.onload=()=>{
+      const r=Math.min(800/img.width,800/img.height,1);
+      const c=document.createElement('canvas');
+      c.width=img.width*r; c.height=img.height*r;
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg',.7));
+    };
+    img.src=url;
+  });
+}
+
+// ── IMPORTAR PDF ──────────────────────────────────
+function abrirImport(){resetImp();aModal('mod-import');}
+function resetImp(){
+  pdfData=null;
+  document.getElementById('imp1').style.display='block';
+  document.getElementById('imp2').style.display='none';
+  document.getElementById('implod').style.display='none';
+  document.getElementById('impzone').style.display='block';
+  document.getElementById('impfile').value='';
+}
+function onDrop(e){e.preventDefault();document.getElementById('impzone').style.borderColor='#c8c4be';if(e.dataTransfer.files[0])lerPDF(e.dataTransfer.files[0]);}
+function onFile(inp){if(inp.files[0])lerPDF(inp.files[0]);}
+
+async function lerPDF(file){
+  if(!file.name.toLowerCase().endsWith('.pdf')){toast('⚠️ Selecione um .pdf');return;}
+  document.getElementById('impzone').style.display='none';
+  document.getElementById('implod').style.display='block';
+  try{
+    const ab=await file.arrayBuffer(), pdf=await pdfjsLib.getDocument({data:ab}).promise;
+    const lines=[];
+    for(let i=1;i<=pdf.numPages;i++){
+      const pg=await pdf.getPage(i), ct=await pg.getTextContent(), byY={};
+      ct.items.forEach(it=>{const y=Math.round(it.transform[5]);if(!byY[y])byY[y]=[];byY[y].push({x:it.transform[4],t:it.str.trim()});});
+      Object.keys(byY).sort((a,b)=>b-a).forEach(y=>{
+        const ln=byY[y].sort((a,b)=>a.x-b.x).map(i=>i.t).filter(Boolean).join(' ');
+        if(ln)lines.push(ln);
+      });
+    }
+    pdfData=parsePDF(lines);
+    mostrarPreview(pdfData);
+    document.getElementById('implod').style.display='none';
+    document.getElementById('imp2').style.display='block';
+  }catch(err){
+    document.getElementById('implod').style.display='none';
+    document.getElementById('impzone').style.display='block';
+    toast('❌ Erro ao ler PDF: '+err.message);
+  }
+}
+
+function parseCods(rest){
+  rest=rest.replace(/\s+(Separado|Entregue)\s*$/i,'').trim();
+  const t=rest.split(/\s+/); let li=-1,di=0;
+  for(let j=0;j<t.length;j++){
+    if(/^\d{4,6}$/.test(t[j]))li=j;
+    else if(li>=0&&/^[A-ZÁÉÍÓÚÂÊÎÔÛÇ]{3,}/.test(t[j])){di=j;break;}
+  }
+  if(li===-1)return{codFab:'',codProd:'',desc:rest};
+  if(di===0)di=li+1;
+  return{codFab:t.slice(0,li).join(' ').trim(),codProd:t[li],desc:t.slice(di).join(' ').trim()};
+}
+
+function parsePDF(lines){
+  const d={pedido:'',ref:'',cliente:'',endereco:'',vendedor:'',itens:[]};
+  let last=null,inIt=false,nextCliente=false,nextEndereco=false;
+  const units=['UN','MT','RL','PC','CX','KG','PT','M','CM','LT'];
+  for(let i=0;i<lines.length;i++){
+    const ln=lines[i]; let m;
+    if(nextCliente&&ln.trim().length>2){d.cliente=ln.trim().replace(/\s+/g,' ');nextCliente=false;continue;}
+    if(nextEndereco&&ln.trim().length>2){d.endereco=ln.trim().replace(/\s+/g,' ');nextEndereco=false;continue;}
+    if(m=ln.match(/PEDIDO[:\s#]+(\d+)/i))d.pedido=m[1];
+    if(m=ln.match(/Cód\.?Cliente[:\s]+(\S+)/i))d.ref=m[1].trim();
+    if(m=ln.match(/Nome\s*[:\s]+(.+)/i)){const v=m[1].trim().replace(/\s+/g,' ');if(v&&v.length>2)d.cliente=v;else nextCliente=true;}
+    else if(ln.match(/^Nome\s*:?\s*$/i))nextCliente=true;
+    if(m=ln.match(/Endere[çc]o\s*[:\s]+(.+?)(?:\s+Bairro|$)/i)){const v=m[1].trim();if(v&&v.length>2)d.endereco=v;else nextEndereco=true;}
+    if(m=ln.match(/Vendedor[:\s]+(.+)/i))d.vendedor=m[1].trim();
+    if(ln.match(/Qtde.*Descri/i)){inIt=true;continue;}
+    if(ln.match(/^Total[:\s\d]/i)){inIt=false;continue;}
+    if(inIt){
+      const pat=new RegExp('^(\\d+)\\s+('+units.join('|')+')\\s+(.+)','i');
+      if(m=ln.match(pat)){const p=parseCods(m[3]);last={qty:m[1],unit:m[2].toUpperCase(),codFab:p.codFab,codProd:p.codProd,desc:p.desc,obs:''};d.itens.push(last);}
+      else if(ln.match(/^obs[:\s]/i)&&last)last.obs=ln.replace(/^obs[:\s]*/i,'').trim();
+    }
+  }
+  return d;
+}
+
+function mostrarPreview(d){
+  document.getElementById('ipedido').textContent=d.pedido||'—';
+  document.getElementById('ivendedor').textContent=d.vendedor||'—';
+  document.getElementById('icliente').value=d.cliente||'';
+  document.getElementById('iendereco').textContent=d.endereco||'';
+  document.getElementById('itotal').textContent=d.itens.length;
+  document.getElementById('ilitens').innerHTML=d.itens.map(it=>`
+    <div style="padding:6px 0;border-bottom:1px solid #eee;display:flex;gap:8px;">
+      <span style="color:#185FA5;font-weight:700;min-width:28px;">${it.qty}</span>
+      <div><div style="font-size:13px;">${it.desc}</div>${it.obs?`<div style="font-size:11px;color:#888;">${it.obs}</div>`:''}</div>
+    </div>`).join('');
+}
+
+async function salvar(){
+  const cliente=document.getElementById('icliente').value.trim();
+  if(!cliente){toast('⚠️ Informe o nome do cliente');document.getElementById('icliente').focus();return;}
+  if(!pdfData)return;
+  pdfData.cliente=cliente;
+  load('Salvando...');
+  try{
+    await db.collection('comprovantes').add({
+      clienteNome:cliente.toUpperCase(),
+      numeroPedido:pdfData.pedido||'',
+      refCodigo:pdfData.ref||'',
+      vendedor:pdfData.vendedor||'',
+      endereco:pdfData.endereco||'',
+      itens:pdfData.itens,
+      status:'pendente',
+      criadoPor:me.uid,
+      criadoEm:firebase.firestore.FieldValue.serverTimestamp(),
+      assinaturaUrl:null, fotoUrl:null, itensMarcados:null, gps:null, entregueEm:null
+    });
+    fModal('mod-import');
+    toast(`✅ Pedido #${pdfData.pedido} salvo com ${pdfData.itens.length} itens!`);
+  }catch(e){console.error(e);toast('Erro ao salvar. Tente novamente.');}
+  load(false);
+}
+
+// ── UI ────────────────────────────────────────────
+function tela(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function aModal(id){document.getElementById(id).classList.add('active');document.body.style.overflow='hidden';}
+function fModal(id){document.getElementById(id).classList.remove('active');document.body.style.overflow='';}
+function load(msg){const el=document.getElementById('lod');if(!msg){el.classList.remove('on');return;}document.getElementById('lmsg').textContent=msg;el.classList.add('on');}
+let _tt;
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('on'),3500);}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)fModal(o.id);}));
+</script>
+</body>
+</html>
