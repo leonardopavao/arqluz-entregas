@@ -7,437 +7,190 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f0f0; color: #1a1a1a; }
-
-    /* ---- SCREENS ---- */
     .screen { display: none; min-height: 100vh; }
     .screen.active { display: block; }
     #screen-login.active { display: flex; }
-
-    /* ---- LOGIN ---- */
-    #screen-login {
-      align-items: center; justify-content: center;
-      background: linear-gradient(160deg, #1a1a1a 60%, #2d2d2d);
-    }
-    .login-box {
-      background: #fff; border-radius: 16px;
-      padding: 36px 28px; width: 100%; max-width: 360px; margin: 20px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-    }
+    #screen-login { align-items: center; justify-content: center; background: linear-gradient(160deg, #1a1a1a 60%, #2d2d2d); }
+    .login-box { background: #fff; border-radius: 16px; padding: 36px 28px; width: 100%; max-width: 360px; margin: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
     .login-logo { text-align: center; margin-bottom: 28px; }
-    .login-logo h2 { font-size: 26px; font-weight: 800; letter-spacing: 4px; color: #1a1a1a; }
+    .login-logo h2 { font-size: 26px; font-weight: 800; letter-spacing: 4px; }
     .login-logo p { color: #999; font-size: 13px; margin-top: 4px; letter-spacing: 1px; }
     .login-divider { width: 40px; height: 3px; background: #1a1a1a; margin: 12px auto 0; border-radius: 2px; }
-
-    /* ---- FORMS ---- */
     .form-group { margin-bottom: 14px; }
     .form-group label { display: block; font-size: 12px; font-weight: 600; color: #666; margin-bottom: 6px; letter-spacing: 0.5px; text-transform: uppercase; }
-    .form-group input, .form-group select, .form-group textarea {
-      width: 100%; padding: 11px 14px; border: 1.5px solid #e0e0e0;
-      border-radius: 10px; font-size: 15px; background: #fafafa;
-      transition: all 0.2s; color: #1a1a1a; font-family: inherit;
-    }
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-      outline: none; border-color: #1a1a1a; background: #fff; box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
-    }
-    .form-group textarea { resize: none; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-    /* ---- BUTTONS ---- */
-    .btn-primary {
-      width: 100%; padding: 13px; background: #1a1a1a; color: #fff;
-      border: none; border-radius: 10px; font-size: 15px; font-weight: 700;
-      cursor: pointer; transition: all 0.2s; letter-spacing: 0.3px;
-    }
-    .btn-primary:hover { background: #333; }
+    .form-group input, .form-group select { width: 100%; padding: 11px 14px; border: 1.5px solid #e0e0e0; border-radius: 10px; font-size: 15px; background: #fafafa; transition: all 0.2s; color: #1a1a1a; font-family: inherit; }
+    .form-group input:focus { outline: none; border-color: #1a1a1a; background: #fff; }
+    .btn-primary { width: 100%; padding: 13px; background: #1a1a1a; color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
     .btn-primary:active { transform: scale(0.98); }
-    .btn-primary:disabled { background: #bbb; cursor: not-allowed; transform: none; }
-    .btn-secondary {
-      width: 100%; padding: 11px; background: #f5f5f5; color: #555;
-      border: 1.5px solid #e0e0e0; border-radius: 10px; font-size: 14px;
-      font-weight: 600; cursor: pointer; margin-top: 8px; transition: all 0.2s;
-    }
-    .btn-secondary:hover { background: #eee; }
-    .btn-green {
-      width: 100%; padding: 14px; background: #27ae60; color: #fff;
-      border: none; border-radius: 10px; font-size: 16px; font-weight: 700;
-      cursor: pointer; margin-top: 14px; transition: all 0.2s;
-    }
-    .btn-green:active { transform: scale(0.98); }
+    .btn-primary:disabled { background: #bbb; cursor: not-allowed; }
+    .btn-secondary { width: 100%; padding: 11px; background: #f5f5f5; color: #555; border: 1.5px solid #e0e0e0; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+    .btn-green { width: 100%; padding: 14px; background: #27ae60; color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 14px; }
     .btn-green:disabled { background: #aaa; }
     .error-msg { color: #e74c3c; font-size: 13px; margin-top: 10px; text-align: center; min-height: 18px; }
-
-    /* ---- HEADER ---- */
-    .header {
-      background: #1a1a1a; color: #fff;
-      padding: 14px 16px; display: flex;
-      align-items: center; justify-content: space-between;
-      position: sticky; top: 0; z-index: 50;
-    }
+    .header { background: #1a1a1a; color: #fff; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
     .header-left h1 { font-size: 17px; font-weight: 700; }
     .header-left small { font-size: 11px; color: #888; display: block; margin-top: 1px; }
-    .btn-logout {
-      background: none; border: 1px solid #444; color: #aaa;
-      padding: 5px 12px; border-radius: 6px; cursor: pointer;
-      font-size: 12px; transition: all 0.2s;
-    }
-    .btn-logout:hover { border-color: #888; color: #fff; }
-
-    /* ---- CONTENT ---- */
+    .btn-logout { background: none; border: 1px solid #444; color: #aaa; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+    .btn-refresh { background: none; border: 1px solid #444; color: #aaa; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 14px; }
     .content { padding: 14px; max-width: 860px; margin: 0 auto; }
-
-    /* ---- STATS ---- */
     .stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
-    .stat-card {
-      background: #fff; border-radius: 12px; padding: 12px 10px;
-      text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-    }
+    .stat-card { background: #fff; border-radius: 12px; padding: 12px 10px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
     .stat-num { font-size: 26px; font-weight: 800; line-height: 1; }
     .stat-label { font-size: 11px; color: #999; margin-top: 3px; }
     .stat-pendente .stat-num { color: #e67e22; }
     .stat-entregue .stat-num { color: #27ae60; }
     .stat-total .stat-num { color: #1a1a1a; }
-
-    /* ---- TABS ---- */
+    .btn-pdf { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px; background: #185FA5; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; margin-bottom: 14px; }
     .tabs { display: flex; border-bottom: 2px solid #e8e8e8; margin-bottom: 12px; }
     .tab { padding: 9px 16px; font-size: 13px; font-weight: 600; color: #999; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
     .tab.active { color: #1a1a1a; border-bottom-color: #1a1a1a; }
-
-    /* ---- SEARCH ---- */
     .search-bar { display: flex; gap: 8px; margin-bottom: 12px; }
-    .search-bar input {
-      flex: 1; padding: 9px 12px; border: 1.5px solid #e0e0e0;
-      border-radius: 10px; font-size: 14px; background: #fff;
-      transition: all 0.2s;
-    }
+    .search-bar input { flex: 1; padding: 9px 12px; border: 1.5px solid #e0e0e0; border-radius: 10px; font-size: 14px; background: #fff; }
     .search-bar input:focus { outline: none; border-color: #1a1a1a; }
-    .search-bar input[type="date"] { max-width: 155px; min-width: 120px; }
-
-    /* ---- BTN CADASTRAR ---- */
-    .btn-nova-entrega {
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      background: #1a1a1a; color: #fff; border: none;
-      padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 700;
-      cursor: pointer; margin-bottom: 14px; width: 100%; transition: all 0.2s;
-    }
-    .btn-nova-entrega:hover { background: #333; }
-
-    /* ---- CARDS ---- */
-    .entrega-card {
-      background: #fff; border-radius: 12px; padding: 14px 16px;
-      margin-bottom: 9px; box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-      cursor: pointer; border-left: 4px solid #ddd;
-      transition: transform 0.12s, box-shadow 0.12s;
-    }
+    .search-bar input[type="date"] { max-width: 155px; }
+    .entrega-card { background: #fff; border-radius: 12px; padding: 14px 16px; margin-bottom: 9px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); cursor: pointer; border-left: 4px solid #ddd; transition: transform 0.12s; }
     .entrega-card:active { transform: scale(0.99); }
-    .entrega-card:hover { box-shadow: 0 3px 12px rgba(0,0,0,0.1); }
     .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 8px; }
     .card-cliente { font-size: 15px; font-weight: 700; }
     .card-info { font-size: 12px; color: #888; display: flex; flex-wrap: wrap; gap: 6px; }
     .card-obs { font-size: 12px; color: #aaa; margin-top: 5px; }
-
-    /* Status colors */
+    .card-comp { font-size: 11px; color: #185FA5; margin-top: 4px; font-weight: 600; }
     .card-entregar { border-left-color: #e67e22; }
     .card-entregue { border-left-color: #27ae60; }
     .card-retirada { border-left-color: #3498db; }
     .card-obra { border-left-color: #9b59b6; }
     .card-outro { border-left-color: #95a5a6; }
     .card-atrasado { border-left-color: #e74c3c; background: #fff8f8; }
-
-    /* ---- BADGES ---- */
-    .badge {
-      font-size: 10px; font-weight: 700; padding: 3px 8px;
-      border-radius: 20px; white-space: nowrap; flex-shrink: 0;
-    }
+    .badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
     .badge-entregar { background: #fdebd0; color: #ca6f1e; }
     .badge-entregue { background: #d5f5e3; color: #1e8449; }
     .badge-retirada { background: #d6eaf8; color: #1f618d; }
     .badge-obra { background: #e8daef; color: #7d3c98; }
     .badge-outro { background: #eaecee; color: #5d6d7e; }
     .badge-atrasado { background: #fadbd8; color: #cb4335; }
-
-    /* ---- EMPTY STATE ---- */
-    .empty-state { text-align: center; padding: 50px 20px; color: #ccc; }
+    .empty-state { text-align: center; padding: 50px 20px; }
     .empty-state .icon { font-size: 52px; margin-bottom: 12px; }
     .empty-state p { font-size: 15px; color: #bbb; }
-
-    /* ---- MODAL ---- */
-    .modal-overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.55); z-index: 200;
-      align-items: flex-end; justify-content: center;
-    }
+    .alerta { background: #fff3cd; border-radius: 10px; padding: 12px 14px; font-size: 13px; color: #856404; margin-bottom: 14px; display: none; }
+    .alerta.show { display: block; }
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 200; align-items: flex-end; justify-content: center; }
     .modal-overlay.active { display: flex; }
-    .modal {
-      background: #fff; border-radius: 20px 20px 0 0;
-      width: 100%; max-width: 600px;
-      max-height: 92vh; overflow-y: auto;
-      padding: 20px 20px 40px;
-      animation: slideUp 0.25s ease;
-    }
+    .modal { background: #fff; border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; max-height: 92vh; overflow-y: auto; padding: 20px 20px 40px; animation: slideUp 0.25s ease; }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
     .modal-header h3 { font-size: 18px; font-weight: 800; }
     .btn-close { background: #f0f0f0; border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #666; }
-
-    /* ---- DETALHE ---- */
-    .detail-section { margin-bottom: 16px; }
-    .detail-section-title { font-size: 11px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
     .detail-row { display: flex; gap: 10px; margin-bottom: 8px; }
     .detail-label { font-size: 12px; color: #aaa; min-width: 100px; flex-shrink: 0; padding-top: 2px; }
     .detail-value { font-size: 14px; color: #1a1a1a; font-weight: 500; }
-    .detail-img { width: 100%; border-radius: 10px; margin-top: 6px; cursor: zoom-in; }
-
-    /* ---- CONFIRMAR ---- */
-    .foto-area {
-      border: 2px dashed #ddd; border-radius: 12px;
-      min-height: 160px; display: flex; align-items: center;
-      justify-content: center; cursor: pointer; overflow: hidden;
-      position: relative; background: #fafafa; transition: border-color 0.2s;
-    }
-    .foto-area:hover { border-color: #aaa; }
+    .detail-img { width: 100%; border-radius: 10px; margin-top: 6px; }
+    .item-check { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
+    .item-check:last-child { border-bottom: none; }
+    .check-box { width: 26px; height: 26px; border-radius: 7px; border: 2px solid #ddd; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+    .check-box.checked { background: #27ae60; border-color: #27ae60; }
+    .check-box.checked::after { content: ''; display: block; width: 6px; height: 10px; border: 2.5px solid #fff; border-top: none; border-left: none; transform: rotate(45deg) translateY(-1px); }
+    .item-info .item-desc { font-size: 14px; line-height: 1.4; }
+    .item-info .item-qty { font-size: 12px; color: #185FA5; font-weight: 700; margin-top: 2px; }
+    .item-info .item-obs { font-size: 12px; color: #888; font-style: italic; margin-top: 2px; }
+    .item-info .item-cod { font-size: 11px; color: #bbb; margin-top: 2px; }
+    .foto-area { border: 2px dashed #ddd; border-radius: 12px; min-height: 140px; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; position: relative; background: #fafafa; }
     .foto-area.has-foto { border-style: solid; border-color: #27ae60; }
     .foto-area img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
     .foto-placeholder { text-align: center; color: #ccc; }
-    .foto-placeholder .foto-icon { font-size: 36px; margin-bottom: 8px; }
+    .foto-placeholder .foto-icon { font-size: 32px; margin-bottom: 6px; }
     .foto-placeholder p { font-size: 13px; }
-
-    #canvas-assinatura {
-      width: 100%; border: 2px solid #ddd; border-radius: 10px;
-      display: block; cursor: crosshair; touch-action: none; background: #fff;
-    }
+    #canvas-assinatura { width: 100%; border: 2px solid #ddd; border-radius: 10px; display: block; cursor: crosshair; touch-action: none; background: #fff; }
     #canvas-assinatura.signed { border-color: #27ae60; }
-    .assinatura-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .ass-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     .btn-limpar { background: none; border: 1px solid #ddd; padding: 5px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; color: #888; }
     .gps-info { font-size: 12px; color: #888; margin: 8px 0; min-height: 18px; }
-
-    /* ---- LOADING ---- */
-    .loading-overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.45); z-index: 999;
-      flex-direction: column; align-items: center; justify-content: center; gap: 14px;
-    }
+    .loading-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 999; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
     .loading-overlay.active { display: flex; }
     .spinner { width: 42px; height: 42px; border: 4px solid rgba(255,255,255,0.25); border-top-color: #fff; border-radius: 50%; animation: spin 0.75s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .loading-text { color: #fff; font-size: 14px; font-weight: 600; }
-
-    /* ---- TOAST ---- */
-    .toast {
-      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
-      background: #1a1a1a; color: #fff; padding: 11px 22px;
-      border-radius: 24px; font-size: 14px; font-weight: 500; z-index: 1000;
-      opacity: 0; transition: all 0.3s; white-space: nowrap; pointer-events: none;
-    }
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: #1a1a1a; color: #fff; padding: 11px 22px; border-radius: 24px; font-size: 14px; font-weight: 500; z-index: 1000; opacity: 0; transition: all 0.3s; white-space: nowrap; pointer-events: none; }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-    @media (max-width: 480px) {
-      .search-bar { flex-wrap: wrap; }
-      .search-bar input[type="date"] { max-width: 100%; }
-      .form-row { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 480px) { .search-bar { flex-wrap: wrap; } .search-bar input[type="date"] { max-width: 100%; } }
   </style>
 </head>
 <body>
 
-<!-- LOADING -->
-<div class="loading-overlay" id="loading">
-  <div class="spinner"></div>
-  <div class="loading-text" id="loading-text">Carregando...</div>
-</div>
-
-<!-- TOAST -->
+<div class="loading-overlay" id="loading"><div class="spinner"></div><div class="loading-text" id="loading-text">Carregando...</div></div>
 <div class="toast" id="toast"></div>
 
-<!-- ═══════════════════════════════════════
-     TELA: LOGIN
-════════════════════════════════════════ -->
+<!-- LOGIN -->
 <div class="screen active" id="screen-login">
   <div class="login-box">
-    <div class="login-logo">
-      <h2>ARQ LUZ</h2>
-      <p>SISTEMA DE ENTREGAS</p>
-      <div class="login-divider"></div>
-    </div>
-    <div class="form-group">
-      <label>E-mail</label>
-      <input type="email" id="login-email" placeholder="seu@email.com" autocomplete="email">
-    </div>
-    <div class="form-group">
-      <label>Senha</label>
-      <input type="password" id="login-senha" placeholder="••••••" autocomplete="current-password">
-    </div>
+    <div class="login-logo"><h2>ARQ LUZ</h2><p>SISTEMA DE ENTREGAS</p><div class="login-divider"></div></div>
+    <div class="form-group"><label>E-mail</label><input type="email" id="login-email" placeholder="seu@email.com" autocomplete="email"></div>
+    <div class="form-group"><label>Senha</label><input type="password" id="login-senha" placeholder="••••••" autocomplete="current-password"></div>
     <button class="btn-primary" id="btn-entrar" onclick="fazerLogin()">Entrar</button>
     <p class="error-msg" id="login-erro"></p>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════
-     TELA: PAINEL PRINCIPAL (DONO / VENDEDORA)
-════════════════════════════════════════ -->
+<!-- PAINEL DONO/VENDEDORA -->
 <div class="screen" id="screen-lista">
   <div class="header">
-    <div class="header-left">
-      <h1>🚚 Entregas</h1>
-      <small id="header-nome"></small>
+    <div class="header-left"><h1>🚚 Entregas</h1><small id="header-nome"></small></div>
+    <div style="display:flex;gap:6px;">
+      <button class="btn-refresh" onclick="carregarEntregas()" title="Atualizar">🔄</button>
+      <button class="btn-logout" onclick="fazerLogout()">Sair</button>
     </div>
-    <button class="btn-logout" onclick="fazerLogout()">Sair</button>
   </div>
   <div class="content">
+    <div class="alerta" id="alerta-config">⚙️ Configure a URL do Apps Script no index.html para carregar os dados da planilha.</div>
     <div class="stats-bar">
-      <div class="stat-card stat-pendente">
-        <div class="stat-num" id="stat-pendente">0</div>
-        <div class="stat-label">Pendentes</div>
-      </div>
-      <div class="stat-card stat-entregue">
-        <div class="stat-num" id="stat-entregue">0</div>
-        <div class="stat-label">Entregues</div>
-      </div>
-      <div class="stat-card stat-total">
-        <div class="stat-num" id="stat-total">0</div>
-        <div class="stat-label">Total</div>
-      </div>
+      <div class="stat-card stat-pendente"><div class="stat-num" id="stat-pendente">0</div><div class="stat-label">Pendentes</div></div>
+      <div class="stat-card stat-entregue"><div class="stat-num" id="stat-entregue">0</div><div class="stat-label">Entregues</div></div>
+      <div class="stat-card stat-total"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total</div></div>
     </div>
-
-    <div style="display:flex;gap:8px;margin-bottom:14px;">
-      <button class="btn-nova-entrega" id="btn-nova" onclick="abrirCadastrar()" style="margin-bottom:0;flex:1;">＋ Nova Entrega</button>
-      <button class="btn-nova-entrega" id="btn-importar" onclick="abrirImportar()" style="margin-bottom:0;flex:1;background:#185FA5;">📄 Importar PDF</button>
-    </div>
-
+    <button class="btn-pdf" onclick="abrirImportar()">📄 Importar PDF do Apollo</button>
     <div class="tabs">
-      <div class="tab active" onclick="mudarTab('pendentes', this)">Pendentes</div>
-      <div class="tab" onclick="mudarTab('todas', this)">Todas</div>
-      <div class="tab" onclick="mudarTab('entregues', this)">Entregues</div>
+      <div class="tab active" onclick="mudarTab('pendentes',this)">Pendentes</div>
+      <div class="tab" onclick="mudarTab('todas',this)">Todas</div>
+      <div class="tab" onclick="mudarTab('entregues',this)">Entregues</div>
     </div>
-
     <div class="search-bar">
       <input type="text" id="busca-nome" placeholder="🔍 Buscar por cliente..." oninput="filtrar()">
       <input type="date" id="busca-data" onchange="filtrar()">
     </div>
-
     <div id="lista-principal"></div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════
-     TELA: ENTREGADOR
-════════════════════════════════════════ -->
+<!-- PAINEL ENTREGADOR -->
 <div class="screen" id="screen-entregador">
   <div class="header">
-    <div class="header-left">
-      <h1>📦 Minhas Entregas</h1>
-      <small id="header-nome-ent"></small>
+    <div class="header-left"><h1>📦 Minhas Entregas</h1><small id="header-nome-ent"></small></div>
+    <div style="display:flex;gap:6px;">
+      <button class="btn-refresh" onclick="carregarEntregas()" title="Atualizar">🔄</button>
+      <button class="btn-logout" onclick="fazerLogout()">Sair</button>
     </div>
-    <button class="btn-logout" onclick="fazerLogout()">Sair</button>
   </div>
   <div class="content">
     <div class="stats-bar">
-      <div class="stat-card stat-pendente">
-        <div class="stat-num" id="stat-ent-pendente">0</div>
-        <div class="stat-label">Para hoje</div>
-      </div>
-      <div class="stat-card stat-entregue">
-        <div class="stat-num" id="stat-ent-entregue">0</div>
-        <div class="stat-label">Entregues</div>
-      </div>
-      <div class="stat-card stat-total">
-        <div class="stat-num" id="stat-ent-atrasado">0</div>
-        <div class="stat-label">Atrasados</div>
-      </div>
+      <div class="stat-card stat-pendente"><div class="stat-num" id="stat-ent-hoje">0</div><div class="stat-label">Hoje</div></div>
+      <div class="stat-card stat-entregue"><div class="stat-num" id="stat-ent-atrasado">0</div><div class="stat-label">Atrasados</div></div>
+      <div class="stat-card stat-total"><div class="stat-num" id="stat-ent-total">0</div><div class="stat-label">Total</div></div>
     </div>
     <div id="lista-entregador"></div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════
-     MODAL: CADASTRAR ENTREGA
-════════════════════════════════════════ -->
-<div class="modal-overlay" id="modal-cadastrar">
-  <div class="modal">
-    <div class="modal-header">
-      <h3>Nova Entrega</h3>
-      <button class="btn-close" onclick="fecharModal('modal-cadastrar')">×</button>
-    </div>
-
-    <div class="form-group">
-      <label>Cliente *</label>
-      <input type="text" id="c-cliente" placeholder="Nome completo do cliente">
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Telefone / WhatsApp</label>
-        <input type="tel" id="c-tel" placeholder="(17) 9 9999-9999">
-      </div>
-      <div class="form-group">
-        <label>Data de Entrega *</label>
-        <input type="date" id="c-data">
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Endereço</label>
-      <input type="text" id="c-endereco" placeholder="Rua, número, complemento">
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Bairro</label>
-        <input type="text" id="c-bairro">
-      </div>
-      <div class="form-group">
-        <label>Cidade</label>
-        <input type="text" id="c-cidade" value="VOTUPORANGA">
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Observações</label>
-      <textarea id="c-obs" rows="2" placeholder="Horário, instruções, referências..."></textarea>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Status</label>
-        <select id="c-status">
-          <option value="ENTREGAR">ENTREGAR</option>
-          <option value="RETIRADA">RETIRADA</option>
-          <option value="OBRA">OBRA</option>
-          <option value="OUTRO">OUTRO</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Vendedor *</label>
-        <select id="c-vendedor">
-          <option value="LARISSA">LARISSA</option>
-          <option value="GEOVANA">GEOVANA</option>
-          <option value="LEONARDO">LEONARDO</option>
-          <option value="CLARISSA">CLARISSA</option>
-        </select>
-      </div>
-    </div>
-
-    <button class="btn-primary" onclick="salvarEntrega()">Salvar Entrega</button>
-    <button class="btn-secondary" onclick="fecharModal('modal-cadastrar')">Cancelar</button>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════
-     MODAL: DETALHE DA ENTREGA
-════════════════════════════════════════ -->
+<!-- MODAL: DETALHE -->
 <div class="modal-overlay" id="modal-detalhe">
   <div class="modal">
-    <div class="modal-header">
-      <h3 id="detalhe-nome">Detalhe</h3>
-      <button class="btn-close" onclick="fecharModal('modal-detalhe')">×</button>
-    </div>
+    <div class="modal-header"><h3 id="detalhe-nome">Detalhe</h3><button class="btn-close" onclick="fecharModal('modal-detalhe')">×</button></div>
     <div id="detalhe-corpo"></div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════
-     MODAL: CONFIRMAR ENTREGA (ENTREGADOR)
-════════════════════════════════════════ -->
+<!-- MODAL: CONFIRMAR ENTREGA (ENTREGADOR) -->
 <div class="modal-overlay" id="modal-confirmar">
   <div class="modal">
-    <div class="modal-header">
-      <h3 id="conf-titulo">Confirmar Entrega</h3>
-      <button class="btn-close" onclick="fecharModal('modal-confirmar')">×</button>
-    </div>
+    <div class="modal-header"><h3 id="conf-titulo">Confirmar Entrega</h3><button class="btn-close" onclick="fecharModal('modal-confirmar')">×</button></div>
 
     <div style="background:#f8f8f8;border-radius:10px;padding:12px;margin-bottom:16px;">
       <div style="font-size:12px;color:#999;margin-bottom:2px;">📍 Endereço</div>
@@ -445,22 +198,26 @@
       <div id="conf-obs" style="font-size:12px;color:#888;margin-top:4px;"></div>
     </div>
 
-    <!-- Foto -->
+    <!-- Itens do comprovante -->
+    <div id="conf-itens-section" style="display:none;margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div style="font-size:12px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:0.5px;">📋 Conferência de itens</div>
+        <div style="font-size:12px;color:#185FA5;font-weight:700;"><span id="conf-marcados">0</span>/<span id="conf-total-itens">0</span></div>
+      </div>
+      <div id="conf-itens-lista" style="background:#fafafa;border-radius:10px;padding:8px 12px;max-height:230px;overflow-y:auto;"></div>
+    </div>
+
     <div class="form-group">
       <label>📷 Foto da entrega</label>
       <div class="foto-area" id="foto-area" onclick="document.getElementById('input-foto').click()">
         <img id="foto-preview" style="display:none;">
-        <div class="foto-placeholder" id="foto-placeholder">
-          <div class="foto-icon">📷</div>
-          <p>Toque para tirar foto</p>
-        </div>
+        <div class="foto-placeholder" id="foto-placeholder"><div class="foto-icon">📷</div><p>Toque para tirar foto</p></div>
       </div>
       <input type="file" id="input-foto" accept="image/*" capture="environment" style="display:none;" onchange="aoSelecionarFoto(this)">
     </div>
 
-    <!-- Assinatura -->
     <div class="form-group">
-      <div class="assinatura-row">
+      <div class="ass-row">
         <label style="font-size:12px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px;">✍️ Assinatura do cliente</label>
         <button class="btn-limpar" onclick="limparAssinatura()">Limpar</button>
       </div>
@@ -468,25 +225,22 @@
     </div>
 
     <div class="gps-info" id="gps-info">📍 Aguardando localização...</div>
-
     <button class="btn-green" id="btn-confirmar" onclick="confirmarEntrega()">✅ Confirmar Entrega</button>
     <button class="btn-secondary" onclick="fecharModal('modal-confirmar')">Cancelar</button>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════
-     MODAL: IMPORTAR PDF
-════════════════════════════════════════ -->
+<!-- MODAL: IMPORTAR PDF -->
 <div class="modal-overlay" id="modal-importar">
   <div class="modal">
-    <div class="modal-header">
-      <h3>📄 Importar PDF do Apollo</h3>
-      <button class="btn-close" onclick="fecharImportar()">×</button>
-    </div>
+    <div class="modal-header"><h3>📄 Importar PDF do Apollo</h3><button class="btn-close" onclick="fecharModal('modal-importar')">×</button></div>
 
-    <!-- STEP 1: Upload -->
     <div id="imp-step1">
-      <div id="imp-drop" style="border:2px dashed #c8c4be;border-radius:12px;padding:36px 20px;text-align:center;cursor:pointer;background:#fafafa;transition:all 0.2s;" onclick="document.getElementById('imp-file').click()" ondragover="event.preventDefault();this.style.borderColor='#185FA5'" ondragleave="this.style.borderColor='#c8c4be'" ondrop="onImpDrop(event)">
+      <div id="imp-drop" style="border:2px dashed #c8c4be;border-radius:12px;padding:36px 20px;text-align:center;cursor:pointer;background:#fafafa;"
+        onclick="document.getElementById('imp-file').click()"
+        ondragover="event.preventDefault();this.style.borderColor='#185FA5'"
+        ondragleave="this.style.borderColor='#c8c4be'"
+        ondrop="onImpDrop(event)">
         <div style="font-size:40px;margin-bottom:10px;">📄</div>
         <div style="font-size:15px;font-weight:700;margin-bottom:4px;">Arraste o PDF do comprovante aqui</div>
         <div style="font-size:13px;color:#999;">ou clique para selecionar</div>
@@ -498,60 +252,39 @@
       </div>
     </div>
 
-    <!-- STEP 2: Preview + Salvar -->
     <div id="imp-step2" style="display:none;">
-      <div style="background:#EAF3DE;border-radius:10px;padding:10px 14px;font-size:13px;color:#27500A;margin-bottom:14px;">
-        ✅ PDF lido com sucesso! Verifique os dados e escolha a data de entrega.
-      </div>
-
+      <div style="background:#d5f5e3;border-radius:10px;padding:10px 14px;font-size:13px;color:#1e8449;margin-bottom:14px;">✅ PDF lido! Verifique os dados abaixo.</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
-        <div>
-          <div style="font-size:11px;color:#999;font-weight:700;text-transform:uppercase;margin-bottom:4px;">Pedido Nº</div>
-          <div id="imp-pedido" style="font-size:15px;font-weight:700;"></div>
-        </div>
-        <div>
-          <div style="font-size:11px;color:#999;font-weight:700;text-transform:uppercase;margin-bottom:4px;">Vendedor</div>
-          <div id="imp-vendedor" style="font-size:15px;font-weight:700;"></div>
-        </div>
+        <div><div style="font-size:11px;color:#999;font-weight:700;text-transform:uppercase;margin-bottom:3px;">Pedido Nº</div><div id="imp-pedido" style="font-size:16px;font-weight:800;color:#185FA5;"></div></div>
+        <div><div style="font-size:11px;color:#999;font-weight:700;text-transform:uppercase;margin-bottom:3px;">Vendedor</div><div id="imp-vendedor" style="font-size:14px;font-weight:700;"></div></div>
       </div>
-
       <div style="background:#f5f5f5;border-radius:10px;padding:12px;margin-bottom:12px;">
-        <div style="font-size:12px;color:#999;margin-bottom:4px;">Cliente</div>
+        <div style="font-size:11px;color:#999;margin-bottom:4px;">CLIENTE</div>
         <div id="imp-cliente" style="font-size:15px;font-weight:700;"></div>
         <div id="imp-endereco" style="font-size:13px;color:#666;margin-top:2px;"></div>
       </div>
-
-      <div style="background:#f5f5f5;border-radius:10px;padding:10px 12px;margin-bottom:12px;">
-        <div style="font-size:12px;color:#999;margin-bottom:6px;font-weight:700;text-transform:uppercase;">Itens (<span id="imp-total-itens">0</span>)</div>
-        <div id="imp-itens-lista" style="max-height:160px;overflow-y:auto;font-size:13px;"></div>
+      <div style="background:#f5f5f5;border-radius:10px;padding:10px 12px;margin-bottom:14px;">
+        <div style="font-size:11px;color:#999;margin-bottom:8px;font-weight:700;text-transform:uppercase;">ITENS — <span id="imp-total-itens">0</span> produto(s)</div>
+        <div id="imp-itens-lista" style="max-height:200px;overflow-y:auto;"></div>
       </div>
-
-      <div class="form-group">
-        <label>Data de Entrega *</label>
-        <input type="date" id="imp-data">
-      </div>
-      <div class="form-group">
-        <label>Observações</label>
-        <input type="text" id="imp-obs" placeholder="Horário, instruções...">
-      </div>
-
-      <button class="btn-primary" onclick="salvarImportacao()" style="background:#185FA5;">💾 Salvar no Sistema</button>
+      <button class="btn-primary" onclick="salvarComprovante()" style="background:#185FA5;">💾 Salvar Comprovante no Sistema</button>
       <button class="btn-secondary" onclick="resetImportar()">Importar outro PDF</button>
     </div>
   </div>
 </div>
 
-<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-
 <script>
-// ═══════════════════════════════════════
-// CONFIG FIREBASE
-// ═══════════════════════════════════════
-const firebaseConfig = {
+
+// ══════════════════════════════════════════════════
+// ⬇️ COLE AQUI A URL DO APPS SCRIPT APÓS IMPLANTAR
+// ══════════════════════════════════════════════════
+const PLANILHA_URL = "COLE_AQUI_A_URL_DO_APPS_SCRIPT";
+
+const FIREBASE_CONFIG = {
   apiKey: "AIzaSyBmk79ts8iPrS_Rc1gyDPbA2OzDOODYMYk",
   authDomain: "arqluz-entregas.firebaseapp.com",
   projectId: "arqluz-entregas",
@@ -560,111 +293,79 @@ const firebaseConfig = {
   appId: "1:294162415165:web:d8b4f6cb47fae7e235b454"
 };
 
-// URL do Apps Script para salvar fotos no Google Drive
-// Preencher depois de fazer o deploy do Apps Script
-const DRIVE_URL = "COLE_AQUI_DEPOIS";
-
-firebase.initializeApp(firebaseConfig);
+firebase.initializeApp(FIREBASE_CONFIG);
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 const auth = firebase.auth();
 const db   = firebase.firestore();
 
-// ═══════════════════════════════════════
-// ESTADO GLOBAL
-// ═══════════════════════════════════════
-let usuarioAtual   = null;
-let perfilAtual    = null; // 'dono' | 'vendedora' | 'entregador'
-let nomeAtual      = '';
-let todasEntregas  = [];
-let entregasEnt    = []; // lista do entregador
-let tabAtual       = 'pendentes';
-let entregaAberta  = null;
-let gpsCoords      = null;
-let assinado       = false;
-let canvasCtx      = null;
-let desenhando     = false;
-let unsubscribe    = null;
+// ESTADO
+let usuarioAtual  = null, perfilAtual = null, nomeAtual = '';
+let todasEntregas = [], tabAtual = 'pendentes';
+let entregaAberta = null, comprovanteFB = null;
+let itensMarcados = [], gpsCoords = null;
+let assinado = false, canvasCtx = null, desenhando = false;
+let dadosPDF = null;
 
-// ═══════════════════════════════════════
-// AUTH
-// ═══════════════════════════════════════
+// ── AUTH ──────────────────────────────────────────
 auth.onAuthStateChanged(async user => {
   if (!user) { mostrarTela('screen-login'); return; }
-
   loading('Carregando...');
   usuarioAtual = user;
-
   try {
     const doc = await db.collection('usuarios').doc(user.uid).get();
-    if (!doc.exists) {
-      await auth.signOut();
-      loading(false);
-      return;
-    }
+    if (!doc.exists) { await auth.signOut(); loading(false); return; }
     perfilAtual = doc.data().perfil;
     nomeAtual   = doc.data().nome || user.email;
-
     if (perfilAtual === 'entregador') {
       document.getElementById('header-nome-ent').textContent = nomeAtual;
       mostrarTela('screen-entregador');
-      escutarEntregasEntregador();
     } else {
       document.getElementById('header-nome').textContent = `${nomeAtual} · ${perfilAtual}`;
-      // Vendedora não pode ver botão cadastrar
-      if (perfilAtual === 'vendedora') {
-        document.getElementById('btn-nova').style.display = 'none';
-      }
       mostrarTela('screen-lista');
-      escutarEntregas();
     }
-  } catch(e) {
-    console.error(e);
-  }
-  loading(false);
+    carregarEntregas();
+  } catch(e) { console.error(e); loading(false); }
 });
 
 async function fazerLogin() {
   const email = document.getElementById('login-email').value.trim();
   const senha = document.getElementById('login-senha').value;
-  const erro  = document.getElementById('login-erro');
-  const btn   = document.getElementById('btn-entrar');
-
+  const erro = document.getElementById('login-erro');
+  const btn  = document.getElementById('btn-entrar');
   erro.textContent = '';
   if (!email || !senha) { erro.textContent = 'Preencha e-mail e senha.'; return; }
-
   btn.disabled = true; btn.textContent = 'Entrando...';
   loading('Verificando...');
-
   try {
     await auth.signInWithEmailAndPassword(email, senha);
   } catch(e) {
     erro.textContent = 'E-mail ou senha incorretos.';
-    loading(false);
-    btn.disabled = false; btn.textContent = 'Entrar';
+    loading(false); btn.disabled = false; btn.textContent = 'Entrar';
   }
 }
+document.getElementById('login-senha').addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
+async function fazerLogout() { await auth.signOut(); mostrarTela('screen-login'); }
 
-document.getElementById('login-senha').addEventListener('keydown', e => {
-  if (e.key === 'Enter') fazerLogin();
-});
-
-async function fazerLogout() {
-  if (unsubscribe) unsubscribe();
-  await auth.signOut();
-  mostrarTela('screen-login');
-}
-
-// ═══════════════════════════════════════
-// CARREGAR ENTREGAS — PAINEL PRINCIPAL
-// ═══════════════════════════════════════
-function escutarEntregas() {
-  if (unsubscribe) unsubscribe();
-  unsubscribe = db.collection('entregas')
-    .orderBy('dataEntrega', 'asc')
-    .onSnapshot(snap => {
-      todasEntregas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      atualizarStats();
-      filtrar();
-    }, err => { console.error(err); toast('Erro ao carregar entregas'); });
+// ── CARREGAR ENTREGAS DA PLANILHA ─────────────────
+async function carregarEntregas() {
+  if (PLANILHA_URL === 'COLE_AQUI_A_URL_DO_APPS_SCRIPT') {
+    document.getElementById('alerta-config').classList.add('show');
+    loading(false); return;
+  }
+  loading('Carregando entregas...');
+  try {
+    const res  = await fetch(PLANILHA_URL + '?action=getEntregas');
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    todasEntregas = data.entregas || [];
+    atualizarStats();
+    if (perfilAtual === 'entregador') renderEntregador();
+    else filtrar();
+  } catch(e) {
+    console.error(e);
+    toast('Erro ao carregar. Verifique a URL do Apps Script.');
+  }
+  loading(false);
 }
 
 function atualizarStats() {
@@ -675,6 +376,7 @@ function atualizarStats() {
   document.getElementById('stat-total').textContent    = todasEntregas.length;
 }
 
+// ── LISTA PRINCIPAL ───────────────────────────────
 function mudarTab(tab, el) {
   tabAtual = tab;
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -682,658 +384,395 @@ function mudarTab(tab, el) {
   filtrar();
 }
 
-function filtrar() {
+async function filtrar() {
   const nome = document.getElementById('busca-nome').value.toLowerCase().trim();
   const data = document.getElementById('busca-data').value;
-
   let lista = [...todasEntregas];
-
   if (tabAtual === 'pendentes') lista = lista.filter(e => e.status !== 'ENTREGUE');
   if (tabAtual === 'entregues') lista = lista.filter(e => e.status === 'ENTREGUE');
   if (nome) lista = lista.filter(e => (e.cliente || '').toLowerCase().includes(nome));
-  if (data) {
-    lista = lista.filter(e => {
-      if (!e.dataEntrega) return false;
-      const d = e.dataEntrega.toDate ? e.dataEntrega.toDate() : new Date(e.dataEntrega);
-      return d.toISOString().split('T')[0] === data;
-    });
-  }
+  if (data) lista = lista.filter(e => (e.dataEntrega || '') === data);
 
-  renderLista(lista);
-}
-
-function renderLista(lista) {
+  const comComp = await getComprovantesSet(lista.map(e => e.cliente));
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
   const el = document.getElementById('lista-principal');
-  if (!lista.length) {
-    el.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>Nenhuma entrega encontrada</p></div>`;
-    return;
-  }
-  const hoje = new Date(); hoje.setHours(0,0,0,0);
-  el.innerHTML = lista.map(e => cardHtml(e, hoje, 'abrirDetalhe')).join('');
+
+  if (!lista.length) { el.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>Nenhuma entrega encontrada</p></div>`; return; }
+
+  el.innerHTML = lista.map(e => cardHtml(e, hoje, comComp, 'abrirDetalhe')).join('');
 }
 
-// ═══════════════════════════════════════
-// CARREGAR ENTREGAS — ENTREGADOR
-// ═══════════════════════════════════════
-function escutarEntregasEntregador() {
+// ── LISTA ENTREGADOR ──────────────────────────────
+async function renderEntregador() {
   const amanha = new Date(); amanha.setHours(23,59,59,999);
+  const hoje   = new Date(); hoje.setHours(0,0,0,0);
 
-  if (unsubscribe) unsubscribe();
-  unsubscribe = db.collection('entregas')
-    .where('status', '==', 'ENTREGAR')
-    .orderBy('dataEntrega', 'asc')
-    .onSnapshot(snap => {
-      entregasEnt = snap.docs
-        .map(d => ({ id: d.id, ...d.data() }))
-        .filter(e => {
-          if (!e.dataEntrega) return false;
-          const d = e.dataEntrega.toDate ? e.dataEntrega.toDate() : new Date(e.dataEntrega);
-          return d <= amanha;
-        });
+  const pendentes = todasEntregas.filter(e => {
+    if (e.status === 'ENTREGUE' || !e.dataEntrega) return false;
+    return new Date(e.dataEntrega + 'T12:00:00') <= amanha;
+  });
 
-      const hoje = new Date(); hoje.setHours(0,0,0,0);
-      const atrasados = entregasEnt.filter(e => {
-        const d = e.dataEntrega.toDate ? e.dataEntrega.toDate() : new Date(e.dataEntrega);
-        return d < hoje;
-      });
-      const deHoje = entregasEnt.filter(e => {
-        const d = e.dataEntrega.toDate ? e.dataEntrega.toDate() : new Date(e.dataEntrega);
-        return d >= hoje;
-      });
+  const qtdHoje     = pendentes.filter(e => new Date(e.dataEntrega + 'T12:00:00') >= hoje).length;
+  const qtdAtrasado = pendentes.filter(e => new Date(e.dataEntrega + 'T12:00:00') < hoje).length;
 
-      document.getElementById('stat-ent-pendente').textContent  = deHoje.length;
-      document.getElementById('stat-ent-entregue').textContent  = 0;
-      document.getElementById('stat-ent-atrasado').textContent  = atrasados.length;
+  document.getElementById('stat-ent-hoje').textContent     = qtdHoje;
+  document.getElementById('stat-ent-atrasado').textContent = qtdAtrasado;
+  document.getElementById('stat-ent-total').textContent    = pendentes.length;
 
-      renderEntregador(entregasEnt);
-    });
-}
-
-function renderEntregador(lista) {
   const el = document.getElementById('lista-entregador');
-  if (!lista.length) {
-    el.innerHTML = `<div class="empty-state"><div class="icon">🎉</div><p>Nenhuma entrega pendente!</p></div>`;
-    return;
-  }
-  const hoje = new Date(); hoje.setHours(0,0,0,0);
-  el.innerHTML = lista.map(e => cardHtml(e, hoje, 'abrirConfirmar')).join('');
+  if (!pendentes.length) { el.innerHTML = `<div class="empty-state"><div class="icon">🎉</div><p>Nenhuma entrega pendente!</p></div>`; return; }
+
+  const comComp = await getComprovantesSet(pendentes.map(e => e.cliente));
+  el.innerHTML = pendentes.map(e => cardHtml(e, hoje, comComp, 'abrirConfirmar')).join('');
 }
 
-// ═══════════════════════════════════════
-// CARD HTML
-// ═══════════════════════════════════════
-function cardHtml(e, hoje, onclick) {
-  const data = e.dataEntrega ? (e.dataEntrega.toDate ? e.dataEntrega.toDate() : new Date(e.dataEntrega)) : null;
+function cardHtml(e, hoje, comComp, onclick) {
+  const data    = e.dataEntrega ? new Date(e.dataEntrega + 'T12:00:00') : null;
   const dataStr = data ? data.toLocaleDateString('pt-BR') : '—';
   const atrasado = data && data < hoje && e.status !== 'ENTREGUE';
-  const statusClass = atrasado ? 'atrasado' : (e.status || 'outro').toLowerCase();
-  const badgeClass  = atrasado ? 'badge-atrasado' : `badge-${(e.status||'outro').toLowerCase()}`;
-  const badgeText   = atrasado ? '⚠️ ATRASADO' : (e.status || '—');
-
+  const sc = atrasado ? 'atrasado' : (e.status || 'outro').toLowerCase();
+  const bc = atrasado ? 'badge-atrasado' : `badge-${(e.status||'outro').toLowerCase()}`;
+  const bt = atrasado ? '⚠️ ATRASADO' : (e.status || '—');
+  const temComp = comComp.has((e.cliente||'').toUpperCase());
   return `
-    <div class="entrega-card card-${statusClass}" onclick="${onclick}('${e.id}')">
-      <div class="card-top">
-        <div class="card-cliente">${e.cliente || '—'}</div>
-        <span class="badge ${badgeClass}">${badgeText}</span>
-      </div>
+    <div class="entrega-card card-${sc}" onclick="${onclick}('${e.linha}')">
+      <div class="card-top"><div class="card-cliente">${e.cliente||'—'}</div><span class="badge ${bc}">${bt}</span></div>
       <div class="card-info">
         <span>📅 ${dataStr}</span>
         ${e.cidade ? `<span>🏙️ ${e.cidade}</span>` : ''}
         ${e.vendedor ? `<span>👤 ${e.vendedor}</span>` : ''}
-        ${e.assinaturaUrl ? '<span>✍️ Assinado</span>' : ''}
-        ${e.fotoUrl ? '<span>📷 Foto</span>' : ''}
       </div>
       ${e.obs ? `<div class="card-obs">💬 ${e.obs}</div>` : ''}
-    </div>
-  `;
+      ${temComp ? `<div class="card-comp">📋 Comprovante com itens pronto</div>` : ''}
+    </div>`;
 }
 
-// ═══════════════════════════════════════
-// CADASTRAR ENTREGA
-// ═══════════════════════════════════════
-function abrirCadastrar() {
-  document.getElementById('c-data').value = new Date().toISOString().split('T')[0];
-  ['c-cliente','c-tel','c-endereco','c-bairro','c-obs'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('c-cidade').value = 'VOTUPORANGA';
-  abrirModal('modal-cadastrar');
-}
-
-async function salvarEntrega() {
-  const cliente  = document.getElementById('c-cliente').value.trim();
-  const data     = document.getElementById('c-data').value;
-  const vendedor = document.getElementById('c-vendedor').value;
-
-  if (!cliente || !data) { toast('⚠️ Preencha cliente e data'); return; }
-
-  loading('Salvando...');
-
+// ── COMPROVANTES (FIRESTORE) ──────────────────────
+async function getComprovantesSet(clientes) {
+  const s = new Set();
   try {
-    const dataConfirma = new Date(data + 'T12:00:00');
-    dataConfirma.setDate(dataConfirma.getDate() - 1);
-
-    await db.collection('entregas').add({
-      cliente:     cliente.toUpperCase(),
-      telefone:    document.getElementById('c-tel').value.trim(),
-      dataEntrega: new Date(data + 'T12:00:00'),
-      dataConfirma,
-      endereco:    document.getElementById('c-endereco').value.trim().toUpperCase(),
-      bairro:      document.getElementById('c-bairro').value.trim().toUpperCase(),
-      cidade:      document.getElementById('c-cidade').value.trim().toUpperCase(),
-      obs:         document.getElementById('c-obs').value.trim().toUpperCase(),
-      status:      document.getElementById('c-status').value,
-      vendedor,
-      criadoPor:   usuarioAtual.uid,
-      criadoEm:    firebase.firestore.FieldValue.serverTimestamp(),
-      fotoUrl:     null,
-      assinaturaUrl: null,
-      gps:         null,
-      entregueEm:  null
-    });
-
-    fecharModal('modal-cadastrar');
-    toast('✅ Entrega cadastrada!');
-  } catch(e) {
-    console.error(e);
-    toast('Erro ao salvar. Tente novamente.');
-  }
-  loading(false);
+    const snap = await db.collection('comprovantes').where('status','==','pendente').get();
+    snap.docs.forEach(d => s.add((d.data().clienteNome||'').toUpperCase()));
+  } catch(e) {}
+  return s;
 }
 
-// ═══════════════════════════════════════
-// DETALHE DA ENTREGA
-// ═══════════════════════════════════════
-function abrirDetalhe(id) {
-  const e = todasEntregas.find(x => x.id === id);
+async function getComprovante(clienteNome) {
+  try {
+    const snap = await db.collection('comprovantes')
+      .where('clienteNome','==',clienteNome.toUpperCase())
+      .where('status','==','pendente').limit(1).get();
+    if (!snap.empty) return { id: snap.docs[0].id, ...snap.docs[0].data() };
+  } catch(e) {}
+  return null;
+}
+
+// ── DETALHE ───────────────────────────────────────
+async function abrirDetalhe(linha) {
+  const e = todasEntregas.find(x => x.linha == linha);
   if (!e) return;
-  entregaAberta = e;
-
   document.getElementById('detalhe-nome').textContent = e.cliente || 'Entrega';
-
-  const data    = e.dataEntrega ? (e.dataEntrega.toDate ? e.dataEntrega.toDate() : new Date(e.dataEntrega)) : null;
+  const data    = e.dataEntrega ? new Date(e.dataEntrega + 'T12:00:00') : null;
   const dataStr = data ? data.toLocaleDateString('pt-BR') : '—';
   const hoje    = new Date(); hoje.setHours(0,0,0,0);
   const atrasado = data && data < hoje && e.status !== 'ENTREGUE';
-
-  const statusClass = atrasado ? 'badge-atrasado' : `badge-${(e.status||'outro').toLowerCase()}`;
-  const statusText  = atrasado ? '⚠️ ATRASADO' : (e.status || '—');
+  const bc = atrasado ? 'badge-atrasado' : `badge-${(e.status||'outro').toLowerCase()}`;
 
   let html = `
-    <div class="detail-section">
-      <div style="margin-bottom:12px;"><span class="badge ${statusClass}">${statusText}</span></div>
-      <div class="detail-row"><span class="detail-label">Data entrega</span><span class="detail-value">${dataStr}</span></div>
-      <div class="detail-row"><span class="detail-label">Telefone</span><span class="detail-value">${e.telefone || '—'}</span></div>
-      <div class="detail-row"><span class="detail-label">Endereço</span><span class="detail-value">${e.endereco || '—'}</span></div>
-      <div class="detail-row"><span class="detail-label">Bairro / Cidade</span><span class="detail-value">${[e.bairro, e.cidade].filter(Boolean).join(' · ') || '—'}</span></div>
-      <div class="detail-row"><span class="detail-label">Observações</span><span class="detail-value">${e.obs || '—'}</span></div>
-      <div class="detail-row"><span class="detail-label">Vendedor</span><span class="detail-value">${e.vendedor || '—'}</span></div>
-    </div>
-  `;
+    <div style="margin-bottom:12px;"><span class="badge ${bc}">${atrasado?'⚠️ ATRASADO':(e.status||'—')}</span></div>
+    <div class="detail-row"><span class="detail-label">Data entrega</span><span class="detail-value">${dataStr}</span></div>
+    <div class="detail-row"><span class="detail-label">Telefone</span><span class="detail-value">${e.telefone||'—'}</span></div>
+    <div class="detail-row"><span class="detail-label">Endereço</span><span class="detail-value">${e.endereco||'—'}</span></div>
+    <div class="detail-row"><span class="detail-label">Bairro/Cidade</span><span class="detail-value">${[e.bairro,e.cidade].filter(Boolean).join(' · ')||'—'}</span></div>
+    <div class="detail-row"><span class="detail-label">Obs</span><span class="detail-value">${e.obs||'—'}</span></div>
+    <div class="detail-row"><span class="detail-label">Vendedor</span><span class="detail-value">${e.vendedor||'—'}</span></div>`;
 
-  if (e.status === 'ENTREGUE') {
-    const entregueEm = e.entregueEm ? (e.entregueEm.toDate ? e.entregueEm.toDate() : new Date(e.entregueEm)) : null;
-    html += `
-      <div class="detail-section">
-        <div class="detail-section-title">Comprovante de Entrega</div>
-        ${entregueEm ? `<div class="detail-row"><span class="detail-label">Entregue em</span><span class="detail-value">${entregueEm.toLocaleString('pt-BR')}</span></div>` : ''}
-        ${e.gps ? `<div class="detail-row"><span class="detail-label">Localização</span><span class="detail-value"><a href="https://maps.google.com/?q=${e.gps.lat},${e.gps.lng}" target="_blank" style="color:#3498db;">📍 Ver no Maps</a></span></div>` : ''}
-      </div>
-    `;
-    if (e.fotoUrl) html += `<div style="margin-bottom:14px;"><div style="font-size:11px;color:#999;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;">📷 Foto da Entrega</div><img src="${e.fotoUrl}" class="detail-img" onclick="window.open('${e.fotoUrl}','_blank')"></div>`;
-    if (e.assinaturaUrl) html += `<div style="margin-bottom:14px;"><div style="font-size:11px;color:#999;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;">✍️ Assinatura</div><img src="${e.assinaturaUrl}" class="detail-img" onclick="window.open('${e.assinaturaUrl}','_blank')"></div>`;
-  }
-
-  // Botão marcar entregue (dono pode marcar manualmente)
-  if (perfilAtual === 'dono' && e.status !== 'ENTREGUE') {
-    html += `<button class="btn-green" onclick="marcarEntregueManual('${e.id}')">✅ Marcar como Entregue</button>`;
+  const comp = await getComprovante(e.cliente);
+  if (comp) {
+    html += `<div style="margin-top:14px;background:#EAF3DE;border-radius:10px;padding:12px;">
+      <div style="font-size:11px;color:#1e8449;font-weight:700;margin-bottom:4px;">📋 COMPROVANTE — Pedido #${comp.numeroPedido||'—'}</div>
+      <div style="font-size:13px;color:#27500A;">${(comp.itens||[]).length} itens cadastrados para conferência</div>
+    </div>`;
+    if (comp.fotoUrl) html += `<div style="margin-top:12px;"><div style="font-size:11px;color:#999;margin-bottom:5px;">📷 Foto</div><img src="${comp.fotoUrl}" class="detail-img"></div>`;
+    if (comp.assinaturaUrl && comp.status === 'entregue') html += `<div style="margin-top:12px;"><div style="font-size:11px;color:#999;margin-bottom:5px;">✍️ Assinatura</div><img src="${comp.assinaturaUrl}" class="detail-img"></div>`;
   }
 
   document.getElementById('detalhe-corpo').innerHTML = html;
   abrirModal('modal-detalhe');
 }
 
-async function marcarEntregueManual(id) {
-  if (!confirm('Marcar esta entrega como ENTREGUE?')) return;
-  loading('Salvando...');
-  try {
-    await db.collection('entregas').doc(id).update({
-      status: 'ENTREGUE',
-      entregueEm: firebase.firestore.FieldValue.serverTimestamp(),
-      entregadoPor: usuarioAtual.uid
-    });
-    fecharModal('modal-detalhe');
-    toast('✅ Marcado como entregue!');
-  } catch(e) { toast('Erro ao atualizar'); }
-  loading(false);
-}
-
-// ═══════════════════════════════════════
-// CONFIRMAR ENTREGA — ENTREGADOR
-// ═══════════════════════════════════════
-function abrirConfirmar(id) {
-  const e = entregasEnt.find(x => x.id === id);
+// ── CONFIRMAR (ENTREGADOR) ────────────────────────
+async function abrirConfirmar(linha) {
+  const e = todasEntregas.find(x => x.linha == linha);
   if (!e) return;
   entregaAberta = e;
+  document.getElementById('conf-titulo').textContent   = e.cliente || 'Confirmar Entrega';
+  document.getElementById('conf-endereco').textContent = [e.endereco,e.bairro,e.cidade].filter(Boolean).join(', ') || '—';
+  document.getElementById('conf-obs').textContent      = e.obs || '';
 
-  document.getElementById('conf-titulo').textContent = e.cliente || 'Confirmar Entrega';
-  document.getElementById('conf-endereco').textContent = [e.endereco, e.bairro, e.cidade].filter(Boolean).join(', ') || 'Sem endereço';
-  document.getElementById('conf-obs').textContent = e.obs || '';
-
-  // Reset foto
-  const preview = document.getElementById('foto-preview');
-  preview.style.display = 'none';
-  preview.src = '';
+  // Reset foto/assinatura
+  const pv = document.getElementById('foto-preview');
+  pv.style.display = 'none'; pv.src = '';
   document.getElementById('input-foto').value = '';
   document.getElementById('foto-area').classList.remove('has-foto');
-  document.getElementById('foto-placeholder').style.display = 'flex';
-  document.getElementById('foto-placeholder').style.flexDirection = 'column';
-
-  // Reset assinatura
+  document.getElementById('foto-placeholder').style.cssText = 'display:flex;flex-direction:column;align-items:center;';
   assinado = false;
-  setTimeout(() => {
-    iniciarCanvas();
-    limparAssinatura();
-  }, 50);
+  setTimeout(() => { iniciarCanvas(); limparAssinatura(); }, 50);
 
-  // GPS
   gpsCoords = null;
   document.getElementById('gps-info').textContent = '📍 Buscando localização...';
   buscarGPS();
 
+  // Carrega comprovante
+  loading('Carregando itens...');
+  comprovanteFB = await getComprovante(e.cliente);
+  loading(false);
+
+  if (comprovanteFB?.itens?.length) {
+    itensMarcados = comprovanteFB.itens.map(() => false);
+    document.getElementById('conf-total-itens').textContent = comprovanteFB.itens.length;
+    document.getElementById('conf-marcados').textContent = 0;
+    document.getElementById('conf-itens-lista').innerHTML = comprovanteFB.itens.map((it,i) => `
+      <div class="item-check" id="ic${i}" onclick="toggleItem(${i})">
+        <div class="check-box" id="cb${i}"></div>
+        <div class="item-info">
+          <div class="item-desc">${it.desc||'—'}</div>
+          <div class="item-qty">${it.qty} ${it.unit||'UN'}</div>
+          ${it.obs?`<div class="item-obs">${it.obs}</div>`:''}
+          ${it.codFab||it.codProd?`<div class="item-cod">Fab: ${it.codFab||'—'} · Prod: ${it.codProd||'—'}</div>`:''}
+        </div>
+      </div>`).join('');
+    document.getElementById('conf-itens-section').style.display = 'block';
+  } else {
+    document.getElementById('conf-itens-section').style.display = 'none';
+    itensMarcados = [];
+  }
+
   abrirModal('modal-confirmar');
 }
 
+function toggleItem(i) {
+  itensMarcados[i] = !itensMarcados[i];
+  const cb = document.getElementById('cb' + i);
+  if (itensMarcados[i]) cb.classList.add('checked'); else cb.classList.remove('checked');
+  document.getElementById('conf-marcados').textContent = itensMarcados.filter(Boolean).length;
+}
+
 function aoSelecionarFoto(input) {
-  if (!input.files || !input.files[0]) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
+  if (!input.files?.[0]) return;
+  const r = new FileReader();
+  r.onload = ev => {
     const img = document.getElementById('foto-preview');
-    img.src = ev.target.result;
-    img.style.display = 'block';
+    img.src = ev.target.result; img.style.display = 'block';
     document.getElementById('foto-placeholder').style.display = 'none';
     document.getElementById('foto-area').classList.add('has-foto');
   };
-  reader.readAsDataURL(input.files[0]);
+  r.readAsDataURL(input.files[0]);
 }
 
 function buscarGPS() {
-  if (!navigator.geolocation) {
-    document.getElementById('gps-info').textContent = '📍 GPS não disponível neste dispositivo';
-    return;
-  }
+  if (!navigator.geolocation) { document.getElementById('gps-info').textContent = '📍 GPS não disponível'; return; }
   navigator.geolocation.getCurrentPosition(
-    pos => {
-      gpsCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-      document.getElementById('gps-info').textContent = `📍 Localização obtida ✅`;
-    },
-    () => {
-      document.getElementById('gps-info').textContent = '📍 Não foi possível obter localização';
-    },
-    { timeout: 10000, enableHighAccuracy: true }
+    p => { gpsCoords = {lat:p.coords.latitude,lng:p.coords.longitude}; document.getElementById('gps-info').textContent = '📍 Localização obtida ✅'; },
+    ()  => { document.getElementById('gps-info').textContent = '📍 Localização não obtida'; },
+    {timeout:10000,enableHighAccuracy:true}
   );
 }
 
-// Canvas assinatura
 function iniciarCanvas() {
-  const canvas = document.getElementById('canvas-assinatura');
-  canvas.width  = canvas.offsetWidth || 320;
-  canvasCtx = canvas.getContext('2d');
-  canvasCtx.strokeStyle = '#1a1a1a';
-  canvasCtx.lineWidth   = 2.5;
-  canvasCtx.lineCap     = 'round';
-  canvasCtx.lineJoin    = 'round';
-
-  const c = canvas;
-  c.ontouchstart = e => { e.preventDefault(); desenhando = true; const p = posCanvas(e, c); canvasCtx.beginPath(); canvasCtx.moveTo(p.x, p.y); };
-  c.ontouchmove  = e => { e.preventDefault(); if (!desenhando) return; const p = posCanvas(e, c); canvasCtx.lineTo(p.x, p.y); canvasCtx.stroke(); assinado = true; c.classList.add('signed'); };
-  c.ontouchend   = () => { desenhando = false; };
-  c.onmousedown  = e => { desenhando = true; const p = posCanvas(e, c); canvasCtx.beginPath(); canvasCtx.moveTo(p.x, p.y); };
-  c.onmousemove  = e => { if (!desenhando) return; const p = posCanvas(e, c); canvasCtx.lineTo(p.x, p.y); canvasCtx.stroke(); assinado = true; c.classList.add('signed'); };
-  c.onmouseup    = () => { desenhando = false; };
-}
-
-function posCanvas(e, canvas) {
-  const rect  = canvas.getBoundingClientRect();
-  const touch = e.touches ? e.touches[0] : e;
-  return { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+  const c = document.getElementById('canvas-assinatura');
+  c.width = c.offsetWidth || 320;
+  canvasCtx = c.getContext('2d');
+  canvasCtx.strokeStyle = '#1a1a1a'; canvasCtx.lineWidth = 2.5; canvasCtx.lineCap = 'round'; canvasCtx.lineJoin = 'round';
+  const p = (e) => { const r=c.getBoundingClientRect(),t=e.touches?e.touches[0]:e; return {x:t.clientX-r.left,y:t.clientY-r.top}; };
+  c.ontouchstart = e => { e.preventDefault(); desenhando=true; const pt=p(e); canvasCtx.beginPath(); canvasCtx.moveTo(pt.x,pt.y); };
+  c.ontouchmove  = e => { e.preventDefault(); if(!desenhando)return; const pt=p(e); canvasCtx.lineTo(pt.x,pt.y); canvasCtx.stroke(); assinado=true; c.classList.add('signed'); };
+  c.ontouchend   = ()=>desenhando=false;
+  c.onmousedown  = e=>{ desenhando=true; const pt=p(e); canvasCtx.beginPath(); canvasCtx.moveTo(pt.x,pt.y); };
+  c.onmousemove  = e=>{ if(!desenhando)return; const pt=p(e); canvasCtx.lineTo(pt.x,pt.y); canvasCtx.stroke(); assinado=true; c.classList.add('signed'); };
+  c.onmouseup    = ()=>desenhando=false;
 }
 
 function limparAssinatura() {
   if (!canvasCtx) return;
   const c = document.getElementById('canvas-assinatura');
-  canvasCtx.clearRect(0, 0, c.width, c.height);
-  c.classList.remove('signed');
-  assinado = false;
+  canvasCtx.clearRect(0,0,c.width,c.height); c.classList.remove('signed'); assinado=false;
 }
 
 async function confirmarEntrega() {
   if (!entregaAberta) return;
   if (!assinado) { toast('⚠️ O cliente precisa assinar'); return; }
-
   const btn = document.getElementById('btn-confirmar');
   btn.disabled = true;
-  loading('Processando entrega...');
-
+  loading('Salvando...');
   try {
-    let fotoUrl = null;
-    let assinaturaUrl = null;
+    const assinaturaB64 = document.getElementById('canvas-assinatura').toDataURL('image/png');
+    let fotoB64 = null;
+    const fi = document.getElementById('input-foto');
+    if (fi.files?.[0]) { loading('Comprimindo foto...'); fotoB64 = await comprimirImagem(fi.files[0]); }
 
-    // Comprime e converte foto para base64
-    const fotoInput = document.getElementById('input-foto');
-    if (fotoInput.files && fotoInput.files[0]) {
-      loading('Enviando foto...');
-      const base64Foto = await comprimirImagem(fotoInput.files[0]);
-      fotoUrl = await salvarImagem(base64Foto, 'foto');
+    loading('Registrando...');
+    if (comprovanteFB) {
+      await db.collection('comprovantes').doc(comprovanteFB.id).update({
+        status: 'entregue', assinaturaUrl: assinaturaB64, fotoUrl: fotoB64,
+        itensMarcados, gps: gpsCoords||null,
+        entregueEm: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    } else {
+      await db.collection('confirmacoes').add({
+        clienteNome: entregaAberta.cliente, linha: entregaAberta.linha,
+        entregadoPor: usuarioAtual.uid, assinaturaUrl: assinaturaB64,
+        fotoUrl: fotoB64, gps: gpsCoords||null,
+        entregueEm: firebase.firestore.FieldValue.serverTimestamp()
+      });
     }
 
-    // Assinatura canvas para base64
-    loading('Enviando assinatura...');
-    const canvas = document.getElementById('canvas-assinatura');
-    const base64Ass = canvas.toDataURL('image/png');
-    assinaturaUrl = await salvarImagem(base64Ass, 'assinatura');
-
-    // Atualiza Firestore
-    loading('Confirmando...');
-    await db.collection('entregas').doc(entregaAberta.id).update({
-      status:        'ENTREGUE',
-      entregueEm:    firebase.firestore.FieldValue.serverTimestamp(),
-      entregadoPor:  usuarioAtual.uid,
-      fotoUrl,
-      assinaturaUrl,
-      gps: gpsCoords || null
-    });
+    if (PLANILHA_URL !== 'COLE_AQUI_A_URL_DO_APPS_SCRIPT') {
+      loading('Atualizando planilha...');
+      await fetch(`${PLANILHA_URL}?action=marcarEntregue&linha=${entregaAberta.linha}&entregador=${encodeURIComponent(nomeAtual)}`);
+    }
 
     fecharModal('modal-confirmar');
-    toast('✅ Entrega confirmada com sucesso!');
-  } catch(e) {
-    console.error(e);
-    toast('Erro ao confirmar. Tente novamente.');
-  }
-
-  btn.disabled = false;
-  loading(false);
+    toast('✅ Entrega confirmada!');
+    carregarEntregas();
+  } catch(e) { console.error(e); toast('Erro ao confirmar. Tente novamente.'); }
+  btn.disabled = false; loading(false);
 }
 
-// Comprime imagem para max 800px / 70% qualidade
-async function comprimirImagem(file, maxPx = 800, qualidade = 0.7) {
+async function comprimirImagem(file) {
   return new Promise(resolve => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
+    const img = new Image(), url = URL.createObjectURL(file);
     img.onload = () => {
-      const ratio  = Math.min(maxPx / img.width, maxPx / img.height, 1);
-      const canvas = document.createElement('canvas');
-      canvas.width  = img.width  * ratio;
-      canvas.height = img.height * ratio;
-      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-      URL.revokeObjectURL(url);
-      resolve(canvas.toDataURL('image/jpeg', qualidade));
+      const r = Math.min(800/img.width,800/img.height,1);
+      const c = document.createElement('canvas');
+      c.width=img.width*r; c.height=img.height*r;
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      URL.revokeObjectURL(url); resolve(c.toDataURL('image/jpeg',0.7));
     };
     img.src = url;
   });
 }
 
-// Salva imagem: tenta Drive, fallback para Firestore
-async function salvarImagem(base64, tipo) {
-  // Tenta enviar para o Apps Script (Google Drive)
-  if (DRIVE_URL !== 'COLE_AQUI_DEPOIS') {
-    try {
-      const ext      = tipo === 'foto' ? '.jpg' : '.png';
-      const mimeType = tipo === 'foto' ? 'image/jpeg' : 'image/png';
-      const res = await fetch(DRIVE_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          base64:   base64.split(',')[1],
-          filename: `${tipo}_${entregaAberta.id}${ext}`,
-          mimeType,
-          cliente:  entregaAberta.cliente || 'sem-nome',
-          data:     new Date().toISOString().split('T')[0]
-        })
-      });
-      const data = await res.json();
-      if (data.url) return data.url;
-    } catch(e) {
-      console.warn('Drive indisponível, salvando no Firestore:', e);
-    }
-  }
-
-  // Fallback: salva base64 direto no Firestore
-  const ref = await db.collection('imagens').add({
-    entregaId: entregaAberta.id,
-    tipo,
-    base64,
-    criadoEm: firebase.firestore.FieldValue.serverTimestamp()
-  });
-  // Retorna link de visualização interno
-  return `firestore:${ref.id}`;
-}
-
-// ═══════════════════════════════════════
-// UI HELPERS
-// ═══════════════════════════════════════
-function mostrarTela(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-function abrirModal(id) {
-  document.getElementById(id).classList.add('active');
-  document.body.style.overflow = 'hidden';
-}
-function fecharModal(id) {
-  document.getElementById(id).classList.remove('active');
-  document.body.style.overflow = '';
-}
-function loading(msg) {
-  const el = document.getElementById('loading');
-  if (!msg) { el.classList.remove('active'); return; }
-  document.getElementById('loading-text').textContent = msg;
-  el.classList.add('active');
-}
-let _toastTimer;
-function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
-}
-
-// ═══════════════════════════════════════
-// IMPORTAR PDF DO APOLLO
-// ═══════════════════════════════════════
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-let dadosPDF = null;
-
-function abrirImportar() {
-  resetImportar();
-  abrirModal('modal-importar');
-}
-
-function fecharImportar() {
-  fecharModal('modal-importar');
-}
+// ── IMPORTAR PDF ──────────────────────────────────
+function abrirImportar() { resetImportar(); abrirModal('modal-importar'); }
 
 function resetImportar() {
-  dadosPDF = null;
-  document.getElementById('imp-step1').style.display = 'block';
-  document.getElementById('imp-step2').style.display = 'none';
-  document.getElementById('imp-loading').style.display = 'none';
-  document.getElementById('imp-drop').style.display = 'block';
-  document.getElementById('imp-file').value = '';
-  document.getElementById('imp-data').value = new Date().toISOString().split('T')[0];
-  document.getElementById('imp-obs').value = '';
+  dadosPDF=null;
+  document.getElementById('imp-step1').style.display='block';
+  document.getElementById('imp-step2').style.display='none';
+  document.getElementById('imp-loading').style.display='none';
+  document.getElementById('imp-drop').style.display='block';
+  document.getElementById('imp-file').value='';
 }
 
-function onImpDrop(e) {
-  e.preventDefault();
-  document.getElementById('imp-drop').style.borderColor = '#c8c4be';
-  if (e.dataTransfer.files[0]) processarPDF(e.dataTransfer.files[0]);
-}
-
-function onImpFile(input) {
-  if (input.files[0]) processarPDF(input.files[0]);
-}
+function onImpDrop(e) { e.preventDefault(); document.getElementById('imp-drop').style.borderColor='#c8c4be'; if(e.dataTransfer.files[0]) processarPDF(e.dataTransfer.files[0]); }
+function onImpFile(input) { if(input.files[0]) processarPDF(input.files[0]); }
 
 async function processarPDF(file) {
-  if (!file.name.toLowerCase().endsWith('.pdf')) { toast('⚠️ Selecione um arquivo .pdf'); return; }
-
-  document.getElementById('imp-drop').style.display = 'none';
-  document.getElementById('imp-loading').style.display = 'block';
-
+  if (!file.name.toLowerCase().endsWith('.pdf')) { toast('⚠️ Selecione um .pdf'); return; }
+  document.getElementById('imp-drop').style.display='none';
+  document.getElementById('imp-loading').style.display='block';
   try {
-    const ab   = await file.arrayBuffer();
-    const pdf  = await pdfjsLib.getDocument({ data: ab }).promise;
-    const allLines = [];
-
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page    = await pdf.getPage(i);
-      const content = await page.getTextContent();
-      const byY     = {};
-      content.items.forEach(item => {
-        const y = Math.round(item.transform[5]);
-        if (!byY[y]) byY[y] = [];
-        byY[y].push({ x: item.transform[4], text: item.str.trim() });
-      });
-      Object.keys(byY).sort((a,b) => b - a).forEach(y => {
-        const line = byY[y].sort((a,b) => a.x - b.x).map(i => i.text).filter(Boolean).join(' ');
-        if (line) allLines.push(line);
-      });
+    const ab=await file.arrayBuffer(), pdf=await pdfjsLib.getDocument({data:ab}).promise;
+    const allLines=[];
+    for(let i=1;i<=pdf.numPages;i++){
+      const page=await pdf.getPage(i), content=await page.getTextContent(), byY={};
+      content.items.forEach(item=>{ const y=Math.round(item.transform[5]); if(!byY[y])byY[y]=[]; byY[y].push({x:item.transform[4],text:item.str.trim()}); });
+      Object.keys(byY).sort((a,b)=>b-a).forEach(y=>{ const line=byY[y].sort((a,b)=>a.x-b.x).map(i=>i.text).filter(Boolean).join(' '); if(line)allLines.push(line); });
     }
-
-    dadosPDF = parseOrderPDF(allLines);
-    renderPreviewImport(dadosPDF);
-    document.getElementById('imp-loading').style.display = 'none';
-    document.getElementById('imp-step2').style.display = 'block';
-
+    dadosPDF=parseOrderPDF(allLines);
+    renderPreviewPDF(dadosPDF);
+    document.getElementById('imp-loading').style.display='none';
+    document.getElementById('imp-step2').style.display='block';
   } catch(err) {
-    document.getElementById('imp-loading').style.display = 'none';
-    document.getElementById('imp-drop').style.display = 'block';
-    toast('❌ Erro ao ler PDF: ' + err.message);
+    document.getElementById('imp-loading').style.display='none';
+    document.getElementById('imp-drop').style.display='block';
+    toast('❌ Erro ao ler PDF: '+err.message);
   }
 }
 
 function parseItemCodsPDF(rest) {
-  rest = rest.replace(/\s+(Separado|Entregue)\s*$/i, '').trim();
-  const tokens = rest.split(/\s+/);
-  let lastDigitIdx = -1, descStartIdx = 0;
-  for (let j = 0; j < tokens.length; j++) {
-    if (/^\d{4,6}$/.test(tokens[j])) {
-      lastDigitIdx = j;
-    } else if (lastDigitIdx >= 0 && /^[A-ZÁÉÍÓÚÂÊÎÔÛÇ]{3,}/.test(tokens[j])) {
-      descStartIdx = j; break;
-    }
+  rest=rest.replace(/\s+(Separado|Entregue)\s*$/i,'').trim();
+  const t=rest.split(/\s+/); let li=-1,di=0;
+  for(let j=0;j<t.length;j++){
+    if(/^\d{4,6}$/.test(t[j]))li=j;
+    else if(li>=0&&/^[A-ZÁÉÍÓÚÂÊÎÔÛÇ]{3,}/.test(t[j])){di=j;break;}
   }
-  if (lastDigitIdx === -1) return { codFab: '', codProd: '', desc: rest };
-  if (descStartIdx === 0) descStartIdx = lastDigitIdx + 1;
-  return {
-    codFab:  tokens.slice(0, lastDigitIdx).join(' ').trim(),
-    codProd: tokens[lastDigitIdx],
-    desc:    tokens.slice(descStartIdx).join(' ').trim()
-  };
+  if(li===-1)return{codFab:'',codProd:'',desc:rest};
+  if(di===0)di=li+1;
+  return{codFab:t.slice(0,li).join(' ').trim(),codProd:t[li],desc:t.slice(di).join(' ').trim()};
 }
 
 function parseOrderPDF(lines) {
-  const data = { pedido: '', ref: '', cliente: '', endereco: '', vendedor: '', itens: [] };
-  let lastItem = null, inItems = false;
-  const units = ['UN','MT','RL','PC','CX','KG','PT','M','CM','LT'];
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    let m;
-    if (m = line.match(/PEDIDO[:\s#]+(\d+)/i))                            data.pedido   = m[1];
-    if (m = line.match(/Cód\.?Cliente[:\s]+(\S+)/i))                      data.ref      = m[1].trim();
-    if (m = line.match(/Nome[:\s]+(.+?)(?:\s{2,}|$)/i))                  { const v = m[1].trim(); if (v && v.length > 1) data.cliente = v; }
-    if (m = line.match(/Endere[çc]o[:\s]+(.+?)(?:\s+Bairro|$)/i))        { const v = m[1].trim(); if (v && v.length > 3) data.endereco = v; }
-    if (m = line.match(/Vendedor[:\s]+(.+)/i))                             data.vendedor = m[1].trim();
-    if (line.match(/Qtde.*Descri/i))  { inItems = true;  continue; }
-    if (line.match(/^Total[:\s\d]/i)) { inItems = false; continue; }
-
-    if (inItems) {
-      const pat = new RegExp('^(\\d+)\\s+(' + units.join('|') + ')\\s+(.+)', 'i');
-      if (m = line.match(pat)) {
-        const p = parseItemCodsPDF(m[3]);
-        lastItem = { qty: m[1], unit: m[2].toUpperCase(), codFab: p.codFab, codProd: p.codProd, desc: p.desc, obs: '' };
-        data.itens.push(lastItem);
-      } else if (line.match(/^obs[:\s]/i) && lastItem) {
-        lastItem.obs = line.replace(/^obs[:\s]*/i, '').trim();
-      }
+  const data={pedido:'',ref:'',cliente:'',endereco:'',vendedor:'',itens:[]};
+  let lastItem=null,inItems=false;
+  const units=['UN','MT','RL','PC','CX','KG','PT','M','CM','LT'];
+  for(let i=0;i<lines.length;i++){
+    const line=lines[i]; let m;
+    if(m=line.match(/PEDIDO[:\s#]+(\d+)/i))data.pedido=m[1];
+    if(m=line.match(/Cód\.?Cliente[:\s]+(\S+)/i))data.ref=m[1].trim();
+    if(m=line.match(/Nome[:\s]+(.+?)(?:\s{2,}|$)/i)){const v=m[1].trim();if(v&&v.length>1)data.cliente=v;}
+    if(m=line.match(/Endere[çc]o[:\s]+(.+?)(?:\s+Bairro|$)/i)){const v=m[1].trim();if(v&&v.length>3)data.endereco=v;}
+    if(m=line.match(/Vendedor[:\s]+(.+)/i))data.vendedor=m[1].trim();
+    if(line.match(/Qtde.*Descri/i)){inItems=true;continue;}
+    if(line.match(/^Total[:\s\d]/i)){inItems=false;continue;}
+    if(inItems){
+      const pat=new RegExp('^(\\d+)\\s+('+units.join('|')+')\\s+(.+)','i');
+      if(m=line.match(pat)){const p=parseItemCodsPDF(m[3]);lastItem={qty:m[1],unit:m[2].toUpperCase(),codFab:p.codFab,codProd:p.codProd,desc:p.desc,obs:''};data.itens.push(lastItem);}
+      else if(line.match(/^obs[:\s]/i)&&lastItem)lastItem.obs=line.replace(/^obs[:\s]*/i,'').trim();
     }
   }
   return data;
 }
 
-function renderPreviewImport(data) {
-  document.getElementById('imp-pedido').textContent   = data.pedido   || '—';
-  document.getElementById('imp-vendedor').textContent = data.vendedor || '—';
-  document.getElementById('imp-cliente').textContent  = data.cliente  || '—';
-  document.getElementById('imp-endereco').textContent = data.endereco || '';
+function renderPreviewPDF(data) {
+  document.getElementById('imp-pedido').textContent   = data.pedido  ||'—';
+  document.getElementById('imp-vendedor').textContent = data.vendedor||'—';
+  document.getElementById('imp-cliente').textContent  = data.cliente ||'—';
+  document.getElementById('imp-endereco').textContent = data.endereco||'';
   document.getElementById('imp-total-itens').textContent = data.itens.length;
-  document.getElementById('imp-data').value = new Date().toISOString().split('T')[0];
-
-  const lista = document.getElementById('imp-itens-lista');
-  if (!data.itens.length) {
-    lista.innerHTML = '<div style="color:#aaa;">Nenhum item encontrado</div>';
-    return;
-  }
-  lista.innerHTML = data.itens.map((it, i) =>
-    `<div style="padding:5px 0;border-bottom:1px solid #eee;display:flex;gap:8px;align-items:flex-start;">
+  document.getElementById('imp-itens-lista').innerHTML = data.itens.map(it=>`
+    <div style="padding:6px 0;border-bottom:1px solid #eee;display:flex;gap:8px;">
       <span style="color:#185FA5;font-weight:700;min-width:28px;">${it.qty}</span>
-      <div>
-        <div>${it.desc}</div>
-        ${it.obs ? `<div style="font-size:11px;color:#888;">${it.obs}</div>` : ''}
-        ${it.codFab || it.codProd ? `<div style="font-size:11px;color:#bbb;">Fab: ${it.codFab||'—'} · Prod: ${it.codProd||'—'}</div>` : ''}
-      </div>
-    </div>`
-  ).join('');
+      <div><div style="font-size:13px;">${it.desc}</div>${it.obs?`<div style="font-size:11px;color:#888;">${it.obs}</div>`:''}</div>
+    </div>`).join('');
 }
 
-async function salvarImportacao() {
-  if (!dadosPDF) return;
-  const dataVal = document.getElementById('imp-data').value;
-  if (!dadosPDF.cliente) { toast('⚠️ Cliente não identificado no PDF'); return; }
-  if (!dataVal) { toast('⚠️ Informe a data de entrega'); return; }
-
-  loading('Salvando no sistema...');
+async function salvarComprovante() {
+  if (!dadosPDF?.cliente) { toast('⚠️ Cliente não identificado no PDF'); return; }
+  loading('Salvando comprovante...');
   try {
-    const dataConfirma = new Date(dataVal + 'T12:00:00');
-    dataConfirma.setDate(dataConfirma.getDate() - 1);
-
-    await db.collection('entregas').add({
-      cliente:       dadosPDF.cliente.toUpperCase(),
-      numeroPedido:  dadosPDF.pedido || '',
-      refCodigo:     dadosPDF.ref || '',
-      telefone:      '',
-      dataEntrega:   new Date(dataVal + 'T12:00:00'),
-      dataConfirma,
-      endereco:      dadosPDF.endereco || '',
-      bairro:        '',
-      cidade:        'VOTUPORANGA',
-      obs:           document.getElementById('imp-obs').value.trim().toUpperCase(),
-      status:        'ENTREGAR',
-      vendedor:      (dadosPDF.vendedor || '').toUpperCase(),
-      itens:         dadosPDF.itens,
-      criadoPor:     usuarioAtual.uid,
-      criadoEm:      firebase.firestore.FieldValue.serverTimestamp(),
-      fotoUrl:       null,
-      assinaturaUrl: null,
-      gps:           null,
-      entregueEm:    null,
-      origem:        'pdf'
-    });
-
-    fecharImportar();
-    toast(`✅ Pedido #${dadosPDF.pedido || ''} importado com ${dadosPDF.itens.length} itens!`);
-  } catch(e) {
-    console.error(e);
-    toast('Erro ao salvar. Tente novamente.');
-  }
+    const existente = await getComprovante(dadosPDF.cliente);
+    if (existente) {
+      await db.collection('comprovantes').doc(existente.id).update({
+        numeroPedido: dadosPDF.pedido||'', vendedor: dadosPDF.vendedor||'',
+        itens: dadosPDF.itens, status: 'pendente',
+        atualizadoEm: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    } else {
+      await db.collection('comprovantes').add({
+        clienteNome: dadosPDF.cliente.toUpperCase(), numeroPedido: dadosPDF.pedido||'',
+        refCodigo: dadosPDF.ref||'', vendedor: dadosPDF.vendedor||'',
+        endereco: dadosPDF.endereco||'', itens: dadosPDF.itens, status: 'pendente',
+        criadoPor: usuarioAtual.uid, criadoEm: firebase.firestore.FieldValue.serverTimestamp(),
+        assinaturaUrl: null, fotoUrl: null
+      });
+    }
+    fecharModal('modal-importar');
+    toast(`✅ Comprovante do pedido #${dadosPDF.pedido} salvo!`);
+    if (perfilAtual === 'entregador') renderEntregador(); else filtrar();
+  } catch(e) { console.error(e); toast('Erro ao salvar. Tente novamente.'); }
   loading(false);
 }
 
-
-document.querySelectorAll('.modal-overlay').forEach(o => {
-  o.addEventListener('click', e => { if (e.target === o) fecharModal(o.id); });
-});
+// ── UI HELPERS ────────────────────────────────────
+function mostrarTela(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function abrirModal(id) { document.getElementById(id).classList.add('active'); document.body.style.overflow='hidden'; }
+function fecharModal(id) { document.getElementById(id).classList.remove('active'); document.body.style.overflow=''; }
+function loading(msg) { const el=document.getElementById('loading'); if(!msg){el.classList.remove('active');return;} document.getElementById('loading-text').textContent=msg; el.classList.add('active'); }
+let _tt;
+function toast(msg) { const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(_tt); _tt=setTimeout(()=>el.classList.remove('show'),3500); }
+document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)fecharModal(o.id);}));
 </script>
 </body>
 </html>
