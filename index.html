@@ -258,10 +258,10 @@
         <div><div style="font-size:11px;color:#999;font-weight:700;text-transform:uppercase;margin-bottom:3px;">Pedido Nº</div><div id="imp-pedido" style="font-size:16px;font-weight:800;color:#185FA5;"></div></div>
         <div><div style="font-size:11px;color:#999;font-weight:700;text-transform:uppercase;margin-bottom:3px;">Vendedor</div><div id="imp-vendedor" style="font-size:14px;font-weight:700;"></div></div>
       </div>
-      <div style="background:#f5f5f5;border-radius:10px;padding:12px;margin-bottom:12px;">
-        <div style="font-size:11px;color:#999;margin-bottom:4px;">CLIENTE</div>
-        <div id="imp-cliente" style="font-size:15px;font-weight:700;"></div>
-        <div id="imp-endereco" style="font-size:13px;color:#666;margin-top:2px;"></div>
+      <div class="form-group">
+        <label>Cliente *</label>
+        <input type="text" id="imp-cliente" placeholder="Nome do cliente (edite se necessário)" style="font-weight:600;">
+        <div id="imp-endereco" style="font-size:12px;color:#888;margin-top:6px;padding-left:2px;"></div>
       </div>
       <div style="background:#f5f5f5;border-radius:10px;padding:10px 12px;margin-bottom:14px;">
         <div style="font-size:11px;color:#999;margin-bottom:8px;font-weight:700;text-transform:uppercase;">ITENS — <span id="imp-total-itens">0</span> produto(s)</div>
@@ -746,9 +746,9 @@ function parseOrderPDF(lines) {
 }
 
 function renderPreviewPDF(data) {
-  document.getElementById('imp-pedido').textContent   = data.pedido  ||'—';
+  document.getElementById('imp-pedido').textContent    = data.pedido  ||'—';
   document.getElementById('imp-vendedor').textContent = data.vendedor||'—';
-  document.getElementById('imp-cliente').textContent  = data.cliente ||'—';
+  document.getElementById('imp-cliente').value        = data.cliente  ||'';
   document.getElementById('imp-endereco').textContent = data.endereco||'';
   document.getElementById('imp-total-itens').textContent = data.itens.length;
   document.getElementById('imp-itens-lista').innerHTML = data.itens.map(it=>`
@@ -759,8 +759,10 @@ function renderPreviewPDF(data) {
 }
 
 async function salvarComprovante() {
-  if (!dadosPDF?.cliente) { toast('⚠️ Cliente não identificado no PDF'); return; }
-  loading('Salvando comprovante...');
+  const clienteDigitado = document.getElementById('imp-cliente').value.trim();
+  if (!clienteDigitado) { toast('⚠️ Informe o nome do cliente'); document.getElementById('imp-cliente').focus(); return; }
+  if (!dadosPDF) return;
+  dadosPDF.cliente = clienteDigitado;
   try {
     const existente = await getComprovante(dadosPDF.cliente);
     if (existente) {
