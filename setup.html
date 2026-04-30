@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setup — Arq Luz</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; background: #1a1a1a; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+    .box { background: #fff; border-radius: 16px; padding: 32px 28px; width: 100%; max-width: 480px; }
+    h2 { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+    p { font-size: 13px; color: #888; margin-bottom: 24px; }
+    .usuario { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-radius: 10px; background: #f5f5f5; margin-bottom: 8px; }
+    .usuario .info { font-size: 14px; }
+    .usuario .info strong { display: block; font-weight: 700; }
+    .usuario .info small { color: #888; font-size: 12px; }
+    .status { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 20px; background: #eee; color: #888; }
+    .status.ok { background: #d5f5e3; color: #1e8449; }
+    .status.erro { background: #fadbd8; color: #cb4335; }
+    .status.criando { background: #fdebd0; color: #ca6f1e; }
+    .btn { width: 100%; padding: 13px; background: #1a1a1a; color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 20px; }
+    .btn:disabled { background: #bbb; cursor: not-allowed; }
+    .aviso { background: #fff3cd; border-radius: 10px; padding: 12px 14px; font-size: 13px; color: #856404; margin-top: 16px; }
+  </style>
+</head>
+<body>
+<div class="box">
+  <h2>⚙️ Setup de Usuários</h2>
+  <p>Clique no botão para criar todos os usuários do sistema de uma vez. Rode esta página apenas uma vez.</p>
+
+  <div id="lista-usuarios">
+    <div class="usuario" id="u-leonardo">
+      <div class="info"><strong>Leonardo</strong><small>leonardo@arqluz.com · dono</small></div>
+      <span class="status" id="s-leonardo">Aguardando</span>
+    </div>
+    <div class="usuario" id="u-clarissa">
+      <div class="info"><strong>Clarissa</strong><small>clarissa@arqluz.com · dono</small></div>
+      <span class="status" id="s-clarissa">Aguardando</span>
+    </div>
+    <div class="usuario" id="u-larissa">
+      <div class="info"><strong>Larissa</strong><small>larissa@arqluz.com · vendedora</small></div>
+      <span class="status" id="s-larissa">Aguardando</span>
+    </div>
+    <div class="usuario" id="u-geovana">
+      <div class="info"><strong>Geovana</strong><small>geovana@arqluz.com · vendedora</small></div>
+      <span class="status" id="s-geovana">Aguardando</span>
+    </div>
+    <div class="usuario" id="u-entregador">
+      <div class="info"><strong>Entregador</strong><small>entregador@arqluz.com · entregador</small></div>
+      <span class="status" id="s-entregador">Aguardando</span>
+    </div>
+  </div>
+
+  <button class="btn" id="btn-criar" onclick="criarUsuarios()">Criar Todos os Usuários</button>
+
+  <div class="aviso">
+    ⚠️ Após concluir, <strong>delete este arquivo setup.html do GitHub</strong> para não deixar exposto.
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBmk79ts8iPrS_Rc1gyDPbA2OzDOODYMYk",
+  authDomain: "arqluz-entregas.firebaseapp.com",
+  projectId: "arqluz-entregas",
+  storageBucket: "arqluz-entregas.firebasestorage.app",
+  messagingSenderId: "294162415165",
+  appId: "1:294162415165:web:d8b4f6cb47fae7e235b454"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.firestore();
+
+const USUARIOS = [
+  { key: 'leonardo',   nome: 'Leonardo',   email: 'leonardo@arqluz.com',   perfil: 'dono' },
+  { key: 'clarissa',   nome: 'Clarissa',   email: 'clarissa@arqluz.com',   perfil: 'dono' },
+  { key: 'larissa',    nome: 'Larissa',    email: 'larissa@arqluz.com',    perfil: 'vendedora' },
+  { key: 'geovana',    nome: 'Geovana',    email: 'geovana@arqluz.com',    perfil: 'vendedora' },
+  { key: 'entregador', nome: 'Entregador', email: 'entregador@arqluz.com', perfil: 'entregador' },
+];
+const SENHA = '123456789';
+
+function setStatus(key, tipo, texto) {
+  const el = document.getElementById('s-' + key);
+  el.className = 'status ' + tipo;
+  el.textContent = texto;
+}
+
+async function criarUsuarios() {
+  const btn = document.getElementById('btn-criar');
+  btn.disabled = true;
+  btn.textContent = 'Criando...';
+
+  for (const u of USUARIOS) {
+    setStatus(u.key, 'criando', 'Criando...');
+    try {
+      const cred = await auth.createUserWithEmailAndPassword(u.email, SENHA);
+      await db.collection('usuarios').doc(cred.user.uid).set({
+        nome:   u.nome,
+        email:  u.email,
+        perfil: u.perfil,
+        criadoEm: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      await auth.signOut();
+      setStatus(u.key, 'ok', '✅ Criado');
+    } catch(e) {
+      if (e.code === 'auth/email-already-in-use') {
+        setStatus(u.key, 'ok', '✅ Já existe');
+      } else {
+        setStatus(u.key, 'erro', '❌ ' + e.code);
+      }
+    }
+  }
+
+  btn.textContent = '✅ Concluído!';
+}
+</script>
+</body>
+</html>
