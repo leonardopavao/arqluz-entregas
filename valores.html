@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arq Luz — Valores Mínimos</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+:root {
+  --bg:      #080810;
+  --bg2:     #0d0d1a;
+  --surface: #12121f;
+  --surf2:   #1a1a2e;
+  --surf3:   #22223a;
+  --border:  rgba(255,255,255,0.06);
+  --bord2:   rgba(255,255,255,0.12);
+  --gold:    #e8c547;
+  --gold2:   #d4b03a;
+  --green:   #22c55e;
+  --red:     #ef4444;
+  --blue:    #60a5fa;
+  --orange:  #fb923c;
+  --purple:  #a78bfa;
+  --text:    #e8e8f0;
+  --muted:   #52526e;
+  --font:    'Syne', sans-serif;
+  --mono:    'Space Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* HEADER */
+header {
+  background: rgba(8,8,16,0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 50;
+}
+.logo { display: flex; align-items: center; gap: 12px; }
+.logo-mark { width: 32px; height: 32px; background: var(--gold); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 11px; font-weight: 700; color: #000; }
+.logo h1 { font-size: 14px; font-weight: 800; letter-spacing: 2px; }
+.logo small { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 2px; display: block; }
+.btn-back { font-family: var(--mono); font-size: 10px; color: var(--muted); background: none; border: 1px solid var(--border); padding: 6px 12px; border-radius: 6px; cursor: pointer; text-decoration: none; transition: all 0.2s; }
+.btn-back:hover { border-color: var(--gold); color: var(--gold); }
+
+/* TABS */
+.tabs-bar {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 0 28px;
+  display: flex; gap: 0;
+}
+.tab-btn {
+  padding: 14px 20px; font-family: var(--mono); font-size: 11px;
+  color: var(--muted); cursor: pointer; border: none; background: none;
+  border-bottom: 2px solid transparent; letter-spacing: 1px;
+  transition: all 0.2s;
+}
+.tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+.tab-btn:hover:not(.active) { color: var(--text); }
+
+/* TAB CONTENT */
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* TOP BAR */
+.top-bar {
+  padding: 16px 28px;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+}
+
+/* BUTTONS */
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 10px 18px; border-radius: 8px; border: none;
+  font-family: var(--font); font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}
+.btn:active { transform: scale(0.98); }
+.btn-gold { background: var(--gold); color: #000; }
+.btn-gold:hover { background: var(--gold2); }
+.btn-ghost { background: var(--surf2); color: var(--text); border: 1px solid var(--border); }
+.btn-ghost:hover { border-color: var(--bord2); }
+.btn-danger { background: rgba(239,68,68,0.12); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+.btn-danger:hover { background: rgba(239,68,68,0.2); }
+.btn-blue { background: rgba(96,165,250,0.12); color: var(--blue); border: 1px solid rgba(96,165,250,0.2); }
+.btn-blue:hover { background: rgba(96,165,250,0.2); }
+.btn-sm { padding: 6px 12px; font-size: 11px; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+/* CPV SELECTOR */
+.cpv-select {
+  padding: 10px 14px; background: var(--surf2); border: 1.5px solid var(--border);
+  border-radius: 8px; color: var(--text); font-family: var(--mono); font-size: 12px;
+  cursor: pointer; transition: border-color 0.2s;
+}
+.cpv-select:focus { outline: none; border-color: var(--gold); }
+.cpv-select option { background: var(--surf3); }
+
+/* SUMMARY CARDS */
+.summary {
+  display: flex; gap: 1px; background: var(--border);
+}
+.sum-card {
+  flex: 1; background: var(--surface); padding: 14px 20px;
+}
+.sum-card .s-label { font-family: var(--mono); font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+.sum-card .s-val { font-family: var(--mono); font-size: 20px; font-weight: 700; }
+.sum-card.gold .s-val { color: var(--gold); }
+.sum-card.green .s-val { color: var(--green); }
+.sum-card.blue .s-val { color: var(--blue); }
+.sum-card.red .s-val { color: var(--red); }
+
+/* TABLE */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead tr { background: var(--surf2); }
+thead th {
+  padding: 11px 14px; text-align: left;
+  font-family: var(--mono); font-size: 10px; font-weight: 700;
+  color: var(--gold); letter-spacing: 1px; white-space: nowrap;
+  border-bottom: 1px solid var(--border);
+}
+thead th.r { text-align: right; }
+thead th.c { text-align: center; }
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+  cursor: pointer;
+}
+tbody tr:hover { background: var(--surface); }
+tbody tr.tr-ok    td.td-status { color: var(--green); }
+tbody tr.tr-below td.td-status { color: var(--red); }
+tbody tr.tr-edit  td.td-status { color: var(--orange); }
+tbody tr.tr-fixed td.td-status { color: var(--purple); }
+tbody td {
+  padding: 10px 14px; white-space: nowrap;
+}
+tbody td.r { text-align: right; font-family: var(--mono); font-size: 12px; }
+tbody td.c { text-align: center; }
+tbody td.td-desc { white-space: normal; max-width: 260px; font-size: 12px; }
+tbody td.td-cod { font-family: var(--mono); font-size: 11px; color: var(--blue); }
+tbody td.td-motivo { color: var(--orange); font-size: 11px; font-style: italic; max-width: 200px; white-space: normal; }
+
+/* BANCO TABLE */
+tbody tr.row-manual td.td-tipo { color: var(--gold); }
+tbody tr.row-auto   td.td-tipo { color: var(--muted); }
+
+/* SEARCH */
+.search-input {
+  flex: 1; max-width: 320px; padding: 9px 14px;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 8px; color: var(--text); font-family: var(--font); font-size: 13px;
+}
+.search-input:focus { outline: none; border-color: var(--gold); }
+
+/* MODAL */
+.modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(6px); }
+.modal-bg.on { display: flex; }
+.modal { background: var(--surf2); border: 1px solid var(--bord2); border-radius: 16px; padding: 28px; width: 100%; max-width: 480px; margin: 20px; }
+.modal h3 { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
+.modal .m-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-bottom: 20px; letter-spacing: 1px; }
+.modal .fg { margin-bottom: 14px; }
+.modal .fg label { display: block; font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; }
+.modal .fg input, .modal .fg textarea {
+  width: 100%; padding: 11px 14px; border: 1.5px solid var(--border);
+  border-radius: 8px; background: var(--surface); color: var(--text);
+  font-family: var(--font); font-size: 14px;
+}
+.modal .fg input:focus, .modal .fg textarea:focus { outline: none; border-color: var(--gold); }
+.modal-btns { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+.modal-info {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px; margin-bottom: 16px;
+}
+.modal-info .mi-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 12px; border-bottom: 1px solid var(--border); }
+.modal-info .mi-row:last-child { border-bottom: none; }
+.modal-info .mi-l { color: var(--muted); font-family: var(--mono); font-size: 10px; }
+
+/* BADGE */
+.badge { font-family: var(--mono); font-size: 9px; padding: 3px 8px; border-radius: 4px; white-space: nowrap; }
+.badge-ok     { background: rgba(34,197,94,0.1); color: var(--green); }
+.badge-below  { background: rgba(239,68,68,0.1); color: var(--red); }
+.badge-edit   { background: rgba(251,146,60,0.1); color: var(--orange); }
+.badge-fixed  { background: rgba(167,139,250,0.1); color: var(--purple); }
+.badge-manual { background: rgba(232,197,71,0.1); color: var(--gold); }
+.badge-auto   { background: rgba(82,82,110,0.1); color: var(--muted); }
+
+/* LEGEND */
+.legend { display: flex; gap: 12px; flex-wrap: wrap; padding: 10px 28px; background: var(--bg2); border-bottom: 1px solid var(--border); }
+.legend-item { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 10px; color: var(--muted); }
+.leg-dot { width: 8px; height: 8px; border-radius: 2px; }
+
+/* LOADING / TOAST */
+.lod { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 999; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+.lod.on { display: flex; }
+.sp { width: 40px; height: 40px; border: 4px solid rgba(232,197,71,0.15); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.75s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.lmsg { font-family: var(--mono); font-size: 12px; color: var(--gold); letter-spacing: 2px; }
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surf3); border: 1px solid var(--bord2); color: var(--text); padding: 11px 22px; border-radius: 24px; font-size: 13px; font-weight: 600; z-index: 1000; opacity: 0; transition: all 0.3s; pointer-events: none; }
+.toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* EMPTY */
+.empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+.empty .icon { font-size: 44px; margin-bottom: 14px; }
+.empty p { font-size: 13px; line-height: 1.7; }
+</style>
+</head>
+<body>
+
+<div class="lod" id="lod"><div class="sp"></div><div class="lmsg" id="lmsg">CARREGANDO...</div></div>
+<div class="toast" id="toast"></div>
+
+<!-- MODAL BANCO (editar preço mínimo) -->
+<div class="modal-bg" id="modal-banco">
+  <div class="modal">
+    <h3 id="mb-titulo">Editar Valor Mínimo</h3>
+    <div class="m-sub" id="mb-sub">BANCO DE PREÇOS</div>
+    <div class="modal-info" id="mb-info"></div>
+    <div class="fg">
+      <label>Novo valor mínimo base (R$)</label>
+      <input type="text" id="mb-val" placeholder="Ex: 235,59">
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-gold" onclick="salvarBanco()">💾 Salvar</button>
+      <button class="btn btn-ghost" id="mb-reset-btn" onclick="resetarBanco()" style="display:none">↺ Usar PDF</button>
+      <button class="btn btn-ghost" onclick="fecharModal('modal-banco')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ORC (editar item no orçamento) -->
+<div class="modal-bg" id="modal-orc">
+  <div class="modal">
+    <h3 id="mo-titulo">Editar Valor — Orçamento</h3>
+    <div class="m-sub" id="mo-sub">ESTE ORÇAMENTO APENAS</div>
+    <div class="modal-info" id="mo-info"></div>
+    <div class="fg">
+      <label>Novo valor final (R$)</label>
+      <input type="text" id="mo-val" placeholder="Ex: 235,59">
+    </div>
+    <div class="fg">
+      <label>Motivo da alteração</label>
+      <input type="text" id="mo-motivo" placeholder="Ex: desconto especial para este cliente">
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-gold" onclick="salvarOrc()">💾 Salvar</button>
+      <button class="btn btn-danger btn-sm" id="mo-limpar-btn" onclick="limparOrc()" style="display:none">✕ Limpar edição</button>
+      <button class="btn btn-ghost" onclick="fecharModal('modal-orc')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">AL</div>
+    <div>
+      <h1>ARQ LUZ</h1>
+      <small>VALORES MÍNIMOS v3.0</small>
+    </div>
+  </div>
+  <a class="btn-back" href="hub.html">← PAINEL</a>
+</header>
+
+<!-- TABS -->
+<div class="tabs-bar">
+  <button class="tab-btn active" onclick="showTab('tab-orc',this)">📄 ORÇAMENTO</button>
+  <button class="tab-btn" onclick="showTab('tab-banco',this)">🗄️ BANCO DE PREÇOS</button>
+</div>
+
+<!-- ══ TAB: ORÇAMENTO ══ -->
+<div class="tab-content active" id="tab-orc">
+
+  <div class="top-bar">
+    <button class="btn btn-gold" onclick="document.getElementById('pdf-orc').click()">📂 Importar PDF</button>
+    <input type="file" id="pdf-orc" accept=".pdf" style="display:none" onchange="onOrcFile(this)">
+    <button class="btn btn-blue" id="btn-print" onclick="imprimir()" disabled>🖨 Imprimir</button>
+
+    <select class="cpv-select" id="cpv-select" onchange="onCpvChange(this.value)"></select>
+
+    <span id="orc-info" style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:4px;">
+      Nenhum orçamento carregado
+    </span>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="leg-dot" style="background:var(--green)"></div>OK — valor correto</div>
+    <div class="legend-item"><div class="leg-dot" style="background:var(--red)"></div>ABAIXO — valor insuficiente</div>
+    <div class="legend-item"><div class="leg-dot" style="background:var(--orange)"></div>EDITADO — valor manual neste orçamento</div>
+    <div class="legend-item"><div class="leg-dot" style="background:var(--purple)"></div>FIXO — preço final no banco</div>
+    <div class="legend-item" style="color:var(--muted);font-size:10px;">✏️ Duplo clique para editar</div>
+  </div>
+
+  <div class="summary" id="summary">
+    <div class="sum-card gold"><div class="s-label">CPV SELECIONADO</div><div class="s-val" id="s-cpv">—</div></div>
+    <div class="sum-card blue"><div class="s-label">ITENS</div><div class="s-val" id="s-itens">0</div></div>
+    <div class="sum-card"><div class="s-label">TOTAL PDF</div><div class="s-val" id="s-pdf">—</div></div>
+    <div class="sum-card green"><div class="s-label">TOTAL C/ CPV</div><div class="s-val" id="s-min">—</div></div>
+    <div class="sum-card"><div class="s-label">DIFERENÇA</div><div class="s-val" id="s-diff">—</div></div>
+  </div>
+
+  <div class="table-wrap">
+    <table id="tbl-orc">
+      <thead>
+        <tr>
+          <th>CÓDIGO</th>
+          <th>DESCRIÇÃO</th>
+          <th class="c">UN</th>
+          <th class="r">QTD</th>
+          <th class="r">VALOR PDF</th>
+          <th class="r">BASE (À VISTA)</th>
+          <th class="r" id="th-cpv">VAL. C/ CPV</th>
+          <th class="r">TOTAL</th>
+          <th class="c">STATUS</th>
+          <th>MOTIVO</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-orc">
+        <tr><td colspan="10"><div class="empty"><div class="icon">📄</div><p>Importe um PDF de orçamento para começar.<br>Os preços serão comparados com o banco de dados.</p></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- ══ TAB: BANCO ══ -->
+<div class="tab-content" id="tab-banco">
+
+  <div class="top-bar">
+    <input type="text" class="search-input" id="banco-search" placeholder="🔍 Buscar por código ou descrição..." oninput="renderBanco()">
+    <button class="btn btn-ghost" onclick="renderBanco()">🔄 Atualizar</button>
+    <button class="btn btn-danger btn-sm" onclick="excluirBanco()">🗑 Excluir selecionado</button>
+    <span id="banco-count" style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-left:8px;"></span>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="leg-dot" style="background:var(--gold)"></div>🟡 Manual — preço FINAL (CPV não aplicado)</div>
+    <div class="legend-item"><div class="leg-dot" style="background:var(--muted)"></div>⚪ Auto — preço BASE (CPV aplicado ao exibir)</div>
+    <div class="legend-item" style="color:var(--muted);font-size:10px;">✏️ Duplo clique para editar</div>
+  </div>
+
+  <div class="table-wrap">
+    <table id="tbl-banco">
+      <thead>
+        <tr>
+          <th>CÓDIGO</th>
+          <th>DESCRIÇÃO</th>
+          <th class="c">UN</th>
+          <th class="r">ÚLTIMO PDF</th>
+          <th class="r">VAL. BASE / FINAL</th>
+          <th class="c">TIPO</th>
+          <th class="c">ATUALIZADO EM</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-banco">
+        <tr><td colspan="7"><div class="empty"><div class="icon">🗄️</div><p>Banco de preços vazio.<br>Importe um orçamento para popular o banco.</p></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+// ═══════════════════════════════════════
+// CPV TABLE
+// ═══════════════════════════════════════
+const CPV = {
+  "1":  ["À Vista Dinheiro",    0.0000],
+  "2":  ["Débito Stone",        0.0227],
+  "3":  ["Crédito Stone",       0.0300],
+  "12": ["Boleto 7 Dias",       0.0567],
+  "4":  ["Stone 2x",            0.0600],
+  "11": ["Boleto 30 Dias",      0.0600],
+  "F":  ["F",                   0.0600],
+  "5":  ["Stone 3x",            0.0758],
+  "7":  ["Stone 4x",            0.0900],
+  "6":  ["Stone 5x",            0.1150],
+  "F0": ["F0",                  0.1200],
+  "10": ["Stone 6x",            0.1235],
+  "13": ["Boleto 60 Dias",      0.1134],
+  "F1": ["F1",                  0.1500],
+  "8":  ["Stone 7x",            0.2000],
+  "9":  ["Stone 10x",           0.2500],
+};
+const cpvKeys = () => Object.keys(CPV).sort((a,b) => CPV[a][1] - CPV[b][1]);
+const cpvMargin = c => CPV[c]?.[1] ?? 0;
+const cpvDesc   = c => CPV[c]?.[0] ?? '—';
+const cpvLabel  = c => { const [d,m] = CPV[c]||['?',0]; return `${c} — ${d}  (+${(m*100).toFixed(2).replace('.',',')}%)`; };
+const brMoney   = v => 'R$ ' + v.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+const parseBR   = s => parseFloat((s||'').replace('R$','').replace(/\s/g,'').replace(/\./g,'').replace(',','.')) || 0;
+
+// Preenche CPV select
+const cpvSel = document.getElementById('cpv-select');
+cpvKeys().forEach(k => {
+  const opt = document.createElement('option');
+  opt.value = k; opt.textContent = cpvLabel(k);
+  cpvSel.appendChild(opt);
+});
+
+// ═══════════════════════════════════════
+// BANCO (localStorage)
+// ═══════════════════════════════════════
+const BANCO_KEY = 'arqluz_banco_v1';
+
+function bancoDB() {
+  try { return JSON.parse(localStorage.getItem(BANCO_KEY) || '{}'); } catch { return {}; }
+}
+
+function bancoSave(db) {
+  localStorage.setItem(BANCO_KEY, JSON.stringify(db));
+}
+
+function bancoUpsert(cod, desc, un, valPdf, valBase) {
+  const db = bancoDB();
+  const now = new Date().toLocaleString('pt-BR');
+  if (db[cod]) {
+    const isManual = db[cod].manual;
+    db[cod] = { ...db[cod], desc, un, valPdf, valMin: isManual ? db[cod].valMin : valBase, atualizado: now };
+  } else {
+    db[cod] = { cod, desc, un, valPdf, valMin: valBase, manual: false, atualizado: now };
+  }
+  bancoSave(db);
+}
+
+function bancoSetMin(cod, val) {
+  const db = bancoDB();
+  if (db[cod]) {
+    db[cod].valMin = val;
+    db[cod].manual = true;
+    db[cod].atualizado = new Date().toLocaleString('pt-BR');
+    bancoSave(db);
+  }
+}
+
+function bancoResetMin(cod) {
+  const db = bancoDB();
+  if (db[cod]) {
+    db[cod].valMin = db[cod].valPdf;
+    db[cod].manual = false;
+    db[cod].atualizado = new Date().toLocaleString('pt-BR');
+    bancoSave(db);
+  }
+}
+
+function bancoDelete(cod) {
+  const db = bancoDB();
+  delete db[cod];
+  bancoSave(db);
+}
+
+function bancoGet(cod) { return bancoDB()[cod] || null; }
+function bancoAll()    { return Object.values(bancoDB()).sort((a,b) => parseInt(a.cod) - parseInt(b.cod)); }
+
+// ═══════════════════════════════════════
+// ESTADO
+// ═══════════════════════════════════════
+let items = [], header = {}, pdfCpv = '1', selCpv = '1';
+let orcOverrides = {}; // {idx: {val, motivo}}
+let editingBancoCod = null, editingOrcIdx = null;
+let bancoCodSelecionado = null;
+
+// ═══════════════════════════════════════
+// CPV
+// ═══════════════════════════════════════
+function onCpvChange(val) {
+  selCpv = val;
+  refreshOrc();
+}
+
+// ═══════════════════════════════════════
+// IMPORTAR PDF
+// ═══════════════════════════════════════
+function onOrcFile(inp) { if (inp.files[0]) lerPDF(inp.files[0]); }
+
+async function lerPDF(file) {
+  load('LENDO PDF...');
+  try {
+    const ab  = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: ab }).promise;
+    const lines = [];
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const pg = await pdf.getPage(i);
+      const ct = await pg.getTextContent();
+      const byY = {};
+      ct.items.forEach(it => {
+        const y = Math.round(it.transform[5]);
+        if (!byY[y]) byY[y] = [];
+        byY[y].push({ x: it.transform[4], t: it.str.trim() });
+      });
+      Object.keys(byY).sort((a,b) => b-a).forEach(y => {
+        const ln = byY[y].sort((a,b) => a.x-b.x).map(i => i.t).filter(Boolean).join(' ');
+        if (ln) lines.push(ln);
+      });
+    }
+    const { hdr, its } = parsePDF(lines);
+    header = hdr; items = its; orcOverrides = {};
+
+    // Detecta CPV
+    pdfCpv = hdr.cpv || '1';
+    if (!CPV[pdfCpv]) pdfCpv = '1';
+    selCpv = pdfCpv;
+    cpvSel.value = pdfCpv;
+
+    // Grava no banco
+    const m = cpvMargin(pdfCpv);
+    items.forEach(it => {
+      const base = it.valUnit / (1 + m);
+      bancoUpsert(it.cod, it.desc, it.un, it.valUnit, base);
+    });
+
+    document.getElementById('orc-info').textContent =
+      `Nº ${hdr.num||'?'}  |  ${hdr.arq||'—'}  |  ${hdr.ven||'—'}  |  ${items.length} itens`;
+    document.getElementById('btn-print').disabled = false;
+
+    refreshOrc();
+    renderBanco();
+    toast(`✅ ${items.length} itens importados — CPV ${pdfCpv} detectado`);
+  } catch(e) { toast('❌ Erro ao ler PDF: ' + e.message); }
+  load(false);
+}
+
+function parsePDF(lines) {
+  const text = lines.join('\n');
+  const hdr = {};
+  let m;
+  if (m = text.match(/(?:ORÇAMENTO|ORCAMENTO)\s+N[º°o]\s*(\d+)/i))       hdr.num = m[1];
+  if (m = text.match(/Arquiteto\(a\):\s*(.+?)(?:\s{3,}|\n|$)/i))          hdr.arq = m[1].trim();
+  if (m = text.match(/Vendedor:-\s*(.+?)(?=\s{2,}|\s+Arquiteto|\n|$)/i))  hdr.ven = m[1].trim();
+  if (m = text.match(/Data Ent[:\s]*(\d{2}\/\d{2}\/\d{4})/i))             hdr.data = m[1];
+  if (m = text.match(/CPV=\s*(\w+)/i))                                     hdr.cpv = m[1].trim();
+
+  const pat = /^(\d{3,6})\s+(.+?)\s+(UN|MT|RL|CX|PC|KIT)\s+(\d{1,4})\s+([\d]+(?:\.\d{3})*,\d{2})\s+([\d]+(?:\.\d{3})*,\d{2})\s*$/gm;
+  const its = [], seen = new Set();
+  for (const m of text.matchAll(pat)) {
+    const key = m[1] + m[4];
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const vu = parseBR(m[5]);
+    its.push({ cod: m[1], desc: m[2].trim(), un: m[3], qty: parseInt(m[4]), valUnit: vu, valTotal: parseBR(m[6]) });
+  }
+  return { hdr, its };
+}
+
+// ═══════════════════════════════════════
+// LÓGICA DE PREÇOS
+// ═══════════════════════════════════════
+function getValCpv(idx) {
+  const ov = orcOverrides[idx];
+  if (ov) return ov.val;
+  const it = items[idx];
+  const row = bancoGet(it.cod);
+  if (row) {
+    if (row.manual) return row.valMin;
+    return row.valMin * (1 + cpvMargin(selCpv));
+  }
+  const base = it.valUnit / (1 + cpvMargin(pdfCpv));
+  return base * (1 + cpvMargin(selCpv));
+}
+
+function getValBase(idx) {
+  const it = items[idx];
+  const row = bancoGet(it.cod);
+  if (row) return row.valMin;
+  return it.valUnit / (1 + cpvMargin(pdfCpv));
+}
+
+// ═══════════════════════════════════════
+// RENDER ORÇAMENTO
+// ═══════════════════════════════════════
+function refreshOrc() {
+  if (!items.length) return;
+  document.getElementById('th-cpv').textContent = `VAL. CPV ${selCpv}`;
+  let totPdf = 0, totCpv = 0;
+  const tbody = document.getElementById('tbody-orc');
+  tbody.innerHTML = '';
+
+  items.forEach((it, idx) => {
+    const vBase = getValBase(idx);
+    const vCpv  = getValCpv(idx);
+    const ov    = orcOverrides[idx];
+    const row   = bancoGet(it.cod);
+    const isManualDb = row && row.manual;
+    const tot = vCpv * it.qty;
+    totPdf += it.valUnit * it.qty;
+    totCpv += tot;
+
+    let cls, statusHtml, motivo = '';
+    if (ov) {
+      cls = 'tr-edit'; statusHtml = '<span class="badge badge-edit">✏ EDITADO</span>';
+      motivo = ov.motivo;
+    } else if (isManualDb) {
+      cls = 'tr-fixed'; statusHtml = '<span class="badge badge-fixed">🔒 FIXO</span>';
+      motivo = 'Banco: preço fixado';
+    } else if (it.valUnit < vCpv - 0.005) {
+      cls = 'tr-below'; statusHtml = '<span class="badge badge-below">⚠ ABAIXO</span>';
+    } else {
+      cls = 'tr-ok'; statusHtml = '<span class="badge badge-ok">✓ OK</span>';
+    }
+
+    const tr = document.createElement('tr');
+    tr.className = cls;
+    tr.ondblclick = () => abrirModalOrc(idx);
+    tr.innerHTML = `
+      <td class="td-cod">${it.cod}</td>
+      <td class="td-desc">${it.desc}</td>
+      <td class="c">${it.un}</td>
+      <td class="r">${it.qty}</td>
+      <td class="r">${brMoney(it.valUnit)}</td>
+      <td class="r">${brMoney(vBase)}</td>
+      <td class="r" style="font-weight:700;">${brMoney(vCpv)}</td>
+      <td class="r" style="font-weight:700;">${brMoney(tot)}</td>
+      <td class="c td-status">${statusHtml}</td>
+      <td class="td-motivo">${motivo}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  // Summary
+  const m = cpvMargin(selCpv);
+  document.getElementById('s-cpv').textContent   = `${selCpv} — ${cpvDesc(selCpv)}`;
+  document.getElementById('s-itens').textContent  = items.length;
+  document.getElementById('s-pdf').textContent    = brMoney(totPdf);
+  document.getElementById('s-min').textContent    = brMoney(totCpv);
+  const diff = totPdf - totCpv;
+  const dEl  = document.getElementById('s-diff');
+  if (diff > 0.005) { dEl.textContent = `📉 -${brMoney(diff)}`; dEl.style.color = 'var(--red)'; }
+  else if (diff < -0.005) { dEl.textContent = `📈 +${brMoney(Math.abs(diff))}`; dEl.style.color = 'var(--green)'; }
+  else { dEl.textContent = '✓ OK'; dEl.style.color = 'var(--green)'; }
+}
+
+// ═══════════════════════════════════════
+// MODAL ORÇAMENTO
+// ═══════════════════════════════════════
+function abrirModalOrc(idx) {
+  editingOrcIdx = idx;
+  const it = items[idx];
+  const ov = orcOverrides[idx];
+  const vAtual = getValCpv(idx);
+
+  document.getElementById('mo-titulo').textContent = `[${it.cod}] ${it.desc.slice(0,40)}`;
+  document.getElementById('mo-sub').textContent = 'EDIÇÃO NESTE ORÇAMENTO APENAS';
+  document.getElementById('mo-info').innerHTML = `
+    <div class="mi-row"><span class="mi-l">Valor atual c/ CPV</span><span>${brMoney(vAtual)}</span></div>
+    <div class="mi-row"><span class="mi-l">Descrição</span><span style="font-size:11px">${it.desc}</span></div>
+    <div class="mi-row"><span class="mi-l">Qtd / UN</span><span>${it.qty} ${it.un}</span></div>
+    <div class="mi-row"><span class="mi-l">⚠</span><span style="font-size:11px;color:var(--muted)">Valor final — CPV não será aplicado</span></div>`;
+  const valInput = document.getElementById('mo-val');
+  const motInput = document.getElementById('mo-motivo');
+  valInput.value   = ov ? brMoney(ov.val).replace('R$ ','') : '';
+  motInput.value   = ov ? ov.motivo : '';
+  document.getElementById('mo-limpar-btn').style.display = ov ? 'inline-flex' : 'none';
+  abrirModal('modal-orc');
+  valInput.focus();
+}
+
+function salvarOrc() {
+  const raw = document.getElementById('mo-val').value;
+  const val = parseBR(raw);
+  if (!val || val < 0) { toast('⚠️ Valor inválido'); return; }
+  const motivo = document.getElementById('mo-motivo').value.trim() || 'valor editado manualmente';
+  orcOverrides[editingOrcIdx] = { val, motivo };
+  fecharModal('modal-orc');
+  refreshOrc();
+  toast('✅ Valor alterado neste orçamento');
+}
+
+function limparOrc() {
+  delete orcOverrides[editingOrcIdx];
+  fecharModal('modal-orc');
+  refreshOrc();
+  toast('↺ Edição removida');
+}
+
+// ═══════════════════════════════════════
+// RENDER BANCO
+// ═══════════════════════════════════════
+function renderBanco() {
+  const q = document.getElementById('banco-search').value.toLowerCase().trim();
+  let rows = bancoAll().filter(r => !q || r.cod.toLowerCase().includes(q) || r.desc.toLowerCase().includes(q));
+  const tbody = document.getElementById('tbody-banco');
+  bancoCodSelecionado = null;
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="icon">🗄️</div><p>Nenhum produto encontrado.</p></div></td></tr>`;
+    document.getElementById('banco-count').textContent = '';
+    return;
+  }
+  document.getElementById('banco-count').textContent = `${rows.length} produto(s)`;
+
+  tbody.innerHTML = '';
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.className = r.manual ? 'row-manual' : 'row-auto';
+    tr.ondblclick = () => abrirModalBanco(r.cod);
+    tr.onclick    = () => { bancoCodSelecionado = r.cod; document.querySelectorAll('#tbody-banco tr').forEach(t => t.style.background=''); tr.style.background = 'var(--surf2)'; };
+    tr.innerHTML = `
+      <td class="td-cod">${r.cod}</td>
+      <td class="td-desc">${r.desc}</td>
+      <td class="c">${r.un||'—'}</td>
+      <td class="r">${brMoney(r.valPdf)}</td>
+      <td class="r" style="font-weight:700;">${brMoney(r.valMin)}</td>
+      <td class="c td-tipo"><span class="badge ${r.manual?'badge-manual':'badge-auto'}">${r.manual?'🟡 Manual':'⚪ Auto'}</span></td>
+      <td class="c" style="font-family:var(--mono);font-size:10px;color:var(--muted)">${r.atualizado||'—'}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// ═══════════════════════════════════════
+// MODAL BANCO
+// ═══════════════════════════════════════
+function abrirModalBanco(cod) {
+  editingBancoCod = cod;
+  const r = bancoGet(cod);
+  if (!r) return;
+  document.getElementById('mb-titulo').textContent = `[${r.cod}]`;
+  document.getElementById('mb-sub').textContent = r.desc.slice(0,55);
+  document.getElementById('mb-info').innerHTML = `
+    <div class="mi-row"><span class="mi-l">Val. base atual</span><span style="font-weight:700">${brMoney(r.valMin)}</span></div>
+    <div class="mi-row"><span class="mi-l">Último PDF</span><span>${brMoney(r.valPdf)}</span></div>
+    <div class="mi-row"><span class="mi-l">Tipo</span><span class="badge ${r.manual?'badge-manual':'badge-auto'}">${r.manual?'🟡 Manual — CPV NÃO aplicado':'⚪ Auto — CPV aplicado ao exibir'}</span></div>`;
+  document.getElementById('mb-val').value = '';
+  document.getElementById('mb-reset-btn').style.display = r.manual ? 'inline-flex' : 'none';
+  abrirModal('modal-banco');
+  document.getElementById('mb-val').focus();
+}
+
+function salvarBanco() {
+  const val = parseBR(document.getElementById('mb-val').value);
+  if (!val || val < 0) { toast('⚠️ Valor inválido'); return; }
+  bancoSetMin(editingBancoCod, val);
+  fecharModal('modal-banco');
+  renderBanco();
+  refreshOrc();
+  toast('✅ Preço mínimo salvo no banco');
+}
+
+function resetarBanco() {
+  bancoResetMin(editingBancoCod);
+  fecharModal('modal-banco');
+  renderBanco();
+  refreshOrc();
+  toast('↺ Valor resetado para o PDF');
+}
+
+function excluirBanco() {
+  if (!bancoCodSelecionado) { toast('⚠️ Selecione um produto na lista'); return; }
+  if (!confirm(`Remover [${bancoCodSelecionado}] do banco?`)) return;
+  bancoDelete(bancoCodSelecionado);
+  renderBanco();
+  refreshOrc();
+  toast('🗑 Produto removido do banco');
+}
+
+// ═══════════════════════════════════════
+// IMPRIMIR
+// ═══════════════════════════════════════
+function imprimir() {
+  if (!items.length) return;
+  const m = cpvMargin(selCpv);
+  const cpvInfo = `CPV ${selCpv} — ${cpvDesc(selCpv)} (+${(m*100).toFixed(2).replace('.',',')}%)`;
+  let totalMin = 0, editadas = [], rows = '';
+
+  items.forEach((it, idx) => {
+    const vBase = getValBase(idx);
+    const vCpv  = getValCpv(idx);
+    const ov    = orcOverrides[idx];
+    const row   = bancoGet(it.cod);
+    const isManualDb = row && row.manual;
+    const tot = vCpv * it.qty;
+    totalMin += tot;
+    if (ov) editadas.push({ cod: it.cod, desc: it.desc, motivo: ov.motivo });
+
+    const vcStyle = ov ? 'color:#b45309;font-weight:bold' : isManualDb ? 'color:#7c3aed;font-weight:bold' : 'font-weight:bold';
+    const mTag = ov ? `<br><small style="color:#b45309;font-style:italic">✏ ${ov.motivo}</small>` : isManualDb ? `<br><small style="color:#7c3aed">🔒 preço fixado</small>` : '';
+    rows += `<tr>
+      <td>${it.cod}</td><td>${it.desc}${mTag}</td>
+      <td style="text-align:center">${it.un}</td><td style="text-align:center">${it.qty}</td>
+      <td style="text-align:right">${brMoney(it.valUnit)}</td>
+      <td style="text-align:right">${brMoney(vBase)}</td>
+      <td style="text-align:right"><span style="${vcStyle}">${brMoney(vCpv)}</span></td>
+      <td style="text-align:right;font-weight:bold">${brMoney(tot)}</td></tr>`;
+  });
+
+  const obsHtml = editadas.length ? `<div style="margin-top:16px;padding-top:10px;border-top:1px solid #ddd;font-size:9pt;color:#555"><strong>Valores editados:</strong><ul style="padding-left:20px;margin-top:6px;">${editadas.map(e=>`<li>[${e.cod}] ${e.desc}<br><em style="color:#b45309">Motivo: ${e.motivo}</em></li>`).join('')}</ul></div>` : '';
+
+  const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
+<title>Orçamento Nº ${header.num||'?'} — Arq Luz</title>
+<style>body{font-family:Arial,sans-serif;font-size:10pt;padding:20px}h1{font-size:16pt;margin-bottom:4px}.sub{font-size:10pt;color:#555;margin-bottom:14px}.info{display:flex;gap:24px;margin-bottom:14px;border-bottom:1px solid #ccc;padding-bottom:10px;flex-wrap:wrap}.info div{display:flex;flex-direction:column;gap:2px}.info label{font-size:8pt;color:#888;text-transform:uppercase}.info span{font-weight:bold}.badge{display:inline-block;background:#fef3c7;color:#92400e;border:1px solid #d97706;border-radius:4px;padding:2px 8px;font-size:9pt;font-weight:bold;margin-bottom:10px}table{width:100%;border-collapse:collapse;font-size:9pt;margin-bottom:14px}th{background:#f0f0f0;padding:5px 8px;text-align:left;border:.5px solid #ccc;font-size:8pt;font-weight:bold}td{padding:4px 8px;border:.5px solid #e0e0e0;vertical-align:top}tr:nth-child(even)td{background:#fafafa}.total{text-align:right;font-size:12pt;font-weight:bold;border-top:1px solid #ccc;padding-top:10px}.footer{margin-top:20px;font-size:8pt;color:#aaa;text-align:center;border-top:.5px solid #eee;padding-top:6px}@media print{body{padding:6px}}</style>
+</head><body>
+<h1>⚡ ARQ LUZ — Iluminação Planejada</h1>
+<div class="sub">Orçamento com Valores Mínimos</div>
+<div class="info">
+<div><label>Orçamento Nº</label><span>${header.num||'?'}</span></div>
+<div><label>Data</label><span>${header.data||'—'}</span></div>
+<div><label>Arquiteto(a)</label><span>${header.arq||'—'}</span></div>
+<div><label>Vendedor(a)</label><span>${header.ven||'—'}</span></div>
+<div><label>Emitido em</label><span>${new Date().toLocaleString('pt-BR')}</span></div>
+</div>
+<div class="badge">CPV: ${cpvInfo}</div>
+<table><thead><tr><th>Código</th><th>Descrição</th><th>UN</th><th>Qtd</th><th>Valor PDF</th><th>Base À Vista</th><th>Val. c/ CPV</th><th>Total</th></tr></thead>
+<tbody>${rows}</tbody></table>
+<div class="total">Total Mínimo (CPV ${selCpv}): ${brMoney(totalMin)}</div>
+${obsHtml}
+<div class="footer">Arq Luz Iluminação — Votuporanga/SP — ${new Date().toLocaleString('pt-BR')}</div>
+<script>window.onload=function(){window.print();}<\/script>
+</body></html>`;
+
+  const w = window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+}
+
+// ═══════════════════════════════════════
+// UI
+// ═══════════════════════════════════════
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'tab-banco') renderBanco();
+}
+
+function abrirModal(id) { document.getElementById(id).classList.add('on'); }
+function fecharModal(id) { document.getElementById(id).classList.remove('on'); }
+document.querySelectorAll('.modal-bg').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('on'); }));
+
+function load(msg) {
+  const el = document.getElementById('lod');
+  if (!msg) { el.classList.remove('on'); return; }
+  document.getElementById('lmsg').textContent = msg;
+  el.classList.add('on');
+}
+let _tt;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('on');
+  clearTimeout(_tt); _tt = setTimeout(() => el.classList.remove('on'), 3500);
+}
+
+// ── Enter nos modais ────────────────────
+document.getElementById('mb-val').addEventListener('keydown', e => { if (e.key === 'Enter') salvarBanco(); });
+document.getElementById('mo-val').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('mo-motivo').focus(); });
+document.getElementById('mo-motivo').addEventListener('keydown', e => { if (e.key === 'Enter') salvarOrc(); });
+
+// Init
+renderBanco();
+</script>
+</body>
+</html>
