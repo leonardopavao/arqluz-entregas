@@ -282,6 +282,9 @@ firebase.initializeApp({
   messagingSenderId:"294162415165",
   appId:"1:294162415165:web:d8b4f6cb47fae7e235b454"
 });
+
+// ── URL do Apps Script para salvar no Google Drive ──
+const DRIVE_URL = "https://script.google.com/macros/s/AKfycbz96AIPfe_zI-5PKR_g_pHatMX4xLTKQjuINv0pOxrc1eYhw7v3_yXSOnhGjaBnhzbi/exec";
 pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 const auth=firebase.auth(), db=firebase.firestore();
 
@@ -696,20 +699,65 @@ async function confirmar(){
   if(!docAberto)return;
   if(!assinado){toast('⚠️ O cliente precisa assinar');return;}
   const btn=document.getElementById('btnconf');
-  btn.disabled=true; load('Salvando...');
+  btn.disabled=true;
+
   try{
-    const ass=document.getElementById('cv').toDataURL('image/png');
-    let fotos=[];
-    if(fotosB64.length>0){load('Salvando fotos...');fotos=[...fotosB64];}
-    load('Registrando...');
+    const hoje   = new Date().toISOString().split('T')[0];
+    const cliente = docAberto.clienteNome || 'SEM-NOME';
+    const codCli  = docAberto.refCodigo   || 'SEM-COD';
+    const pedido  = docAberto.numeroPedido || '';
+
+    // ── Envia assinatura para o Drive ──
+    load('Enviando assinatura para o Drive...');
+    const assB64 = document.getElementById('cv').toDataURL('image/png').split(',')[1];
+    const assResp = await enviarDrive({ tipo:'assinatura', base64:assB64, mimeType:'image/png', cliente, codCli, pedido, data:hoje });
+    const assUrl  = assResp.url || document.getElementById('cv').toDataURL('image/png');
+
+    // ── Envia fotos para o Drive ──
+    const fotosUrls = [];
+    for(let i=0; i<fotosB64.length; i++){
+      load(`Enviando foto ${i+1} de ${fotosB64.length} para o Drive...`);
+      const b64 = fotosB64[i].split(',')[1];
+      const r   = await enviarDrive({ tipo:`foto_${i+1}`, base64:b64, mimeType:'image/jpeg', cliente, codCli, pedido, data:hoje });
+      fotosUrls.push(r.url || fotosB64[i]);
+    }
+
+    // ── Salva no Firestore ──
+    load('Registrando entrega...');
     await db.collection('comprovantes').doc(docAberto.id).update({
-      status:'entregue', assinaturaUrl:ass, fotosUrl:fotos, fotoUrl:fotos[0]||null,
-      itensMarcados:marcados, gps:gps||null,
-      entregueEm:firebase.firestore.FieldValue.serverTimestamp()
+      status:        'entregue',
+      assinaturaUrl: assUrl,
+      fotosUrl:      fotosUrls,
+      fotoUrl:       fotosUrls[0] || null,
+      itensMarcados: marcados,
+      gps:           gps || null,
+      entregueEm:    firebase.firestore.FieldValue.serverTimestamp(),
+      driveCliente:  `${cliente} — COD ${codCli}`
     });
-    fModal('mod-conf'); toast('✅ Entrega confirmada!');
-  }catch(e){console.error(e);toast('Erro ao confirmar. Tente novamente.');}
+
+    fModal('mod-conf');
+    toast('✅ Entrega confirmada e salva no Drive!');
+
+  }catch(e){
+    console.error(e);
+    toast('Erro ao confirmar. Tente novamente.');
+  }
   btn.disabled=false; load(false);
+}
+
+// ── Envia arquivo para o Google Drive via Apps Script ──
+async function enviarDrive(dados){
+  try{
+    const res  = await fetch(DRIVE_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(dados)
+    });
+    return await res.json();
+  }catch(e){
+    console.warn('Drive indisponível, usando base64 local:', e);
+    return { url: null };
+  }
 }
 
 async function comprimirImg(file){
