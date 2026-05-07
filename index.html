@@ -92,6 +92,7 @@
     .ar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
     .btnlimpar{background:none;border:1px solid #ddd;padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;color:#888}
     .gps{font-size:12px;color:#888;margin:8px 0;min-height:18px}
+    @keyframes rotate90{from{transform:rotate(-15deg)}to{transform:rotate(15deg)}}
     .lod{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:14px}
     .lod.on{display:flex}
     .sp{width:42px;height:42px;border:4px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .75s linear infinite}
@@ -185,48 +186,99 @@
   </div>
 </div>
 
-<!-- MODAL: CONFIRMAR (ENTREGADOR) -->
+<!-- MODAL: CONFIRMAR (ENTREGADOR) — 3 ETAPAS -->
 <div class="overlay" id="mod-conf">
-  <div class="modal">
-    <div class="mh"><h3 id="c-titulo">Confirmar Entrega</h3><button class="xbtn" onclick="fModal('mod-conf')">×</button></div>
+  <div class="modal" id="modal-conf-inner">
 
-    <div style="background:#f8f8f8;border-radius:10px;padding:12px;margin-bottom:16px;">
+    <!-- PROGRESS BAR -->
+    <div style="display:flex;gap:6px;margin-bottom:20px;" id="conf-progress">
+      <div id="prog1" style="flex:1;height:4px;border-radius:2px;background:#1a1a1a;transition:background .3s;"></div>
+      <div id="prog2" style="flex:1;height:4px;border-radius:2px;background:#e0e0e0;transition:background .3s;"></div>
+      <div id="prog3" style="flex:1;height:4px;border-radius:2px;background:#e0e0e0;transition:background .3s;"></div>
+    </div>
+
+    <!-- INFO PEDIDO (sempre visível) -->
+    <div style="background:#f8f8f8;border-radius:10px;padding:11px 14px;margin-bottom:16px;">
       <div style="font-size:11px;color:#999;margin-bottom:2px;">PEDIDO Nº</div>
       <div id="c-pedido" style="font-size:15px;font-weight:800;color:#185FA5;"></div>
-      <div id="c-end" style="font-size:13px;color:#666;margin-top:4px;"></div>
+      <div id="c-end" style="font-size:13px;color:#666;margin-top:3px;"></div>
     </div>
 
-    <div id="c-itens-wrap" style="display:none;margin-bottom:16px;">
+    <!-- ═══ ETAPA 1: CONFERÊNCIA ═══ -->
+    <div id="step1">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="font-size:14px;font-weight:800;">📋 Etapa 1 — Conferência</div>
+        <div style="font-size:13px;color:#185FA5;font-weight:700;"><span id="c-marc">0</span>/<span id="c-tot">0</span> itens</div>
+      </div>
+      <div style="font-size:12px;color:#888;margin-bottom:12px;">Marque cada item conferido. Todos devem ser marcados para avançar.</div>
+      <div id="c-itens" style="background:#fafafa;border-radius:10px;padding:8px 12px;max-height:300px;overflow-y:auto;margin-bottom:16px;"></div>
+      <div id="step1-sem-itens" style="display:none;background:#fafafa;border-radius:10px;padding:20px;text-align:center;color:#aaa;margin-bottom:16px;font-size:13px;">
+        📦 Sem lista de itens para conferir.<br>Você pode avançar diretamente.
+      </div>
+      <button class="btn-green" id="btn-step1" onclick="avancarStep2()" style="margin-top:0;">
+        Avançar para Assinatura →
+      </button>
+      <button class="btn-grey" onclick="fModal('mod-conf')">Cancelar</button>
+    </div>
+
+    <!-- ═══ ETAPA 2: ASSINATURA ═══ -->
+    <div id="step2" style="display:none;">
+      <div style="font-size:14px;font-weight:800;margin-bottom:14px;">✍️ Etapa 2 — Assinatura</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div class="fg" style="margin:0;">
+          <label>Nome completo *</label>
+          <input type="text" id="ass-nome" placeholder="Nome de quem assina" autocomplete="off">
+        </div>
+        <div class="fg" style="margin:0;">
+          <label>CPF / RG *</label>
+          <input type="text" id="ass-doc" placeholder="000.000.000-00" autocomplete="off">
+        </div>
+      </div>
+
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <div style="font-size:12px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.5px;">📋 Conferência de itens</div>
-        <div style="font-size:12px;color:#185FA5;font-weight:700;"><span id="c-marc">0</span>/<span id="c-tot">0</span></div>
-      </div>
-      <div id="c-itens" style="background:#fafafa;border-radius:10px;padding:8px 12px;max-height:240px;overflow-y:auto;"></div>
-    </div>
-
-    <div class="fg">
-      <label>📷 Fotos da entrega <span style="font-weight:400;color:#999;">(pode adicionar várias)</span></label>
-      <div class="foto-wrap" id="fw" onclick="document.getElementById('finput').click()">
-        <div id="fotos-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:8px;width:100%;"></div>
-        <div class="foto-ph" id="fph" style="padding:20px 0;"><div class="fi">📷</div><p>Toque para adicionar fotos</p></div>
-      </div>
-      <input type="file" id="finput" accept="image/*" capture="environment" multiple style="display:none;" onchange="prevFoto(this)">
-      <div style="font-size:11px;color:#999;margin-top:5px;text-align:center;">Toque novamente para adicionar mais fotos</div>
-    </div>
-
-    <div class="fg">
-      <div class="ar">
-        <label style="font-size:12px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.5px;">✍️ Assinatura do cliente</label>
+        <label style="font-size:12px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.5px;">Assinatura</label>
         <button class="btnlimpar" onclick="limparAss()">Limpar</button>
       </div>
-      <canvas id="cv" height="150"></canvas>
+      <canvas id="cv" height="180" style="width:100%;border:2px solid #ddd;border-radius:10px;display:block;cursor:crosshair;touch-action:none;background:#fff;"></canvas>
+      <div style="font-size:11px;color:#aaa;text-align:center;margin-top:6px;">Assine com o dedo acima</div>
+
+      <div style="display:flex;gap:10px;margin-top:16px;">
+        <button class="btn-grey" onclick="voltarStep1()" style="flex:1;margin:0;">← Voltar</button>
+        <button class="btn-green" id="btn-step2" onclick="avancarStep3()" style="flex:2;margin:0;">Avançar para Fotos →</button>
+      </div>
     </div>
 
-    <div class="gps" id="gpsinfo">📍 Aguardando localização...</div>
-    <button class="btn-green" id="btnconf" onclick="confirmar()">✅ Confirmar Entrega</button>
-    <button class="btn-grey" onclick="fModal('mod-conf')">Cancelar</button>
+    <!-- ═══ ETAPA 3: FOTOS ═══ -->
+    <div id="step3" style="display:none;">
+      <div style="font-size:14px;font-weight:800;margin-bottom:6px;">📷 Etapa 3 — Fotos da Entrega</div>
+      <div style="font-size:12px;color:#888;margin-bottom:14px;">Fotos são opcionais mas recomendadas. Adicione quantas precisar.</div>
+
+      <div class="foto-wrap" id="fw" onclick="document.getElementById('finput').click()">
+        <div id="fotos-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:8px;width:100%;"></div>
+        <div class="foto-ph" id="fph" style="padding:24px 0;"><div class="fi">📷</div><p>Toque para adicionar fotos</p></div>
+      </div>
+      <input type="file" id="finput" accept="image/*" capture="environment" multiple style="display:none;" onchange="prevFoto(this)">
+      <div style="font-size:11px;color:#999;margin-top:6px;text-align:center;">Toque novamente para adicionar mais</div>
+
+      <div class="gps" id="gpsinfo" style="margin:12px 0 4px;">📍 Aguardando localização...</div>
+
+      <div style="display:flex;gap:10px;margin-top:14px;">
+        <button class="btn-grey" onclick="voltarStep2()" style="flex:1;margin:0;">← Voltar</button>
+        <button class="btn-green" id="btnconf" onclick="confirmar()" style="flex:2;margin:0;">✅ Finalizar Entrega</button>
+      </div>
+    </div>
+
   </div>
 </div>
+
+<!-- OVERLAY MODO PAISAGEM (assinatura) -->
+<div id="landscape-hint" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:30px;">
+  <div style="font-size:48px;margin-bottom:16px;animation:rotate90 1s ease infinite alternate;">📱</div>
+  <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Vire o celular</div>
+  <div style="font-size:14px;color:#aaa;">Gire para paisagem para assinar</div>
+</div>
+
 
 <!-- MODAL: IMPORTAR PDF -->
 <div class="overlay" id="mod-import">
@@ -547,7 +599,11 @@ function abrirDetalhe(id){
       <div class="dr"><span class="dl">Entregue em</span><span class="dv">${entEm?entEm.toLocaleString('pt-BR'):'—'}</span></div>
       ${d.gps?`<div class="dr"><span class="dl">Localização</span><span class="dv"><a href="https://maps.google.com/?q=${d.gps.lat},${d.gps.lng}" target="_blank" style="color:#185FA5;">📍 Ver no Maps</a></span></div>`:''}
     </div>`;
-    if(d.assinaturaUrl) html+=`<div style="margin-top:12px;"><div style="font-size:11px;color:#999;font-weight:700;margin-bottom:5px;">✍️ ASSINATURA</div><img src="${d.assinaturaUrl}" class="dimg" onclick="window.open('${d.assinaturaUrl}','_blank')"></div>`;
+    if(d.assinaturaUrl) html+=`<div style="margin-top:12px;">
+      <div style="font-size:11px;color:#999;font-weight:700;margin-bottom:5px;">✍️ ASSINATURA</div>
+      ${d.assinanteNome?`<div style="font-size:12px;color:#555;margin-bottom:6px;">Assinado por: <strong>${d.assinanteNome}</strong> · ${d.assinanteDoc||'—'}</div>`:''}
+      <img src="${d.assinaturaUrl}" class="dimg" onclick="window.open('${d.assinaturaUrl}','_blank')">
+    </div>`;
     const fotos=d.fotosUrl?.length?d.fotosUrl:(d.fotoUrl?[d.fotoUrl]:[]);
     if(fotos.length){
       html+=`<div style="margin-top:12px;"><div style="font-size:11px;color:#999;font-weight:700;margin-bottom:8px;">📷 FOTOS DA ENTREGA (${fotos.length})</div>
@@ -557,33 +613,40 @@ function abrirDetalhe(id){
     }
   }
 
+  // Botão apagar — só para dono
+  if(perfil==='dono'){
+    html+=`
+      <div style="margin-top:20px;padding-top:16px;border-top:1px solid #eee;">
+        <button onclick="apagarComprovante('${d.id}','${(d.clienteNome||'').replace(/'/g,"\\'")}','${d.status}')"
+          style="width:100%;padding:11px;background:transparent;color:#e74c3c;border:1.5px solid #e74c3c;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;"
+          onmouseover="this.style.background='rgba(231,76,60,0.07)'"
+          onmouseout="this.style.background='transparent'">
+          🗑 Apagar este comprovante
+        </button>
+      </div>`;
+  }
+
   document.getElementById('d-corpo').innerHTML=html;
   aModal('mod-detalhe');
 }
 
-// ── CONFIRMAR (ENTREGADOR) ────────────────────────
+// ── CONFIRMAR (ENTREGADOR) — 3 ETAPAS ────────────
 function abrirConf(id){
   const d=docs.find(x=>x.id===id); if(!d) return;
   docAberto=d;
-  document.getElementById('c-titulo').textContent=d.clienteNome||'Confirmar Entrega';
+
   document.getElementById('c-pedido').textContent=d.numeroPedido?`#${d.numeroPedido}`:'—';
   document.getElementById('c-end').textContent=d.endereco||'';
 
-  // Reset fotos (múltiplas)
-  fotosB64=[];
+  // Reset
+  marcados=[]; assinado=false; gps=null; fotosB64=[];
+  document.getElementById('ass-nome').value='';
+  document.getElementById('ass-doc').value='';
   document.getElementById('fotos-grid').innerHTML='';
   document.getElementById('finput').value='';
   document.getElementById('fw').classList.remove('ok');
-  document.getElementById('fph').style.display='flex';
-  document.getElementById('fph').style.flexDirection='column';
-  document.getElementById('fph').style.alignItems='center';
-
-  // Reset assinatura
-  assinado=false;
-  setTimeout(()=>{initCanvas();limparAss();},50);
-
-  // GPS
-  gps=null; document.getElementById('gpsinfo').textContent='📍 Buscando localização...';
+  document.getElementById('fph').style.cssText='display:flex;flex-direction:column;align-items:center;padding:24px 0;';
+  document.getElementById('gpsinfo').textContent='📍 Buscando localização...';
   buscarGPS();
 
   // Itens
@@ -591,6 +654,8 @@ function abrirConf(id){
     marcados=d.itens.map(()=>false);
     document.getElementById('c-tot').textContent=d.itens.length;
     document.getElementById('c-marc').textContent=0;
+    document.getElementById('c-itens').style.display='block';
+    document.getElementById('step1-sem-itens').style.display='none';
     document.getElementById('c-itens').innerHTML=d.itens.map((it,i)=>`
       <div class="ic-row" id="ir${i}">
         <div class="cb" id="ib${i}"></div>
@@ -598,36 +663,92 @@ function abrirConf(id){
           <div class="id">${it.desc||'—'}</div>
           <div class="iq">${it.qty} ${it.unit||'UN'}</div>
           ${it.obs?`<div class="io">${it.obs}</div>`:''}
-          ${it.codFab||it.codProd?`<div class="ic2">Fab: ${it.codFab||'—'} · Prod: ${it.codProd||'—'}</div>`:''}
         </div>
       </div>`).join('');
-
-    // Touch fix - apenas o checkbox dispara o toggle
-    d.itens.forEach((_,i)=>{
-      const cb=document.getElementById('ib'+i);
-      if(!cb) return;
-      let tocou=false;
-      cb.addEventListener('touchstart',()=>tocou=true,{passive:true});
-      cb.addEventListener('touchend',e=>{
-        if(tocou){e.preventDefault();tocou=false;toggleItem(i);}
-      },{passive:false});
-      cb.addEventListener('click',()=>{if(!tocou)toggleItem(i);tocou=false;});
-    });
-    document.getElementById('c-itens-wrap').style.display='block';
+    setTimeout(()=>{
+      d.itens.forEach((_,i)=>{
+        const cb=document.getElementById('ib'+i);
+        if(!cb) return;
+        let t=false;
+        cb.addEventListener('touchstart',()=>t=true,{passive:true});
+        cb.addEventListener('touchend',e=>{if(t){e.preventDefault();t=false;toggleItem(i);}},{passive:false});
+        cb.addEventListener('click',()=>{if(!t)toggleItem(i);t=false;});
+      });
+    },50);
+    // Bloqueia botão até marcar todos
+    document.getElementById('btn-step1').disabled=true;
   } else {
-    document.getElementById('c-itens-wrap').style.display='none';
+    document.getElementById('c-itens').style.display='none';
+    document.getElementById('step1-sem-itens').style.display='block';
+    document.getElementById('btn-step1').disabled=false;
     marcados=[];
   }
 
+  irStep(1);
   aModal('mod-conf');
+  setTimeout(()=>{initCanvas();limparAss();},80);
 }
 
 function toggleItem(i){
   marcados[i]=!marcados[i];
   const b=document.getElementById('ib'+i);
   if(marcados[i])b.classList.add('on'); else b.classList.remove('on');
-  document.getElementById('c-marc').textContent=marcados.filter(Boolean).length;
+  const marc=marcados.filter(Boolean).length;
+  document.getElementById('c-marc').textContent=marc;
+  document.getElementById('btn-step1').disabled = marc < marcados.length;
 }
+
+// ── NAVEGAÇÃO ENTRE ETAPAS ──
+function irStep(n){
+  document.getElementById('step1').style.display=n===1?'block':'none';
+  document.getElementById('step2').style.display=n===2?'block':'none';
+  document.getElementById('step3').style.display=n===3?'block':'none';
+  ['prog1','prog2','prog3'].forEach((id,i)=>{
+    document.getElementById(id).style.background=i<n?'#1a1a1a':'#e0e0e0';
+  });
+  document.getElementById('modal-conf-inner').scrollTop=0;
+}
+
+function avancarStep2(){
+  const total=marcados.length;
+  const marc=marcados.filter(Boolean).length;
+  if(total>0 && marc<total){ toast(`⚠️ Confira todos os itens (${marc}/${total} marcados)`); return; }
+  irStep(2);
+  tentarLandscape();
+  setTimeout(()=>{initCanvas();limparAss();},150);
+}
+
+function voltarStep1(){ sairLandscape(); irStep(1); }
+
+function avancarStep3(){
+  const nome=document.getElementById('ass-nome').value.trim();
+  const doc2=document.getElementById('ass-doc').value.trim();
+  if(!nome){ toast('⚠️ Informe o nome de quem está assinando'); document.getElementById('ass-nome').focus(); return; }
+  if(!doc2){ toast('⚠️ Informe o CPF ou RG'); document.getElementById('ass-doc').focus(); return; }
+  if(!assinado){ toast('⚠️ O cliente precisa assinar'); return; }
+  sairLandscape();
+  irStep(3);
+}
+
+function voltarStep2(){ irStep(2); tentarLandscape(); setTimeout(()=>initCanvas(),150); }
+
+// ── MODO PAISAGEM ──
+async function tentarLandscape(){
+  try{
+    if(screen.orientation?.lock){ await screen.orientation.lock('landscape-primary'); return; }
+  }catch(e){}
+  if(window.innerHeight>window.innerWidth){
+    const hint=document.getElementById('landscape-hint');
+    hint.style.display='flex';
+    setTimeout(()=>hint.style.display='none',3000);
+  }
+}
+
+function sairLandscape(){
+  try{ if(screen.orientation?.unlock) screen.orientation.unlock(); }catch(e){}
+}
+
+
 
 let fotosB64=[];
 
@@ -702,41 +823,44 @@ async function confirmar(){
   btn.disabled=true;
 
   try{
-    const hoje   = new Date().toISOString().split('T')[0];
+    const hoje    = new Date().toISOString().split('T')[0];
     const cliente = docAberto.clienteNome || 'SEM-NOME';
     const codCli  = docAberto.refCodigo   || 'SEM-COD';
     const pedido  = docAberto.numeroPedido || '';
 
-    // ── Envia assinatura para o Drive ──
-    load('Enviando assinatura para o Drive...');
-    const assB64 = document.getElementById('cv').toDataURL('image/png').split(',')[1];
-    const assResp = await enviarDrive({ tipo:'assinatura', base64:assB64, mimeType:'image/png', cliente, codCli, pedido, data:hoje });
-    const assUrl  = assResp.url || document.getElementById('cv').toDataURL('image/png');
+    // ── Assinatura como base64 ──
+    load('Salvando assinatura...');
+    const assB64full = document.getElementById('cv').toDataURL('image/png');
 
-    // ── Envia fotos para o Drive ──
-    const fotosUrls = [];
-    for(let i=0; i<fotosB64.length; i++){
-      load(`Enviando foto ${i+1} de ${fotosB64.length} para o Drive...`);
-      const b64 = fotosB64[i].split(',')[1];
-      const r   = await enviarDrive({ tipo:`foto_${i+1}`, base64:b64, mimeType:'image/jpeg', cliente, codCli, pedido, data:hoje });
-      fotosUrls.push(r.url || fotosB64[i]);
-    }
+    // ── Fotos como base64 ──
+    const fotosUrls = [...fotosB64]; // base64 das fotos
 
-    // ── Salva no Firestore ──
+    // ── Salva tudo no Firestore (principal) ──
     load('Registrando entrega...');
     await db.collection('comprovantes').doc(docAberto.id).update({
       status:        'entregue',
-      assinaturaUrl: assUrl,
+      assinaturaUrl: assB64full,
       fotosUrl:      fotosUrls,
       fotoUrl:       fotosUrls[0] || null,
       itensMarcados: marcados,
       gps:           gps || null,
       entregueEm:    firebase.firestore.FieldValue.serverTimestamp(),
-      driveCliente:  `${cliente} — COD ${codCli}`
+      driveCliente:  `${cliente} — COD ${codCli}`,
+      assinanteNome: document.getElementById('ass-nome').value.trim(),
+      assinanteDoc:  document.getElementById('ass-doc').value.trim()
     });
 
+    // ── Envia para o Drive em background (fire-and-forget) ──
+    load('Enviando para o Drive...');
+    const assB64 = assB64full.split(',')[1];
+    enviarDriveBackground({ tipo:'assinatura', base64:assB64, mimeType:'image/png', cliente, codCli, pedido, data:hoje });
+    for(let i=0; i<fotosB64.length; i++){
+      const b64 = fotosB64[i].split(',')[1];
+      enviarDriveBackground({ tipo:`foto_${i+1}`, base64:b64, mimeType:'image/jpeg', cliente, codCli, pedido, data:hoje });
+    }
+
     fModal('mod-conf');
-    toast('✅ Entrega confirmada e salva no Drive!');
+    toast('✅ Entrega confirmada! Salvando no Drive...');
 
   }catch(e){
     console.error(e);
@@ -745,19 +869,15 @@ async function confirmar(){
   btn.disabled=false; load(false);
 }
 
-// ── Envia arquivo para o Google Drive via Apps Script ──
-async function enviarDrive(dados){
-  try{
-    const res  = await fetch(DRIVE_URL, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(dados)
-    });
-    return await res.json();
-  }catch(e){
-    console.warn('Drive indisponível, usando base64 local:', e);
-    return { url: null };
-  }
+// ── Envia para Drive em background sem bloquear o app ──
+function enviarDriveBackground(dados){
+  // Usa XMLHttpRequest que contorna o problema de CORS no Apps Script
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', DRIVE_URL, true);
+  xhr.setRequestHeader('Content-Type', 'text/plain');
+  xhr.onload  = () => console.log('Drive OK:', dados.tipo);
+  xhr.onerror = () => console.warn('Drive erro:', dados.tipo);
+  xhr.send(JSON.stringify(dados));
 }
 
 async function comprimirImg(file){
@@ -890,7 +1010,31 @@ async function salvar(){
   load(false);
 }
 
-// ── UI ────────────────────────────────────────────
+// ── APAGAR COMPROVANTE ────────────────────────────
+async function apagarComprovante(id, clienteNome, status){
+  // Confirmação dupla para entregues
+  const msg = status === 'entregue'
+    ? `⚠️ Apagar o comprovante de "${clienteNome}"?\n\nAs fotos e assinatura serão removidas do sistema.\n(Os arquivos no Drive permanecem.)`
+    : `Apagar o comprovante pendente de "${clienteNome}"?`;
+
+  if(!confirm(msg)) return;
+
+  // Segunda confirmação para entregues
+  if(status === 'entregue'){
+    if(!confirm('Tem certeza? Esta ação não pode ser desfeita.')) return;
+  }
+
+  load('Apagando...');
+  try{
+    await db.collection('comprovantes').doc(id).delete();
+    fModal('mod-detalhe');
+    toast('🗑 Comprovante apagado.');
+  }catch(e){
+    console.error(e);
+    toast('Erro ao apagar. Tente novamente.');
+  }
+  load(false);
+}
 function tela(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 function aModal(id){document.getElementById(id).classList.add('active');document.body.style.overflow='hidden';}
 function fModal(id){document.getElementById(id).classList.remove('active');document.body.style.overflow='';}
