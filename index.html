@@ -331,6 +331,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 firebase.initializeApp({
   apiKey:"AIzaSyBmk79ts8iPrS_Rc1gyDPbA2OzDOODYMYk",
@@ -830,18 +831,26 @@ async function confirmar(){
 
   try{
     const hoje    = new Date().toISOString().split('T')[0];
+    const agora   = new Date();
     const cliente = docAberto.clienteNome || 'SEM-NOME';
     const codCli  = docAberto.refCodigo   || 'SEM-COD';
     const pedido  = docAberto.numeroPedido || '';
+    const assNome = document.getElementById('ass-nome').value.trim();
+    const assDoc  = document.getElementById('ass-doc').value.trim();
 
-    // ── Assinatura como base64 ──
     load('Salvando assinatura...');
     const assB64full = document.getElementById('cv').toDataURL('image/png');
+    const fotosUrls  = [...fotosB64];
 
-    // ── Fotos como base64 ──
-    const fotosUrls = [...fotosB64]; // base64 das fotos
+    // ── Gera relatório PDF ──
+    load('Gerando relatório PDF...');
+    const relatorioB64 = await gerarRelatorioPDF({
+      doc: docAberto, fotos: fotosB64, ass: assB64full,
+      assNome, assDoc, gps, marcados,
+      entregador: nomeMe, agora
+    });
 
-    // ── Salva tudo no Firestore (principal) ──
+    // ── Salva no Firestore ──
     load('Registrando entrega...');
     await db.collection('comprovantes').doc(docAberto.id).update({
       status:        'entregue',
@@ -852,27 +861,150 @@ async function confirmar(){
       gps:           gps || null,
       entregueEm:    firebase.firestore.FieldValue.serverTimestamp(),
       driveCliente:  `${cliente} — COD ${codCli}`,
-      assinanteNome: document.getElementById('ass-nome').value.trim(),
-      assinanteDoc:  document.getElementById('ass-doc').value.trim()
+      assinanteNome: assNome,
+      assinanteDoc:  assDoc,
+      entregadorNome: nomeMe
     });
 
-    // ── Envia para o Drive em background (fire-and-forget) ──
+    // ── Envia para Drive em background ──
     load('Enviando para o Drive...');
-    const assB64 = assB64full.split(',')[1];
-    enviarDriveBackground({ tipo:'assinatura', base64:assB64, mimeType:'image/png', cliente, codCli, pedido, data:hoje });
-    for(let i=0; i<fotosB64.length; i++){
-      const b64 = fotosB64[i].split(',')[1];
-      enviarDriveBackground({ tipo:`foto_${i+1}`, base64:b64, mimeType:'image/jpeg', cliente, codCli, pedido, data:hoje });
-    }
+    // Relatório PDF
+    enviarDriveBackground({ tipo:'relatorio', base64:relatorioB64, mimeType:'application/pdf', cliente, codCli, pedido, data:hoje });
+    // Assinatura
+    enviarDriveBackground({ tipo:'assinatura', base64:assB64full.split(',')[1], mimeType:'image/png', cliente, codCli, pedido, data:hoje });
+    // Fotos em alta resolução
+    fotosB64.forEach((f,i) => {
+      enviarDriveBackground({ tipo:`foto_${i+1}`, base64:f.split(',')[1], mimeType:'image/jpeg', cliente, codCli, pedido, data:hoje });
+    });
 
     fModal('mod-conf');
-    toast('✅ Entrega confirmada! Salvando no Drive...');
+    toast('✅ Entrega finalizada! Relatório e fotos enviados ao Drive.');
 
   }catch(e){
     console.error(e);
-    toast('Erro ao confirmar. Tente novamente.');
+    toast('Erro ao finalizar. Tente novamente.');
   }
   btn.disabled=false; load(false);
+}
+
+// ── GERAR RELATÓRIO PDF DE ENTREGA ───────────────
+async function gerarRelatorioPDF({ doc, fotos, ass, assNome, assDoc, gps, marcados, entregador, agora }) {
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
+  const W = 210, M = 15, TW = W - M*2;
+  let y = M;
+
+  const checkPage = (need=20) => { if(y+need>282){pdf.addPage();y=M;} };
+  const sf = (s='',sz=10) => { pdf.setFont('helvetica',s==='B'?'bold':s==='I'?'italic':'normal').setFontSize(sz); };
+  const sc = (r,g,b) => pdf.setTextColor(r,g,b);
+
+  // HEADER
+  pdf.setFillColor(26,26,26); pdf.rect(0,0,W,30,'F');
+  sf('B',18); sc(232,197,71); pdf.text('ARQ LUZ',M,13);
+  sf('',8); sc(160,160,160); pdf.text('ILUMINAÇÃO PLANEJADA — VOTUPORANGA/SP',M,20);
+  sf('B',13); sc(255,255,255); pdf.text('COMPROVANTE DE ENTREGA',W-M,13,{align:'right'});
+  sf('',9); sc(200,200,200); pdf.text(agora.toLocaleString('pt-BR'),W-M,20,{align:'right'});
+  y=38;
+
+  // DADOS
+  sf('B',11); sc(26,26,26); pdf.text('DADOS DA ENTREGA',M,y); y+=6;
+  pdf.setDrawColor(220,220,220); pdf.setLineWidth(0.3); pdf.line(M,y,W-M,y); y+=5;
+
+  const row=(lbl,val)=>{
+    sf('B',9); sc(100,100,100);
+    const lw=pdf.getTextWidth(lbl+':  ');
+    pdf.text(lbl+': ',M,y);
+    sf('',10); sc(26,26,26);
+    const ls=pdf.splitTextToSize(String(val||'—'),TW-lw-2);
+    pdf.text(ls,M+lw,y); y+=ls.length*5+2;
+  };
+  row('Cliente',(doc.clienteNome||'—').toUpperCase());
+  row('Cód. Cliente',doc.refCodigo||'—');
+  row('Pedido Nº',doc.numeroPedido?'#'+doc.numeroPedido:'—');
+  if(doc.endereco) row('Endereço',doc.endereco);
+  row('Data',agora.toLocaleDateString('pt-BR'));
+  row('Hora',agora.toLocaleTimeString('pt-BR'));
+  row('Entregador',entregador||'—');
+  if(gps){sf('',9);sc(59,130,246);pdf.text(`GPS: ${gps.lat.toFixed(6)}, ${gps.lng.toFixed(6)}`,M,y);y+=5;}
+  y+=4;
+
+  // ITENS
+  checkPage(20);
+  pdf.line(M,y,W-M,y); y+=5;
+  sf('B',11); sc(26,26,26);
+  pdf.text(`ITENS ENTREGUES — ${(doc.itens||[]).length} produto(s)`,M,y); y+=7;
+
+  if(doc.itens?.length){
+    doc.itens.forEach((it,i)=>{
+      checkPage(8);
+      const ok=marcados[i];
+      pdf.setFillColor(ok?34:240,ok?197:240,ok?94:240);
+      pdf.setDrawColor(ok?34:200,ok?197:200,ok?94:200);
+      pdf.setLineWidth(0.4);
+      pdf.roundedRect(M,y-4,5,5,1,1,ok?'FD':'D');
+      if(ok){sf('B',8);sc(255,255,255);pdf.text('✓',M+0.8,y-0.2);}
+      sf('',9); sc(ok?26:160,26,ok?26:160);
+      const desc=`${it.qty} ${it.unit||'UN'}  ${it.desc}`;
+      const ls=pdf.splitTextToSize(desc,TW-8);
+      pdf.text(ls,M+7,y); y+=ls.length*5+1;
+    });
+  } else {
+    sf('I',9);sc(150,150,150);pdf.text('Sem lista de itens cadastrada.',M,y);y+=6;
+  }
+  y+=4;
+
+  // FOTOS MINIATURAS
+  if(fotos.length){
+    checkPage(50);
+    pdf.line(M,y,W-M,y); y+=5;
+    sf('B',11);sc(26,26,26);pdf.text(`REGISTRO FOTOGRÁFICO — ${fotos.length} foto(s)`,M,y);y+=5;
+    sf('I',8);sc(130,130,130);pdf.text('Fotos em alta resolução disponíveis na pasta do Drive.',M,y);y+=7;
+    const sz=40,gap=4,cols=Math.floor(TW/(sz+gap));
+    let col=0;
+    for(const foto of fotos){
+      if(col===0) checkPage(sz+gap+2);
+      const x=M+col*(sz+gap);
+      try{
+        pdf.addImage(foto,'JPEG',x,y,sz,sz,undefined,'FAST');
+        pdf.setDrawColor(200,200,200);pdf.setLineWidth(0.2);pdf.rect(x,y,sz,sz);
+      }catch(e){}
+      col++;
+      if(col>=cols){col=0;y+=sz+gap;}
+    }
+    if(col>0)y+=sz+gap;
+    y+=4;
+  }
+
+  // ASSINATURA
+  checkPage(65);
+  pdf.line(M,y,W-M,y); y+=5;
+  sf('B',11);sc(26,26,26);pdf.text('ASSINATURA DO RECEBEDOR',M,y);y+=6;
+  row('Assinado por',assNome||'—');
+  row('CPF / RG',assDoc||'—');
+  y+=3;
+  if(ass){
+    try{
+      pdf.setFillColor(252,252,252);pdf.setDrawColor(180,180,180);pdf.setLineWidth(0.3);
+      pdf.rect(M,y,85,32,'FD');
+      pdf.addImage(ass,'PNG',M,y,85,32,undefined,'FAST');
+      y+=35;
+    }catch(e){}
+  }
+  pdf.setDrawColor(26,26,26);pdf.setLineWidth(0.4);pdf.line(M,y+8,M+85,y+8);
+  sf('',8);sc(100,100,100);pdf.text(assNome||'______________________________',M,y+13);
+  y+=18;
+
+  // RODAPÉ em todas as páginas
+  const total=pdf.getNumberOfPages();
+  for(let p=1;p<=total;p++){
+    pdf.setPage(p);
+    pdf.setFillColor(26,26,26);pdf.rect(0,287,W,10,'F');
+    sf('',7);sc(150,150,150);
+    pdf.text(`Arq Luz Iluminação — Votuporanga/SP — ${agora.toLocaleString('pt-BR')}`,W/2,293,{align:'center'});
+    sf('',7);sc(100,100,100);pdf.text(`${p}/${total}`,W-M,293,{align:'right'});
+  }
+
+  return pdf.output('datauristring').split(',')[1];
 }
 
 // ── Envia para Drive em background sem bloquear o app ──
