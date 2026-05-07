@@ -181,7 +181,13 @@
 <!-- MODAL: DETALHE -->
 <div class="overlay" id="mod-detalhe">
   <div class="modal">
-    <div class="mh"><h3 id="d-titulo">Detalhe</h3><button class="xbtn" onclick="fModal('mod-detalhe')">×</button></div>
+    <div class="mh">
+      <h3 id="d-titulo">Detalhe</h3>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button id="btn-apagar-header" style="display:none;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);color:#e74c3c;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:700;" onclick="apagarAberto()">🗑 Apagar</button>
+        <button class="xbtn" onclick="fModal('mod-detalhe')">×</button>
+      </div>
+    </div>
     <div id="d-corpo"></div>
   </div>
 </div>
@@ -526,7 +532,13 @@ function cardHtml(d,fn){
 // ── DETALHE ──────────────────────────────────────
 function abrirDetalhe(id){
   const d=docs.find(x=>x.id===id); if(!d) return;
+  docAberto=d; // guarda para o botão apagar do header
   document.getElementById('d-titulo').textContent=d.clienteNome||'Comprovante';
+
+  // Mostra/esconde botão apagar no header (só dono)
+  const btnApagarH=document.getElementById('btn-apagar-header');
+  btnApagarH.style.display = perfil==='dono' ? 'block' : 'none';
+
   const data=d.criadoEm?(d.criadoEm.toDate?d.criadoEm.toDate():new Date(d.criadoEm)):null;
 
   let html=`
@@ -613,21 +625,15 @@ function abrirDetalhe(id){
     }
   }
 
-  // Botão apagar — só para dono
-  if(perfil==='dono'){
-    html+=`
-      <div style="margin-top:20px;padding-top:16px;border-top:1px solid #eee;">
-        <button onclick="apagarComprovante('${d.id}','${(d.clienteNome||'').replace(/'/g,"\\'")}','${d.status}')"
-          style="width:100%;padding:11px;background:transparent;color:#e74c3c;border:1.5px solid #e74c3c;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;"
-          onmouseover="this.style.background='rgba(231,76,60,0.07)'"
-          onmouseout="this.style.background='transparent'">
-          🗑 Apagar este comprovante
-        </button>
-      </div>`;
-  }
-
+  // Botão apagar já está no header — remove o inline
   document.getElementById('d-corpo').innerHTML=html;
   aModal('mod-detalhe');
+}
+
+// ── APAGAR PELO HEADER ────────────────────────────
+function apagarAberto(){
+  if(!docAberto) return;
+  apagarComprovante(docAberto.id, docAberto.clienteNome||'', docAberto.status);
 }
 
 // ── CONFIRMAR (ENTREGADOR) — 3 ETAPAS ────────────
@@ -933,6 +939,21 @@ async function lerPDF(file){
   }
 }
 
+// ── Remove nome duplicado (ex: "JOAO SILVAJOAO SILVA" → "JOAO SILVA") ──
+function limparNomeDuplicado(nome){
+  nome = nome.replace(/\s+/g,' ').trim();
+  // Detecta se a segunda metade é igual à primeira
+  const meio = Math.floor(nome.length / 2);
+  for(let i = Math.floor(nome.length * 0.4); i <= Math.ceil(nome.length * 0.6); i++){
+    const parte1 = nome.substring(0, i).trim();
+    const parte2 = nome.substring(i).trim();
+    if(parte1.length > 4 && (parte2.startsWith(parte1) || parte1.endsWith(parte2))){
+      return parte1;
+    }
+  }
+  return nome;
+}
+
 function parseCods(rest){
   rest=rest.replace(/\s+(Separado|Entregue)\s*$/i,'').trim();
   const t=rest.split(/\s+/); let li=-1,di=0;
@@ -951,12 +972,17 @@ function parsePDF(lines){
   const units=['UN','MT','RL','PC','CX','KG','PT','M','CM','LT'];
   for(let i=0;i<lines.length;i++){
     const ln=lines[i]; let m;
-    if(nextCliente&&ln.trim().length>2){d.cliente=ln.trim().replace(/\s+/g,' ');nextCliente=false;continue;}
+    if(nextCliente&&ln.trim().length>2){
+      if(!d.cliente) d.cliente=limparNomeDuplicado(ln.trim());
+      nextCliente=false; continue;
+    }
     if(nextEndereco&&ln.trim().length>2){d.endereco=ln.trim().replace(/\s+/g,' ');nextEndereco=false;continue;}
     if(m=ln.match(/PEDIDO[:\s#]+(\d+)/i))d.pedido=m[1];
     if(m=ln.match(/Cód\.?Cliente[:\s]+(\S+)/i))d.ref=m[1].trim();
-    if(m=ln.match(/Nome\s*[:\s]+(.+)/i)){const v=m[1].trim().replace(/\s+/g,' ');if(v&&v.length>2)d.cliente=v;else nextCliente=true;}
-    else if(ln.match(/^Nome\s*:?\s*$/i))nextCliente=true;
+    if(m=ln.match(/Nome\s*[:\s]+(.+)/i)){
+      const v=limparNomeDuplicado(m[1].trim());
+      if(v&&v.length>2&&!d.cliente) d.cliente=v; else if(v.length<=2) nextCliente=true;
+    } else if(ln.match(/^Nome\s*:?\s*$/i)) nextCliente=true;
     if(m=ln.match(/Endere[çc]o\s*[:\s]+(.+?)(?:\s+Bairro|$)/i)){const v=m[1].trim();if(v&&v.length>2)d.endereco=v;else nextEndereco=true;}
     if(m=ln.match(/Vendedor[:\s]+(.+)/i))d.vendedor=m[1].trim();
     if(ln.match(/Qtde.*Descri/i)){inIt=true;continue;}
