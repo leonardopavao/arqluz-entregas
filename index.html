@@ -618,11 +618,21 @@ function abrirDetalhe(id){
       <img src="${d.assinaturaUrl}" class="dimg" onclick="window.open('${d.assinaturaUrl}','_blank')">
     </div>`;
     const fotos=d.fotosUrl?.length?d.fotosUrl:(d.fotoUrl?[d.fotoUrl]:[]);
-    if(fotos.length){
-      html+=`<div style="margin-top:12px;"><div style="font-size:11px;color:#999;font-weight:700;margin-bottom:8px;">📷 FOTOS DA ENTREGA (${fotos.length})</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
-      ${fotos.map((f,i)=>`<img src="${f}" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;cursor:zoom-in;" onclick="window.open('${f}','_blank')">`).join('')}
-      </div></div>`;
+    const fotosCount = d.fotosCount || fotos.length;
+    if(fotosCount > 0){
+      html+=`<div style="margin-top:12px;">
+        <div style="font-size:11px;color:#999;font-weight:700;margin-bottom:8px;">📷 FOTOS DA ENTREGA (${fotosCount})</div>`;
+      if(fotos.length > 0){
+        html+=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+          ${fotos.map(f=>`<img src="${f}" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;cursor:zoom-in;" onclick="window.open('${f}','_blank')">`).join('')}
+        </div>`;
+        if(fotosCount > fotos.length){
+          html+=`<div style="font-size:12px;color:#888;margin-top:8px;text-align:center;">
+            + ${fotosCount - fotos.length} foto(s) salvas em alta resolução no Google Drive
+          </div>`;
+        }
+      }
+      html+=`</div>`;
     }
   }
 
@@ -840,7 +850,12 @@ async function confirmar(){
 
     load('Salvando assinatura...');
     const assB64full = document.getElementById('cv').toDataURL('image/png');
-    const fotosUrls  = [...fotosB64];
+
+    // ── Gera miniatura da 1ª foto para preview no app (max 400px, qualidade baixa) ──
+    let thumbPreview = null;
+    if(fotosB64.length > 0){
+      thumbPreview = await reduzirParaThumb(fotosB64[0]);
+    }
 
     // ── Gera relatório PDF ──
     load('Gerando relatório PDF...');
@@ -850,19 +865,20 @@ async function confirmar(){
       entregador: nomeMe, agora
     });
 
-    // ── Salva no Firestore ──
+    // ── Salva no Firestore (SEM as fotos completas — só thumb + contagem) ──
     load('Registrando entrega...');
     await db.collection('comprovantes').doc(docAberto.id).update({
-      status:        'entregue',
-      assinaturaUrl: assB64full,
-      fotosUrl:      fotosUrls,
-      fotoUrl:       fotosUrls[0] || null,
-      itensMarcados: marcados,
-      gps:           gps || null,
-      entregueEm:    firebase.firestore.FieldValue.serverTimestamp(),
-      driveCliente:  `${cliente} — COD ${codCli}`,
-      assinanteNome: assNome,
-      assinanteDoc:  assDoc,
+      status:         'entregue',
+      assinaturaUrl:  assB64full,
+      fotosUrl:       thumbPreview ? [thumbPreview] : [],  // só 1 thumb para preview
+      fotoUrl:        thumbPreview || null,
+      fotosCount:     fotosB64.length,
+      itensMarcados:  marcados,
+      gps:            gps || null,
+      entregueEm:     firebase.firestore.FieldValue.serverTimestamp(),
+      driveCliente:   `${cliente} — COD ${codCli}`,
+      assinanteNome:  assNome,
+      assinanteDoc:   assDoc,
       entregadorNome: nomeMe
     });
 
@@ -878,7 +894,7 @@ async function confirmar(){
     });
 
     fModal('mod-conf');
-    toast('✅ Entrega finalizada! Relatório e fotos enviados ao Drive.');
+    toast(`✅ Entrega finalizada! ${fotosB64.length} foto(s) enviadas ao Drive.`);
 
   }catch(e){
     console.error(e);
@@ -1022,13 +1038,29 @@ async function comprimirImg(file){
   return new Promise(res=>{
     const img=new Image(),url=URL.createObjectURL(file);
     img.onload=()=>{
+      // 800px max, qualidade 0.75 — para envio ao Drive
       const r=Math.min(800/img.width,800/img.height,1);
       const c=document.createElement('canvas');
       c.width=img.width*r; c.height=img.height*r;
       c.getContext('2d').drawImage(img,0,0,c.width,c.height);
-      URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg',.7));
+      URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg',.75));
     };
     img.src=url;
+  });
+}
+
+// Gera miniatura pequena para preview no app (não vai para Firestore completo)
+async function reduzirParaThumb(b64){
+  return new Promise(res=>{
+    const img=new Image();
+    img.onload=()=>{
+      const r=Math.min(300/img.width,300/img.height,1);
+      const c=document.createElement('canvas');
+      c.width=img.width*r; c.height=img.height*r;
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      res(c.toDataURL('image/jpeg',.4)); // 300px, qualidade 40% — só para preview
+    };
+    img.src=b64;
   });
 }
 
