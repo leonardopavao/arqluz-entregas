@@ -109,6 +109,12 @@
     .cli-hist-item.pend{border-left-color:#e67e22}
     .cli-hist-item.ent{border-left-color:#27ae60}
     @media(max-width:480px){.search{flex-wrap:wrap}}
+    /* OFFLINE */
+    .offline-badge{display:none;background:#e74c3c;color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.5px;animation:pulse 2s infinite;}
+    .offline-badge.on{display:inline-flex;align-items:center;gap:5px;}
+    .sync-badge{display:none;background:#e67e22;color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;cursor:pointer;}
+    .sync-badge.on{display:inline-flex;align-items:center;gap:5px;}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
   </style>
 </head>
 <body>
@@ -130,7 +136,11 @@
 <!-- PAINEL DONO / VENDEDORA -->
 <div class="screen" id="screen-painel">
   <div class="header">
-    <div><h1>🚚 Entregas</h1><small id="hnome"></small></div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <div><h1>🚚 Entregas</h1><small id="hnome"></small></div>
+      <span class="offline-badge" id="badge-offline">⚡ OFFLINE</span>
+      <span class="sync-badge" id="badge-sync" onclick="sincronizarPendentes()">🔄 <span id="sync-count">0</span> pendente(s)</span>
+    </div>
     <button class="btn-out" onclick="logout()">Sair</button>
   </div>
   <div class="content">
@@ -157,7 +167,11 @@
 <!-- PAINEL ENTREGADOR -->
 <div class="screen" id="screen-ent">
   <div class="header">
-    <div><h1>📦 Minhas Entregas</h1><small id="hnome2"></small></div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <div><h1>📦 Minhas Entregas</h1><small id="hnome2"></small></div>
+      <span class="offline-badge" id="badge-offline2">⚡ OFFLINE</span>
+      <span class="sync-badge" id="badge-sync2" onclick="sincronizarPendentes()">🔄 <span id="sync-count2">0</span> salvo(s)</span>
+    </div>
     <button class="btn-out" onclick="logout()">Sair</button>
   </div>
   <div class="content">
@@ -850,48 +864,51 @@ async function confirmar(){
 
     load('Salvando assinatura...');
     const assB64full = document.getElementById('cv').toDataURL('image/png');
-
-    // ── Gera miniatura da 1ª foto para preview no app (max 400px, qualidade baixa) ──
     let thumbPreview = null;
-    if(fotosB64.length > 0){
-      thumbPreview = await reduzirParaThumb(fotosB64[0]);
-    }
+    if(fotosB64.length > 0) thumbPreview = await reduzirParaThumb(fotosB64[0]);
 
-    // ── Gera relatório PDF ──
     load('Gerando relatório PDF...');
     const relatorioB64 = await gerarRelatorioPDF({
       doc: docAberto, fotos: fotosB64, ass: assB64full,
-      assNome, assDoc, gps, marcados,
-      entregador: nomeMe, agora
+      assNome, assDoc, gps, marcados, entregador: nomeMe, agora
     });
 
-    // ── Salva no Firestore (SEM as fotos completas — só thumb + contagem) ──
+    const dadosFirestore = {
+      status: 'entregue', assinaturaUrl: assB64full,
+      fotosUrl: thumbPreview ? [thumbPreview] : [],
+      fotoUrl: thumbPreview || null, fotosCount: fotosB64.length,
+      itensMarcados: marcados, gps: gps || null,
+      entregueEm: firebase.firestore.FieldValue.serverTimestamp(),
+      driveCliente: `${cliente} — COD ${codCli}`,
+      assinanteNome: assNome, assinanteDoc: assDoc, entregadorNome: nomeMe
+    };
+
+    // ── Verifica conexão ──
+    if(!navigator.onLine){
+      // Salva tudo no localStorage para sincronizar depois
+      load('Sem internet — salvando localmente...');
+      offlineAdd({
+        docId:       docAberto.id,
+        dados:       { ...dadosFirestore, entregueEm: new Date().toISOString() },
+        relatorioB64,
+        assB64:      assB64full.split(',')[1],
+        fotosB64:    fotosB64,
+        drive:       { cliente, codCli, pedido, hoje }
+      });
+      fModal('mod-conf');
+      load(false);
+      toast('⚡ Sem internet — entrega salva localmente! Será enviada quando conectar.');
+      return;
+    }
+
+    // ── Online: salva normalmente ──
     load('Registrando entrega...');
-    await db.collection('comprovantes').doc(docAberto.id).update({
-      status:         'entregue',
-      assinaturaUrl:  assB64full,
-      fotosUrl:       thumbPreview ? [thumbPreview] : [],  // só 1 thumb para preview
-      fotoUrl:        thumbPreview || null,
-      fotosCount:     fotosB64.length,
-      itensMarcados:  marcados,
-      gps:            gps || null,
-      entregueEm:     firebase.firestore.FieldValue.serverTimestamp(),
-      driveCliente:   `${cliente} — COD ${codCli}`,
-      assinanteNome:  assNome,
-      assinanteDoc:   assDoc,
-      entregadorNome: nomeMe
-    });
+    await db.collection('comprovantes').doc(docAberto.id).update(dadosFirestore);
 
-    // ── Envia para Drive em background ──
     load('Enviando para o Drive...');
-    // Relatório PDF
     enviarDriveBackground({ tipo:'relatorio', base64:relatorioB64, mimeType:'application/pdf', cliente, codCli, pedido, data:hoje });
-    // Assinatura
     enviarDriveBackground({ tipo:'assinatura', base64:assB64full.split(',')[1], mimeType:'image/png', cliente, codCli, pedido, data:hoje });
-    // Fotos em alta resolução
-    fotosB64.forEach((f,i) => {
-      enviarDriveBackground({ tipo:`foto_${i+1}`, base64:f.split(',')[1], mimeType:'image/jpeg', cliente, codCli, pedido, data:hoje });
-    });
+    fotosB64.forEach((f,i) => enviarDriveBackground({ tipo:`foto_${i+1}`, base64:f.split(',')[1], mimeType:'image/jpeg', cliente, codCli, pedido, data:hoje }));
 
     fModal('mod-conf');
     toast(`✅ Entrega finalizada! ${fotosB64.length} foto(s) enviadas ao Drive.`);
@@ -1232,6 +1249,90 @@ function load(msg){const el=document.getElementById('lod');if(!msg){el.classList
 let _tt;
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('on'),3500);}
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)fModal(o.id);}));
+
+// ══════════════════════════════════════════════════════════
+// MOTOR OFFLINE — salva localmente e sincroniza quando online
+// ══════════════════════════════════════════════════════════
+const OFFLINE_KEY = 'arqluz_offline_queue';
+
+function offlineQueue(){
+  try{ return JSON.parse(localStorage.getItem(OFFLINE_KEY)||'[]'); }catch{ return []; }
+}
+function offlineSave(queue){
+  localStorage.setItem(OFFLINE_KEY, JSON.stringify(queue));
+}
+function offlineAdd(item){
+  const q = offlineQueue();
+  q.push({ ...item, _ts: Date.now(), _id: crypto.randomUUID() });
+  offlineSave(q);
+  atualizarBadgeOffline();
+}
+function offlineRemove(id){
+  offlineSave(offlineQueue().filter(x => x._id !== id));
+  atualizarBadgeOffline();
+}
+
+function atualizarBadgeOffline(){
+  const online = navigator.onLine;
+  const q      = offlineQueue();
+  const n      = q.length;
+
+  // Badges offline
+  ['badge-offline','badge-offline2'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.classList.toggle('on', !online);
+  });
+  // Badges de itens pendentes para sync
+  ['badge-sync','badge-sync2'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){ el.classList.toggle('on', n>0 && online); }
+  });
+  document.querySelectorAll('#sync-count,#sync-count2').forEach(el=>el.textContent=n);
+}
+
+// Sincroniza todos os itens salvos offline com o Firestore e o Drive
+async function sincronizarPendentes(){
+  const q = offlineQueue();
+  if(!q.length){ toast('Nada pendente para sincronizar.'); return; }
+  if(!navigator.onLine){ toast('⚡ Ainda sem internet.'); return; }
+
+  load(`Sincronizando ${q.length} entrega(s)...`);
+  let ok=0, erros=0;
+
+  for(const item of q){
+    try{
+      // Salva no Firestore
+      await db.collection('comprovantes').doc(item.docId).update(item.dados);
+
+      // Envia para Drive em background
+      const { cliente, codCli, pedido, hoje } = item.drive;
+      if(item.relatorioB64)
+        enviarDriveBackground({ tipo:'relatorio', base64:item.relatorioB64, mimeType:'application/pdf', cliente, codCli, pedido, data:hoje });
+      if(item.assB64)
+        enviarDriveBackground({ tipo:'assinatura', base64:item.assB64, mimeType:'image/png', cliente, codCli, pedido, data:hoje });
+      (item.fotosB64||[]).forEach((f,i)=>
+        enviarDriveBackground({ tipo:`foto_${i+1}`, base64:f.split(',')[1], mimeType:'image/jpeg', cliente, codCli, pedido, data:hoje })
+      );
+
+      offlineRemove(item._id);
+      ok++;
+    }catch(e){
+      console.error('Sync erro:', e);
+      erros++;
+    }
+  }
+
+  load(false);
+  atualizarBadgeOffline();
+  if(erros===0) toast(`✅ ${ok} entrega(s) sincronizadas com sucesso!`);
+  else          toast(`⚠️ ${ok} ok, ${erros} com erro. Tente novamente.`);
+}
+
+// Monitora conexão
+window.addEventListener('online',  () => { atualizarBadgeOffline(); sincronizarPendentes(); });
+window.addEventListener('offline', () => { atualizarBadgeOffline(); toast('⚡ Sem internet — entregas serão salvas localmente.'); });
+atualizarBadgeOffline(); // estado inicial
+
 </script>
 </body>
 </html>
