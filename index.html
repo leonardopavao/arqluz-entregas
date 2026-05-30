@@ -132,6 +132,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 const ACCESS_PASS="1234", MASTER_PASS="081120";
+const SHARED_EMAIL="entregador@arqluz.com", SHARED_PASSWORD="123456789";
 const DRIVE_URL="https://script.google.com/macros/s/AKfycbz96AIPfe_zI-5PKR_g_pHatMX4xLTKQjuINv0pOxrc1eYhw7v3_yXSOnhGjaBnhzbi/exec";
 firebase.initializeApp({apiKey:"AIzaSyBmk79ts8iPrS_Rc1gyDPbA2OzDOODYMYk",authDomain:"arqluz-entregas.firebaseapp.com",projectId:"arqluz-entregas",storageBucket:"arqluz-entregas.firebasestorage.app",messagingSenderId:"294162415165",appId:"1:294162415165:web:d8b4f6cb47fae7e235b454"});
 pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
@@ -142,7 +143,7 @@ if(localStorage.getItem("arqluz_ok")==="1") iniciar();
 document.getElementById("pass").addEventListener("keydown",e=>{if(e.key==="Enter")entrar()});
 function entrar(){const p=document.getElementById("pass").value.trim();if(p!==ACCESS_PASS){document.getElementById("loginerr").textContent="Senha incorreta.";return}localStorage.setItem("arqluz_ok","1");iniciar()}
 function sair(){localStorage.removeItem("arqluz_ok");location.reload()}
-async function iniciar(){tela("app");load("Conectando...");try{if(!auth.currentUser)await auth.signInAnonymously();}catch(e){console.warn("Auth anonimo indisponivel, tentando Firestore direto.",e)}escutar();load(false)}
+async function iniciar(){tela("app");load("Conectando...");try{if(!auth.currentUser)await auth.signInWithEmailAndPassword(SHARED_EMAIL,SHARED_PASSWORD);}catch(e){console.error(e);toast("Nao consegui autenticar no Firebase. Verifique o usuario interno.");}escutar();load(false)}
 function escutar(){if(unsub)unsub();unsub=db.collection("comprovantes").orderBy("criadoEm","desc").onSnapshot(s=>{docs=s.docs.map(d=>({id:d.id,...d.data()}));document.getElementById("status").textContent="Online";render();},e=>{console.error(e);document.getElementById("status").textContent="Erro no Firebase";toast("Nao consegui carregar as entregas.")})}
 function tela(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active")}
 function setTab(t,el){tabAtual=t;document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));el.classList.add("active");render()}
