@@ -2,340 +2,128 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
   <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#171717">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="AL Entregas">
-  <meta name="theme-color" content="#1a1a1a">
-  <title>Arq Luz — Entregas</title>
+  <meta name="apple-mobile-web-app-title" content="Entregas">
+  <title>Arq Luz Entregas</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f0f0;color:#1a1a1a}
-    .screen{display:none;min-height:100vh}
-    .screen.active{display:block}
-    #screen-login.active{display:flex}
-    #screen-login{align-items:center;justify-content:center;background:linear-gradient(160deg,#1a1a1a 60%,#2d2d2d)}
-    .login-box{background:#fff;border-radius:16px;padding:36px 28px;width:100%;max-width:360px;margin:20px;box-shadow:0 20px 60px rgba(0,0,0,0.4)}
-    .login-logo{text-align:center;margin-bottom:28px}
-    .login-logo h2{font-size:26px;font-weight:800;letter-spacing:4px}
-    .login-logo p{color:#999;font-size:13px;margin-top:4px;letter-spacing:1px}
-    .login-divider{width:40px;height:3px;background:#1a1a1a;margin:12px auto 0;border-radius:2px}
-    .fg{margin-bottom:14px}
-    .fg label{display:block;font-size:12px;font-weight:600;color:#666;margin-bottom:6px;letter-spacing:.5px;text-transform:uppercase}
-    .fg input,.fg select,.fg textarea{width:100%;padding:11px 14px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:15px;background:#fafafa;color:#1a1a1a;font-family:inherit;transition:all .2s}
-    .fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:#1a1a1a;background:#fff}
-    .fg textarea{resize:none}
-    .btn-dark{width:100%;padding:13px;background:#1a1a1a;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s}
-    .btn-dark:active{transform:scale(.98)}
-    .btn-dark:disabled{background:#bbb;cursor:not-allowed}
-    .btn-grey{width:100%;padding:11px;background:#f5f5f5;color:#555;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px}
-    .btn-blue{width:100%;padding:12px;background:#185FA5;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:14px}
-    .btn-green{width:100%;padding:14px;background:#27ae60;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;margin-top:14px}
-    .btn-green:disabled{background:#aaa}
-    .err{color:#e74c3c;font-size:13px;margin-top:10px;text-align:center;min-height:18px}
-    .header{background:#1a1a1a;color:#fff;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
-    .header h1{font-size:17px;font-weight:700}
-    .header small{font-size:11px;color:#888;display:block;margin-top:1px}
-    .btn-out{background:none;border:1px solid #444;color:#aaa;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:12px}
-    .content{padding:14px;max-width:860px;margin:0 auto}
-    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
-    .stat{background:#fff;border-radius:12px;padding:12px 10px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.07)}
-    .stat .n{font-size:26px;font-weight:800;line-height:1}
-    .stat .l{font-size:11px;color:#999;margin-top:3px}
-    .stat.pend .n{color:#e67e22}
-    .stat.ent .n{color:#27ae60}
-    .stat.tot .n{color:#1a1a1a}
-    .tabs{display:flex;border-bottom:2px solid #e8e8e8;margin-bottom:12px}
-    .tab{padding:9px 16px;font-size:13px;font-weight:600;color:#999;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
-    .tab.active{color:#1a1a1a;border-bottom-color:#1a1a1a}
-    .search{display:flex;gap:8px;margin-bottom:12px}
-    .search input{flex:1;padding:9px 12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;background:#fff}
-    .search input:focus{outline:none;border-color:#1a1a1a}
-    .card{background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:9px;box-shadow:0 1px 4px rgba(0,0,0,.07);cursor:pointer;border-left:4px solid #ddd;transition:transform .12s}
-    .card:active{transform:scale(.99)}
-    .card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;gap:8px}
-    .card-nome{font-size:15px;font-weight:700}
-    .card-info{font-size:12px;color:#888;display:flex;flex-wrap:wrap;gap:6px}
-    .card-itens{font-size:12px;color:#185FA5;margin-top:4px;font-weight:600}
-    .card-pend{border-left-color:#e67e22}
-    .card-ent{border-left-color:#27ae60;opacity:.75}
-    .badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0}
-    .bp{background:#fdebd0;color:#ca6f1e}
-    .be{background:#d5f5e3;color:#1e8449}
-    .empty{text-align:center;padding:50px 20px}
-    .empty .ic{font-size:52px;margin-bottom:12px}
-    .empty p{font-size:15px;color:#bbb}
-    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:flex-end;justify-content:center}
-    .overlay.active{display:flex}
-    .modal{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:600px;max-height:92vh;overflow-y:auto;padding:20px 20px 40px;animation:su .25s ease}
-    @keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
-    .mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
-    .mh h3{font-size:18px;font-weight:800}
-    .xbtn{background:#f0f0f0;border:none;width:30px;height:30px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#666}
-    .dr{display:flex;gap:10px;margin-bottom:8px}
-    .dl{font-size:12px;color:#aaa;min-width:100px;flex-shrink:0;padding-top:2px}
-    .dv{font-size:14px;color:#1a1a1a;font-weight:500}
-    .dimg{width:100%;border-radius:10px;margin-top:6px;cursor:zoom-in}
-    .ic-row{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid #f0f0f0;cursor:pointer}
-    .ic-row:last-child{border-bottom:none}
-    .cb{width:26px;height:26px;border-radius:7px;border:2px solid #ddd;flex-shrink:0;transition:all .15s}
-    .cb.on{background:#27ae60;border-color:#27ae60;position:relative}
-    .cb.on::after{content:'';display:block;position:absolute;left:7px;top:3px;width:6px;height:10px;border:2.5px solid #fff;border-top:none;border-left:none;transform:rotate(45deg)}
-    .ii .id{font-size:14px;line-height:1.4}
-    .ii .iq{font-size:12px;color:#185FA5;font-weight:700;margin-top:2px}
-    .ii .io{font-size:12px;color:#888;font-style:italic;margin-top:2px}
-    .ii .ic2{font-size:11px;color:#bbb;margin-top:2px}
-    .foto-wrap{border:2px dashed #ddd;border-radius:12px;min-height:130px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;position:relative;background:#fafafa}
-    .foto-wrap.ok{border-style:solid;border-color:#27ae60}
-    .foto-wrap img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
-    .foto-ph{text-align:center;color:#ccc}
-    .foto-ph .fi{font-size:32px;margin-bottom:6px}
-    .foto-ph p{font-size:13px}
-    #cv{width:100%;border:2px solid #ddd;border-radius:10px;display:block;cursor:crosshair;touch-action:none;background:#fff}
-    #cv.s{border-color:#27ae60}
-    .ar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-    .btnlimpar{background:none;border:1px solid #ddd;padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;color:#888}
-    .gps{font-size:12px;color:#888;margin:8px 0;min-height:18px}
-    @keyframes rotate90{from{transform:rotate(-15deg)}to{transform:rotate(15deg)}}
-    .lod{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:14px}
-    .lod.on{display:flex}
-    .sp{width:42px;height:42px;border:4px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .75s linear infinite}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .lmsg{color:#fff;font-size:14px;font-weight:600}
-    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a1a1a;color:#fff;padding:11px 22px;border-radius:24px;font-size:14px;font-weight:500;z-index:1000;opacity:0;transition:all .3s;white-space:nowrap;pointer-events:none}
-    .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
-    .cli-card{background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:9px;box-shadow:0 1px 4px rgba(0,0,0,.07);cursor:pointer;border-left:4px solid #185FA5;transition:transform .12s}
-    .cli-card:active{transform:scale(.99)}
-    .cli-nome{font-size:15px;font-weight:700;margin-bottom:6px}
-    .cli-info{font-size:12px;color:#888;display:flex;flex-wrap:wrap;gap:8px}
-    .cli-hist-item{background:#f8f8f8;border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer;border-left:3px solid #ddd}
-    .cli-hist-item:hover{background:#f0f0f0}
-    .cli-hist-item.pend{border-left-color:#e67e22}
-    .cli-hist-item.ent{border-left-color:#27ae60}
-    @media(max-width:480px){.search{flex-wrap:wrap}}
-    .offline-badge{display:none;background:#e74c3c;color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.5px;animation:pulse 2s infinite;}
-    .offline-badge.on{display:inline-flex;align-items:center;gap:5px;}
-    .sync-badge{display:none;background:#e67e22;color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;cursor:pointer;}
-    .sync-badge.on{display:inline-flex;align-items:center;gap:5px;}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
-    /* PWA install banner */
-    #pwa-banner{display:none;position:fixed;bottom:0;left:0;right:0;background:#1a1a1a;color:#fff;padding:14px 20px;z-index:9999;flex-direction:row;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 -4px 20px rgba(0,0,0,.4);}
-    #pwa-banner.on{display:flex;}
-    #pwa-banner .pb-text{font-size:13px;line-height:1.4;}
-    #pwa-banner .pb-text strong{display:block;font-size:14px;margin-bottom:2px;}
-    #pwa-banner .pb-text span{color:#aaa;font-size:12px;}
-    #pwa-banner .pb-btns{display:flex;gap:8px;flex-shrink:0;}
-    #pwa-banner .pb-install{background:#e8c547;color:#000;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;}
-    #pwa-banner .pb-dismiss{background:none;border:1px solid #444;color:#aaa;padding:9px 14px;border-radius:8px;font-size:13px;cursor:pointer;}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#f3f4f6;color:#171717}
+    button,input{font:inherit}button{cursor:pointer;border:0}
+    .screen{display:none;min-height:100vh}.screen.active{display:block}
+    #login.active{display:flex;align-items:center;justify-content:center;background:#171717}
+    .login-box{width:min(360px,calc(100% - 32px));background:#fff;border-radius:18px;padding:30px 24px;box-shadow:0 24px 70px rgba(0,0,0,.35)}
+    .brand{text-align:center;margin-bottom:24px}.brand h1{font-size:25px;letter-spacing:3px}.brand p{margin-top:5px;font-size:12px;color:#777;font-weight:700;letter-spacing:1px}
+    label{display:block;font-size:11px;text-transform:uppercase;font-weight:800;color:#666;margin-bottom:6px;letter-spacing:.5px}
+    input,select{width:100%;padding:12px 13px;border:1.5px solid #ddd;border-radius:10px;background:#fff}
+    input:focus,select:focus{outline:0;border-color:#171717}.fg{margin-bottom:13px}
+    .btn{width:100%;padding:12px 14px;border-radius:10px;font-weight:800;background:#171717;color:#fff}.btn:disabled{opacity:.55}
+    .btn-blue{background:#185fa5}.btn-green{background:#208a4c}.btn-red{background:#c0392b}.btn-ghost{background:#fff;color:#333;border:1.5px solid #ddd}.btn-small{width:auto;padding:7px 11px;border-radius:8px;font-size:12px}
+    .err{min-height:18px;margin-top:10px;text-align:center;color:#c0392b;font-size:13px}
+    header{position:sticky;top:0;z-index:20;background:#171717;color:#fff;padding:12px 14px;display:flex;gap:12px;align-items:center;justify-content:space-between}
+    header h1{font-size:17px}header small{display:block;color:#aaa;font-size:11px;margin-top:1px}
+    .content{max-width:920px;margin:0 auto;padding:14px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:12px}
+    .stat{background:#fff;border-radius:12px;padding:12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.07)}.stat b{font-size:25px}.stat span{display:block;font-size:11px;color:#777;margin-top:2px}.p{color:#d97706}.e{color:#208a4c}
+    .toolbar{display:grid;gap:9px;margin-bottom:12px}.toolbar .row{display:flex;gap:8px}.toolbar .row>*{flex:1}.toolbar .row button{flex:0 0 auto}
+    .tabs{display:flex;gap:6px;overflow:auto;margin:10px 0 12px}.tab{white-space:nowrap;padding:9px 13px;border-radius:999px;background:#fff;color:#555;border:1px solid #ddd;font-size:13px;font-weight:800}.tab.active{background:#171717;color:#fff;border-color:#171717}
+    .card{background:#fff;border-radius:12px;padding:14px;margin-bottom:9px;box-shadow:0 1px 4px rgba(0,0,0,.07);border-left:4px solid #ddd}.card.pend{border-left-color:#d97706}.card.ent{border-left-color:#208a4c}.card-top{display:flex;justify-content:space-between;gap:10px}.name{font-weight:900;font-size:15px}.meta{margin-top:6px;color:#666;font-size:12px;display:flex;flex-wrap:wrap;gap:7px}.badge{font-size:10px;font-weight:900;border-radius:999px;padding:4px 8px;white-space:nowrap}.bp{background:#fff3d8;color:#b45309}.be{background:#dcfce7;color:#166534}
+    .empty{text-align:center;color:#aaa;padding:44px 10px}.empty div{font-size:38px;margin-bottom:8px}
+    .overlay{display:none;position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.55);align-items:flex-end;justify-content:center}.overlay.on{display:flex}.modal{width:100%;max-width:640px;max-height:92vh;overflow:auto;background:#fff;border-radius:20px 20px 0 0;padding:18px 18px 34px}.mh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}.mh h2{font-size:18px}.x{width:32px;height:32px;border-radius:50%;background:#eee;font-size:20px;color:#555}
+    .detail-row{display:flex;gap:10px;margin-bottom:8px}.detail-row span:first-child{min-width:92px;color:#888;font-size:12px}.detail-row span:last-child{font-size:14px;font-weight:600}
+    .item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #eee}.check{width:28px;height:28px;border:2px solid #ccc;border-radius:8px;flex:0 0 auto;display:flex;align-items:center;justify-content:center}.check.on{background:#208a4c;border-color:#208a4c;color:#fff}.item-desc{font-size:14px;line-height:1.35}.item-qtd{font-size:12px;color:#185fa5;font-weight:800;margin-top:2px}
+    #canvas{width:100%;height:185px;border:2px solid #ddd;border-radius:12px;background:#fff;touch-action:none}.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.photo-grid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:9px}.drop{border:2px dashed #c9c9c9;border-radius:14px;padding:34px 16px;text-align:center;background:#fafafa}
+    .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:#171717;color:#fff;border-radius:999px;padding:11px 18px;font-size:13px;font-weight:700;z-index:100;opacity:0;transition:.2s;max-width:92%;text-align:center}.toast.on{opacity:1;transform:translateX(-50%)}
+    .load{display:none;position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.5);align-items:center;justify-content:center;flex-direction:column;gap:12px;color:#fff;font-weight:800}.load.on{display:flex}.spin{width:40px;height:40px;border:4px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+    @media(max-width:560px){.toolbar .row{flex-wrap:wrap}.toolbar .row button{flex:1 1 100%}.modal{border-radius:18px 18px 0 0}}
   </style>
 </head>
 <body>
-
-<div class="lod" id="lod"><div class="sp"></div><div class="lmsg" id="lmsg">Carregando...</div></div>
+<div class="load" id="load"><div class="spin"></div><div id="loadmsg">Carregando...</div></div>
 <div class="toast" id="toast"></div>
 
-<!-- PWA INSTALL BANNER -->
-<div id="pwa-banner">
-  <div class="pb-text">
-    <strong>📲 Instalar como App</strong>
-    <span>Adicione à tela inicial para acesso rápido</span>
-  </div>
-  <div class="pb-btns">
-    <button class="pb-install" onclick="pwaInstalar()">Instalar</button>
-    <button class="pb-dismiss" onclick="pwaDismiss()">×</button>
-  </div>
-</div>
-
-<!-- LOGIN -->
-<div class="screen active" id="screen-login">
+<section class="screen active" id="login">
   <div class="login-box">
-    <div class="login-logo"><h2>ARQ LUZ</h2><p>SISTEMA DE ENTREGAS</p><div class="login-divider"></div></div>
-    <div class="fg"><label>E-mail</label><input type="email" id="lemail" placeholder="seu@email.com" autocomplete="email"></div>
-    <div class="fg"><label>Senha</label><input type="password" id="lsenha" placeholder="••••••" autocomplete="current-password"></div>
-    <button class="btn-dark" id="btnentrar" onclick="login()">Entrar</button>
-    <p class="err" id="lerro"></p>
+    <div class="brand"><h1>ARQ LUZ</h1><p>CONTROLE DE ENTREGAS</p></div>
+    <div class="fg"><label>Senha de acesso</label><input id="pass" type="password" inputmode="numeric" autocomplete="current-password" placeholder="Digite a senha"></div>
+    <button class="btn" onclick="entrar()">Entrar</button>
+    <p class="err" id="loginerr"></p>
   </div>
-</div>
+</section>
 
-<!-- PAINEL DONO / VENDEDORA -->
-<div class="screen" id="screen-painel">
-  <div class="header">
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-      <div><h1>🚚 Entregas</h1><small id="hnome"></small></div>
-      <span class="offline-badge" id="badge-offline">⚡ OFFLINE</span>
-      <span class="sync-badge" id="badge-sync" onclick="sincronizarPendentes()">🔄 <span id="sync-count">0</span> pendente(s)</span>
-    </div>
-    <button class="btn-out" onclick="logout()">Sair</button>
-  </div>
-  <div class="content">
+<section class="screen" id="app">
+  <header>
+    <div><h1>Entregas Arq Luz</h1><small id="status">Conectando...</small></div>
+    <button class="btn btn-ghost btn-small" onclick="sair()">Sair</button>
+  </header>
+  <main class="content">
     <div class="stats">
-      <div class="stat pend"><div class="n" id="sp">0</div><div class="l">Pendentes</div></div>
-      <div class="stat ent"><div class="n" id="se">0</div><div class="l">Entregues</div></div>
-      <div class="stat tot"><div class="n" id="st">0</div><div class="l">Total</div></div>
+      <div class="stat"><b class="p" id="nPend">0</b><span>Pendentes</span></div>
+      <div class="stat"><b class="e" id="nEnt">0</b><span>Entregues</span></div>
+      <div class="stat"><b id="nTot">0</b><span>Total</span></div>
     </div>
-    <button class="btn-blue" onclick="abrirImport()">📄 Importar PDF do Apollo</button>
+    <div class="toolbar">
+      <button class="btn btn-blue" onclick="abrirImport()">Importar PDF do orçamento</button>
+      <div class="row">
+        <input id="busca" placeholder="Buscar cliente, pedido ou código" oninput="render()">
+        <input id="dataFiltro" type="date" onchange="render()">
+      </div>
+    </div>
     <div class="tabs">
-      <div class="tab active" onclick="tab('pendentes',this)">Pendentes</div>
-      <div class="tab" onclick="tab('entregues',this)">Entregues</div>
-      <div class="tab" onclick="tab('todas',this)">Todas</div>
-      <div class="tab" onclick="tab('clientes',this)">📁 Clientes</div>
-    </div>
-    <div class="search">
-      <input type="text" id="sbusca" placeholder="🔍 Buscar por cliente..." oninput="render()">
-      <input type="date" id="sdata" onchange="render()" style="max-width:155px;padding:9px 10px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;background:#fff;">
+      <button class="tab active" onclick="setTab('pendentes',this)">Pendentes</button>
+      <button class="tab" onclick="setTab('entregues',this)">Entregues</button>
+      <button class="tab" onclick="setTab('todas',this)">Todas</button>
+      <button class="tab" onclick="setTab('clientes',this)">Clientes</button>
     </div>
     <div id="lista"></div>
-  </div>
-</div>
+  </main>
+</section>
 
-<!-- PAINEL ENTREGADOR -->
-<div class="screen" id="screen-ent">
-  <div class="header">
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-      <div><h1>📦 Minhas Entregas</h1><small id="hnome2"></small></div>
-      <span class="offline-badge" id="badge-offline2">⚡ OFFLINE</span>
-      <span class="sync-badge" id="badge-sync2" onclick="sincronizarPendentes()">🔄 <span id="sync-count2">0</span> salvo(s)</span>
-    </div>
-    <button class="btn-out" onclick="logout()">Sair</button>
-  </div>
-  <div class="content">
-    <div class="stats">
-      <div class="stat pend"><div class="n" id="ep">0</div><div class="l">Pendentes</div></div>
-      <div class="stat ent"><div class="n" id="ee">0</div><div class="l">Entregues</div></div>
-      <div class="stat tot"><div class="n" id="et">0</div><div class="l">Total</div></div>
-    </div>
-    <div id="lista-ent"></div>
-  </div>
-</div>
+<div class="overlay" id="modalDetail"><div class="modal">
+  <div class="mh"><h2 id="detailTitle">Entrega</h2><button class="x" onclick="fechar('modalDetail')">x</button></div>
+  <div id="detailBody"></div>
+</div></div>
 
-<!-- MODAL: HISTÓRICO DO CLIENTE -->
-<div class="overlay" id="mod-cliente">
-  <div class="modal">
-    <div class="mh"><h3 id="cli-nome">Cliente</h3><button class="xbtn" onclick="fModal('mod-cliente')">×</button></div>
-    <div id="cli-corpo"></div>
+<div class="overlay" id="modalImport"><div class="modal">
+  <div class="mh"><h2>Importar PDF do orçamento</h2><button class="x" onclick="fechar('modalImport')">x</button></div>
+  <div id="importStep1">
+    <div class="drop" onclick="document.getElementById('pdfFile').click()" ondragover="event.preventDefault()" ondrop="dropPdf(event)">
+      <strong>Toque para selecionar ou arraste o PDF aqui</strong><br><span style="color:#777;font-size:13px">O sistema vai ler cliente, pedido, endereço e itens.</span>
+    </div>
+    <input id="pdfFile" type="file" accept=".pdf,application/pdf" style="display:none" onchange="filePdf(this)">
   </div>
-</div>
-
-<!-- MODAL: DETALHE -->
-<div class="overlay" id="mod-detalhe">
-  <div class="modal">
-    <div class="mh">
-      <h3 id="d-titulo">Detalhe</h3>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <button id="btn-apagar-header" style="display:none;background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.3);color:#e74c3c;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:700;" onclick="apagarAberto()">🗑 Apagar</button>
-        <button class="xbtn" onclick="fModal('mod-detalhe')">×</button>
-      </div>
-    </div>
-    <div id="d-corpo"></div>
+  <div id="importStep2" style="display:none">
+    <div class="detail-row"><span>Pedido</span><span id="pPedido"></span></div>
+    <div class="detail-row"><span>Vendedor</span><span id="pVend"></span></div>
+    <div class="fg"><label>Cliente</label><input id="pCliente"></div>
+    <div class="fg"><label>Data de entrega</label><input id="pData" type="date"></div>
+    <div class="detail-row"><span>Endereço</span><span id="pEnd"></span></div>
+    <div class="detail-row"><span>Itens</span><span id="pItens"></span></div>
+    <div id="pLista" style="max-height:240px;overflow:auto;border-top:1px solid #eee;margin:10px 0"></div>
+    <button class="btn btn-green" onclick="salvarImport()">Salvar entrega pendente</button>
+    <button class="btn btn-ghost" style="margin-top:8px" onclick="resetImport()">Importar outro PDF</button>
   </div>
-</div>
+</div></div>
 
-<!-- MODAL: CONFIRMAR (ENTREGADOR) — 3 ETAPAS -->
-<div class="overlay" id="mod-conf">
-  <div class="modal" id="modal-conf-inner">
-    <div style="display:flex;gap:6px;margin-bottom:20px;" id="conf-progress">
-      <div id="prog1" style="flex:1;height:4px;border-radius:2px;background:#1a1a1a;transition:background .3s;"></div>
-      <div id="prog2" style="flex:1;height:4px;border-radius:2px;background:#e0e0e0;transition:background .3s;"></div>
-      <div id="prog3" style="flex:1;height:4px;border-radius:2px;background:#e0e0e0;transition:background .3s;"></div>
-    </div>
-    <div style="background:#f8f8f8;border-radius:10px;padding:11px 14px;margin-bottom:16px;">
-      <div style="font-size:11px;color:#999;margin-bottom:2px;">PEDIDO Nº</div>
-      <div id="c-pedido" style="font-size:15px;font-weight:800;color:#185FA5;"></div>
-      <div id="c-end" style="font-size:13px;color:#666;margin-top:3px;"></div>
-    </div>
-    <div id="step1">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div style="font-size:14px;font-weight:800;">📋 Etapa 1 — Conferência</div>
-        <div style="font-size:13px;color:#185FA5;font-weight:700;"><span id="c-marc">0</span>/<span id="c-tot">0</span> itens</div>
-      </div>
-      <div style="font-size:12px;color:#888;margin-bottom:12px;">Marque cada item conferido. Todos devem ser marcados para avançar.</div>
-      <div id="c-itens" style="background:#fafafa;border-radius:10px;padding:8px 12px;max-height:300px;overflow-y:auto;margin-bottom:16px;"></div>
-      <div id="step1-sem-itens" style="display:none;background:#fafafa;border-radius:10px;padding:20px;text-align:center;color:#aaa;margin-bottom:16px;font-size:13px;">📦 Sem lista de itens para conferir.<br>Você pode avançar diretamente.</div>
-      <button class="btn-green" id="btn-step1" onclick="avancarStep2()" style="margin-top:0;">Avançar para Assinatura →</button>
-      <button class="btn-grey" onclick="fModal('mod-conf')">Cancelar</button>
-    </div>
-    <div id="step2" style="display:none;">
-      <div style="font-size:14px;font-weight:800;margin-bottom:14px;">✍️ Etapa 2 — Assinatura</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
-        <div class="fg" style="margin:0;"><label>Nome completo *</label><input type="text" id="ass-nome" placeholder="Nome de quem assina" autocomplete="off"></div>
-        <div class="fg" style="margin:0;"><label>CPF / RG *</label><input type="text" id="ass-doc" placeholder="000.000.000-00" autocomplete="off"></div>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <label style="font-size:12px;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:.5px;">Assinatura</label>
-        <button class="btnlimpar" onclick="limparAss()">Limpar</button>
-      </div>
-      <canvas id="cv" height="180" style="width:100%;border:2px solid #ddd;border-radius:10px;display:block;cursor:crosshair;touch-action:none;background:#fff;"></canvas>
-      <div style="font-size:11px;color:#aaa;text-align:center;margin-top:6px;">Assine com o dedo acima</div>
-      <div style="display:flex;gap:10px;margin-top:16px;">
-        <button class="btn-grey" onclick="voltarStep1()" style="flex:1;margin:0;">← Voltar</button>
-        <button class="btn-green" id="btn-step2" onclick="avancarStep3()" style="flex:2;margin:0;">Avançar para Fotos →</button>
-      </div>
-    </div>
-    <div id="step3" style="display:none;">
-      <div style="font-size:14px;font-weight:800;margin-bottom:6px;">📷 Etapa 3 — Fotos da Entrega</div>
-      <div style="font-size:12px;color:#888;margin-bottom:14px;">Fotos são opcionais mas recomendadas. Adicione quantas precisar.</div>
-      <div class="foto-wrap" id="fw" onclick="document.getElementById('finput').click()">
-        <div id="fotos-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:8px;width:100%;"></div>
-        <div class="foto-ph" id="fph" style="padding:24px 0;"><div class="fi">📷</div><p>Toque para adicionar fotos</p></div>
-      </div>
-      <input type="file" id="finput" accept="image/*" capture="environment" multiple style="display:none;" onchange="prevFoto(this)">
-      <div style="font-size:11px;color:#999;margin-top:6px;text-align:center;">Toque novamente para adicionar mais</div>
-      <div class="gps" id="gpsinfo" style="margin:12px 0 4px;">📍 Aguardando localização...</div>
-      <div style="display:flex;gap:10px;margin-top:14px;">
-        <button class="btn-grey" onclick="voltarStep2()" style="flex:1;margin:0;">← Voltar</button>
-        <button class="btn-green" id="btnconf" onclick="confirmar()" style="flex:2;margin:0;">✅ Finalizar Entrega</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- OVERLAY MODO PAISAGEM -->
-<div id="landscape-hint" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:30px;">
-  <div style="font-size:48px;margin-bottom:16px;animation:rotate90 1s ease infinite alternate;">📱</div>
-  <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Vire o celular</div>
-  <div style="font-size:14px;color:#aaa;">Gire para paisagem para assinar</div>
-</div>
-
-<!-- MODAL: IMPORTAR PDF -->
-<div class="overlay" id="mod-import">
-  <div class="modal">
-    <div class="mh"><h3>📄 Importar PDF do Apollo</h3><button class="xbtn" onclick="fModal('mod-import')">×</button></div>
-    <div id="imp1">
-      <div id="impzone" style="border:2px dashed #c8c4be;border-radius:12px;padding:36px 20px;text-align:center;cursor:pointer;background:#fafafa;"
-        onclick="document.getElementById('impfile').click()"
-        ondragover="event.preventDefault();this.style.borderColor='#185FA5'"
-        ondragleave="this.style.borderColor='#c8c4be'"
-        ondrop="onDrop(event)">
-        <div style="font-size:40px;margin-bottom:10px;">📄</div>
-        <div style="font-size:15px;font-weight:700;margin-bottom:4px;">Arraste o PDF aqui</div>
-        <div style="font-size:13px;color:#999;">ou clique para selecionar</div>
-      </div>
-      <input type="file" id="impfile" accept=".pdf" style="display:none;" onchange="onFile(this)">
-      <div id="implod" style="display:none;text-align:center;padding:30px;">
-        <div class="sp" style="border-top-color:#185FA5;margin:0 auto 12px;"></div>
-        <div style="font-size:14px;color:#666;">Lendo o PDF...</div>
-      </div>
-    </div>
-    <div id="imp2" style="display:none;">
-      <div style="background:#d5f5e3;border-radius:10px;padding:10px 14px;font-size:13px;color:#1e8449;margin-bottom:14px;">✅ PDF lido! Verifique e salve.</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
-        <div><div style="font-size:11px;color:#999;font-weight:700;text-transform:uppercase;margin-bottom:3px;">Pedido Nº</div><div id="ipedido" style="font-size:16px;font-weight:800;color:#185FA5;"></div></div>
-        <div><div style="font-size:11px;color:#999;font-weight:700;text-transform:uppercase;margin-bottom:3px;">Vendedor</div><div id="ivendedor" style="font-size:14px;font-weight:700;"></div></div>
-      </div>
-      <div class="fg"><label>Cliente *</label><input type="text" id="icliente" placeholder="Nome do cliente"></div>
-      <div id="iendereco" style="font-size:12px;color:#888;margin-top:-8px;margin-bottom:12px;padding-left:2px;"></div>
-      <div class="fg"><label>📅 Data de Entrega</label><input type="date" id="idata"></div>
-      <div style="background:#f5f5f5;border-radius:10px;padding:10px 12px;margin-bottom:14px;">
-        <div style="font-size:11px;color:#999;margin-bottom:8px;font-weight:700;text-transform:uppercase;">ITENS — <span id="itotal">0</span> produto(s)</div>
-        <div id="ilitens" style="max-height:200px;overflow-y:auto;"></div>
-      </div>
-      <button class="btn-dark" onclick="salvar()" style="background:#185FA5;">💾 Salvar Comprovante no Sistema</button>
-      <button class="btn-grey" onclick="resetImp()">Importar outro PDF</button>
-    </div>
-  </div>
-</div>
+<div class="overlay" id="modalFinish"><div class="modal">
+  <div class="mh"><h2>Finalizar entrega</h2><button class="x" onclick="fechar('modalFinish')">x</button></div>
+  <div id="finishInfo" style="background:#f7f7f7;border-radius:12px;padding:12px;margin-bottom:14px"></div>
+  <h3 style="font-size:14px;margin-bottom:8px">1. Conferência dos itens</h3>
+  <div id="finishItems" style="max-height:260px;overflow:auto;margin-bottom:14px"></div>
+  <h3 style="font-size:14px;margin-bottom:8px">2. Assinatura</h3>
+  <div class="fg"><label>Nome de quem recebeu</label><input id="assNome"></div>
+  <div class="fg"><label>CPF ou RG</label><input id="assDoc"></div>
+  <canvas id="canvas"></canvas>
+  <button class="btn btn-ghost" style="margin:8px 0 14px" onclick="limparAss()">Limpar assinatura</button>
+  <h3 style="font-size:14px;margin-bottom:8px">3. Fotos</h3>
+  <button class="btn btn-ghost" onclick="document.getElementById('photoInput').click()">Adicionar fotos</button>
+  <input id="photoInput" type="file" accept="image/*" capture="environment" multiple style="display:none" onchange="addPhotos(this)">
+  <div class="photo-grid" id="photos" style="margin:10px 0 14px"></div>
+  <div id="gpsInfo" style="font-size:12px;color:#777;margin-bottom:12px">GPS aguardando...</div>
+  <button class="btn btn-green" id="btnFinish" onclick="finalizar()">Finalizar entrega</button>
+</div></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
@@ -343,596 +131,62 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-firebase.initializeApp({
-  apiKey:"AIzaSyBmk79ts8iPrS_Rc1gyDPbA2OzDOODYMYk",
-  authDomain:"arqluz-entregas.firebaseapp.com",
-  projectId:"arqluz-entregas",
-  storageBucket:"arqluz-entregas.firebasestorage.app",
-  messagingSenderId:"294162415165",
-  appId:"1:294162415165:web:d8b4f6cb47fae7e235b454"
-});
-
-const DRIVE_URL = "https://script.google.com/macros/s/AKfycbz96AIPfe_zI-5PKR_g_pHatMX4xLTKQjuINv0pOxrc1eYhw7v3_yXSOnhGjaBnhzbi/exec";
-pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+const ACCESS_PASS="1234", MASTER_PASS="081120";
+const DRIVE_URL="https://script.google.com/macros/s/AKfycbz96AIPfe_zI-5PKR_g_pHatMX4xLTKQjuINv0pOxrc1eYhw7v3_yXSOnhGjaBnhzbi/exec";
+firebase.initializeApp({apiKey:"AIzaSyBmk79ts8iPrS_Rc1gyDPbA2OzDOODYMYk",authDomain:"arqluz-entregas.firebaseapp.com",projectId:"arqluz-entregas",storageBucket:"arqluz-entregas.firebasestorage.app",messagingSenderId:"294162415165",appId:"1:294162415165:web:d8b4f6cb47fae7e235b454"});
+pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 const auth=firebase.auth(), db=firebase.firestore();
+let docs=[], tabAtual="pendentes", unsub=null, pdfData=null, aberto=null, marcados=[], fotos=[], gps=null, ctx=null, drawing=false, signed=false;
 
-let me=null, perfil=null, nomeMe='';
-let docs=[], tabAtual='pendentes';
-let docAberto=null, marcados=[], gps=null, assinado=false, ctx=null, draw=false, pdfData=null;
+if(localStorage.getItem("arqluz_ok")==="1") iniciar();
+document.getElementById("pass").addEventListener("keydown",e=>{if(e.key==="Enter")entrar()});
+function entrar(){const p=document.getElementById("pass").value.trim();if(p!==ACCESS_PASS){document.getElementById("loginerr").textContent="Senha incorreta.";return}localStorage.setItem("arqluz_ok","1");iniciar()}
+function sair(){localStorage.removeItem("arqluz_ok");location.reload()}
+async function iniciar(){tela("app");load("Conectando...");try{if(!auth.currentUser)await auth.signInAnonymously();}catch(e){console.warn("Auth anonimo indisponivel, tentando Firestore direto.",e)}escutar();load(false)}
+function escutar(){if(unsub)unsub();unsub=db.collection("comprovantes").orderBy("criadoEm","desc").onSnapshot(s=>{docs=s.docs.map(d=>({id:d.id,...d.data()}));document.getElementById("status").textContent="Online";render();},e=>{console.error(e);document.getElementById("status").textContent="Erro no Firebase";toast("Nao consegui carregar as entregas.")})}
+function tela(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active")}
+function setTab(t,el){tabAtual=t;document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));el.classList.add("active");render()}
+function render(){const pend=docs.filter(d=>d.status==="pendente").length, ent=docs.filter(d=>d.status==="entregue").length;byId("nPend").textContent=pend;byId("nEnt").textContent=ent;byId("nTot").textContent=docs.length;tabAtual==="clientes"?renderClientes():renderLista()}
+function filtrar(){let q=byId("busca").value.toLowerCase().trim(), data=byId("dataFiltro").value, arr=[...docs];if(tabAtual==="pendentes")arr=arr.filter(d=>d.status==="pendente");if(tabAtual==="entregues")arr=arr.filter(d=>d.status==="entregue");if(data)arr=arr.filter(d=>d.dataEntrega===data);if(q)arr=arr.filter(d=>[d.clienteNome,d.numeroPedido,d.refCodigo,d.vendedor].join(" ").toLowerCase().includes(q));return arr}
+function renderLista(){const el=byId("lista"), arr=filtrar();if(!arr.length){el.innerHTML='<div class="empty"><div>--</div><p>Nenhuma entrega encontrada.</p></div>';return}el.innerHTML=arr.map(card).join("")}
+function card(d){const st=d.status==="entregue", dt=toDate(d.criadoEm), de=d.dataEntrega?brDate(d.dataEntrega):"";return `<div class="card ${st?"ent":"pend"}" onclick="abrirDetalhe('${d.id}')"><div class="card-top"><div class="name">${esc(d.clienteNome||"SEM NOME")}</div><span class="badge ${st?"be":"bp"}">${st?"ENTREGUE":"PENDENTE"}</span></div><div class="meta"><span>Pedido ${esc(d.numeroPedido||"-")}</span><span>Cod ${esc(d.refCodigo||"-")}</span>${de?`<span>Entrega ${de}</span>`:""}<span>${(d.itens||[]).length} itens</span>${dt?`<span>Importado ${dt.toLocaleDateString("pt-BR")}</span>`:""}</div></div>`}
+function renderClientes(){const el=byId("lista"), grupos={};filtrar().forEach(d=>{const n=(d.clienteNome||"SEM NOME").toUpperCase();(grupos[n]||(grupos[n]=[])).push(d)});const nomes=Object.keys(grupos).sort();if(!nomes.length){el.innerHTML='<div class="empty"><div>--</div><p>Nenhum cliente encontrado.</p></div>';return}el.innerHTML=nomes.map(n=>{const a=grupos[n], p=a.filter(x=>x.status==="pendente").length, e=a.length-p;return `<div class="card" onclick="abrirCliente('${escAttr(n)}')"><div class="name">${esc(n)}</div><div class="meta"><span>${a.length} entrega(s)</span><span>${p} pendente(s)</span><span>${e} entregue(s)</span></div></div>`}).join("")}
+function abrirCliente(nome){const old=tabAtual;tabAtual="todas";byId("busca").value=nome;renderLista();tabAtual=old}
+function abrirDetalhe(id){aberto=docs.find(d=>d.id===id);if(!aberto)return;byId("detailTitle").textContent=aberto.clienteNome||"Entrega";const fotos=(aberto.fotosUrl&&aberto.fotosUrl.length?aberto.fotosUrl:(aberto.fotoUrl?[aberto.fotoUrl]:[]));byId("detailBody").innerHTML=`${row("Status",aberto.status||"-")}${row("Pedido",aberto.numeroPedido||"-")}${row("Codigo",aberto.refCodigo||"-")}${row("Vendedor",aberto.vendedor||"-")}${row("Endereco",aberto.endereco||"-")}${row("Data entrega",aberto.dataEntrega?brDate(aberto.dataEntrega):"-")}<h3 style="font-size:14px;margin:14px 0 6px">Itens</h3>${(aberto.itens||[]).map((it,i)=>itemHtml(it,aberto.itensMarcados?.[i])).join("")||"<p style='color:#888'>Sem itens.</p>"}${aberto.status==="entregue"?entregueHtml(aberto,fotos):`<button class="btn btn-green" onclick="abrirFinalizar('${aberto.id}')">Finalizar entrega</button>`}<button class="btn btn-red" style="margin-top:8px" onclick="pedirApagar('${aberto.id}')">Apagar</button>`;abrir("modalDetail")}
+function entregueHtml(d,fotos){return `<h3 style="font-size:14px;margin:14px 0 6px">Entrega finalizada</h3>${row("Assinado por",d.assinanteNome||"-")}${row("Documento",d.assinanteDoc||"-")}${d.gps?row("GPS",`<a target="_blank" href="https://maps.google.com/?q=${d.gps.lat},${d.gps.lng}">Abrir no Maps</a>`):""}${d.assinaturaUrl?`<img src="${d.assinaturaUrl}" style="width:100%;border:1px solid #ddd;border-radius:10px;margin:8px 0">`:""}${fotos.length?`<div class="photo-grid">${fotos.map(f=>`<img src="${f}" onclick="window.open('${f}','_blank')">`).join("")}</div>`:""}`}
+function row(a,b){return `<div class="detail-row"><span>${a}</span><span>${b}</span></div>`}
+function itemHtml(it,on){return `<div class="item"><div class="check ${on?"on":""}">${on?"✓":""}</div><div><div class="item-desc">${esc(it.desc||"")}</div><div class="item-qtd">${esc(it.qty||"")} ${esc(it.unit||"UN")} ${it.obs?`- ${esc(it.obs)}`:""}</div></div></div>`}
 
-auth.onAuthStateChanged(async u=>{
-  if(!u){tela('screen-login');return;}
-  load('Carregando...');
-  me=u;
-  const d=await db.collection('usuarios').doc(u.uid).get();
-  if(!d.exists){await auth.signOut();load(false);return;}
-  perfil=d.data().perfil; nomeMe=d.data().nome||u.email;
-  if(perfil==='entregador'){
-    document.getElementById('hnome2').textContent=nomeMe;
-    tela('screen-ent');
-  } else {
-    document.getElementById('hnome').textContent=`${nomeMe} · ${perfil}`;
-    tela('screen-painel');
-  }
-  escutar();
-  load(false);
-});
+function abrirFinalizar(id){aberto=docs.find(d=>d.id===id);if(!aberto)return;fechar("modalDetail");marcados=(aberto.itensMarcados&&aberto.itensMarcados.length?aberto.itensMarcados:[...(aberto.itens||[])].map(()=>false));fotos=[];gps=null;signed=false;byId("finishInfo").innerHTML=`<strong>${esc(aberto.clienteNome||"")}</strong><br>Pedido ${esc(aberto.numeroPedido||"-")}`;renderFinishItems();byId("assNome").value="";byId("assDoc").value="";byId("photos").innerHTML="";byId("gpsInfo").textContent="Buscando GPS...";abrir("modalFinish");setTimeout(initCanvas,150);buscarGPS()}
+function renderFinishItems(){byId("finishItems").innerHTML=(aberto.itens||[]).map((it,i)=>`<div class="item" onclick="toggleItem(${i})"><div id="ck${i}" class="check ${marcados[i]?"on":""}">${marcados[i]?"✓":""}</div><div><div class="item-desc">${esc(it.desc||"")}</div><div class="item-qtd">${esc(it.qty||"")} ${esc(it.unit||"UN")}</div></div></div>`).join("")||"<p style='color:#888'>Sem itens para conferir.</p>"}
+function toggleItem(i){marcados[i]=!marcados[i];renderFinishItems()}
+function initCanvas(){const c=byId("canvas");c.width=c.offsetWidth;c.height=185;ctx=c.getContext("2d");ctx.strokeStyle="#111";ctx.lineWidth=2.5;ctx.lineCap="round";ctx.lineJoin="round";const pos=e=>{const r=c.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return{x:t.clientX-r.left,y:t.clientY-r.top}};c.onmousedown=c.ontouchstart=e=>{e.preventDefault();drawing=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y)};c.onmousemove=c.ontouchmove=e=>{e.preventDefault();if(!drawing)return;const p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();signed=true};c.onmouseup=c.ontouchend=()=>drawing=false}
+function limparAss(){if(ctx){ctx.clearRect(0,0,byId("canvas").width,byId("canvas").height);signed=false}}
+function buscarGPS(){if(!navigator.geolocation){byId("gpsInfo").textContent="GPS indisponivel.";return}navigator.geolocation.getCurrentPosition(p=>{gps={lat:p.coords.latitude,lng:p.coords.longitude};byId("gpsInfo").textContent="GPS obtido."},()=>byId("gpsInfo").textContent="GPS nao obtido.",{timeout:10000,enableHighAccuracy:true})}
+async function addPhotos(inp){load("Processando fotos...");for(const f of Array.from(inp.files||[]))fotos.push(await comprimir(f));inp.value="";byId("photos").innerHTML=fotos.map(f=>`<img src="${f}">`).join("");load(false)}
+async function finalizar(){if(!aberto)return;if((aberto.itens||[]).length&&marcados.some(x=>!x)){if(!confirm("Ainda existem itens sem marcar. Finalizar mesmo assim?"))return}if(!byId("assNome").value.trim()){toast("Informe o nome de quem recebeu.");return}if(!signed){toast("A assinatura e obrigatoria.");return}const btn=byId("btnFinish");btn.disabled=true;try{load("Gerando comprovante...");const ass=byId("canvas").toDataURL("image/png"), hoje=new Date().toISOString().split("T")[0], agora=new Date();const thumb=fotos[0]?await thumbImg(fotos[0]):null;const rel=await gerarRelatorio({doc:aberto,fotos,ass,marcados,gps,agora});const dados={status:"entregue",itensMarcados:marcados,assinaturaUrl:ass,assinanteNome:byId("assNome").value.trim(),assinanteDoc:byId("assDoc").value.trim(),fotoUrl:thumb,fotosUrl:thumb?[thumb]:[],fotosCount:fotos.length,gps:gps||null,entregueEm:firebase.firestore.FieldValue.serverTimestamp()};load("Salvando entrega...");await db.collection("comprovantes").doc(aberto.id).update(dados);const drive={cliente:aberto.clienteNome||"SEM-NOME",codCli:aberto.refCodigo||"SEM-COD",pedido:aberto.numeroPedido||"",data:hoje};enviarDrive({tipo:"relatorio",base64:rel,mimeType:"application/pdf",...drive});enviarDrive({tipo:"assinatura",base64:ass.split(",")[1],mimeType:"image/png",...drive});fotos.forEach((f,i)=>enviarDrive({tipo:`foto_${i+1}`,base64:f.split(",")[1],mimeType:"image/jpeg",...drive}));fechar("modalFinish");toast("Entrega finalizada.");}catch(e){console.error(e);toast("Erro ao finalizar entrega.")}btn.disabled=false;load(false)}
+async function gerarRelatorio({doc,fotos,ass,marcados,gps,agora}){const{jsPDF}=window.jspdf,pdf=new jsPDF({unit:"mm",format:"a4"}),M=15,W=210,T=W-M*2;let y=16;const page=n=>{if(y+n>282){pdf.addPage();y=16}},txt=(s,z=10,b=false)=>pdf.setFont("helvetica",b?"bold":"normal").setFontSize(z).text(String(s||""),M,y);pdf.setFillColor(23,23,23);pdf.rect(0,0,W,28,"F");pdf.setTextColor(255,255,255);pdf.setFontSize(15).setFont("helvetica","bold").text("ARQ LUZ - COMPROVANTE DE ENTREGA",M,16);y=38;pdf.setTextColor(20,20,20);txt("Dados da entrega",12,true);y+=8;[[ "Cliente",doc.clienteNome ],["Pedido",doc.numeroPedido],["Codigo",doc.refCodigo],["Endereco",doc.endereco],["Data",agora.toLocaleString("pt-BR")]].forEach(r=>{page(8);pdf.setFont("helvetica","bold").setFontSize(9).text(r[0]+":",M,y);pdf.setFont("helvetica","normal").setFontSize(10).text(pdf.splitTextToSize(String(r[1]||"-"),T-32),M+32,y);y+=8});if(gps){txt(`GPS: ${gps.lat.toFixed(6)}, ${gps.lng.toFixed(6)}`,9);y+=7}txt("Itens",12,true);y+=7;(doc.itens||[]).forEach((it,i)=>{page(8);pdf.setFontSize(9).setFont("helvetica",marcados[i]?"bold":"normal").text(`${marcados[i]?"[x]":"[ ]"} ${it.qty||""} ${it.unit||"UN"} - ${it.desc||""}`.slice(0,105),M,y);y+=6});if(fotos.length){y+=4;txt(`Fotos (${fotos.length})`,12,true);y+=7;let x=M;for(const f of fotos){page(44);try{pdf.addImage(f,"JPEG",x,y,38,38,undefined,"FAST")}catch(e){}x+=42;if(x+38>W-M){x=M;y+=42}}if(x!==M)y+=42}page(62);txt("Assinatura",12,true);y+=8;pdf.setFontSize(10).text(`Recebido por: ${byId("assNome").value.trim()}`,M,y);y+=7;pdf.text(`CPF/RG: ${byId("assDoc").value.trim()||"-"}`,M,y);y+=5;try{pdf.addImage(ass,"PNG",M,y,85,32,undefined,"FAST")}catch(e){}return pdf.output("datauristring").split(",")[1]}
+function enviarDrive(dados){try{fetch(DRIVE_URL,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify(dados),mode:"no-cors"}).catch(()=>{})}catch(e){}}
 
-async function login(){
-  const email=document.getElementById('lemail').value.trim();
-  const senha=document.getElementById('lsenha').value;
-  const err=document.getElementById('lerro'), btn=document.getElementById('btnentrar');
-  err.textContent='';
-  if(!email||!senha){err.textContent='Preencha e-mail e senha.';return;}
-  btn.disabled=true; btn.textContent='Entrando...';
-  load('Verificando...');
-  try{await auth.signInWithEmailAndPassword(email,senha);}
-  catch(e){err.textContent='E-mail ou senha incorretos.';load(false);btn.disabled=false;btn.textContent='Entrar';}
-}
-document.getElementById('lsenha').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
-async function logout(){await auth.signOut();tela('screen-login');}
+function abrirImport(){resetImport();abrir("modalImport")}
+function resetImport(){pdfData=null;byId("importStep1").style.display="block";byId("importStep2").style.display="none";byId("pdfFile").value=""}
+function dropPdf(e){e.preventDefault();if(e.dataTransfer.files[0])lerPdf(e.dataTransfer.files[0])}
+function filePdf(inp){if(inp.files[0])lerPdf(inp.files[0])}
+async function lerPdf(file){if(!file.name.toLowerCase().endsWith(".pdf")){toast("Selecione um PDF.");return}load("Lendo PDF...");try{const ab=await file.arrayBuffer(),pdf=await pdfjsLib.getDocument({data:ab}).promise,lines=[];for(let i=1;i<=pdf.numPages;i++){const pg=await pdf.getPage(i),ct=await pg.getTextContent(),byY={};ct.items.forEach(it=>{const y=Math.round(it.transform[5]);(byY[y]||(byY[y]=[])).push({x:it.transform[4],t:it.str.trim()})});Object.keys(byY).sort((a,b)=>b-a).forEach(y=>{const ln=byY[y].sort((a,b)=>a.x-b.x).map(i=>i.t).filter(Boolean).join(" ");if(ln)lines.push(ln)})}pdfData=parsePdf(lines);previewPdf();}catch(e){console.error(e);toast("Erro ao ler PDF.")}load(false)}
+function parsePdf(lines){const d={pedido:"",ref:"",cliente:"",endereco:"",vendedor:"",itens:[]};let last=null,inIt=false,nextNome=false,nextEnd=false;const units=["UN","MT","RL","PC","CX","KG","PT","M","CM","LT"];for(const ln of lines){let m;if(nextNome&&ln.length>2){d.cliente=limpaNome(ln);nextNome=false;continue}if(nextEnd&&ln.length>2){d.endereco=ln;nextEnd=false;continue}if(m=ln.match(/PEDIDO[:\s#]+(\d+)/i))d.pedido=m[1];if(m=ln.match(/C[oó]d\.?Cliente[:\s]+(\S+)/i))d.ref=m[1];if(m=ln.match(/Nome\s*[:\s]+(.+)/i)){const v=limpaNome(m[1]);if(v.length>2&&!d.cliente)d.cliente=v;else nextNome=true}else if(/^Nome\s*:?$/i.test(ln))nextNome=true;if(m=ln.match(/Endere[cç]o\s*[:\s]+(.+?)(?:\s+Bairro|$)/i)){if(m[1].trim().length>2)d.endereco=m[1].trim();else nextEnd=true}if(m=ln.match(/Vendedor[:\s]+(.+)/i))d.vendedor=m[1].trim();if(/Qtde.*Descri/i.test(ln)){inIt=true;continue}if(/^Total[:\s\d]/i.test(ln)){inIt=false;continue}if(inIt){const pat=new RegExp("^(\\d+)\\s+("+units.join("|")+")\\s+(.+)","i");if(m=ln.match(pat)){const p=parseCods(m[3]);last={qty:m[1],unit:m[2].toUpperCase(),codFab:p.codFab,codProd:p.codProd,desc:p.desc,obs:""};d.itens.push(last)}else if(/^obs[:\s]/i.test(ln)&&last)last.obs=ln.replace(/^obs[:\s]*/i,"").trim()}}return d}
+function limpaNome(n){n=n.replace(/\s+/g," ").trim();for(let i=Math.floor(n.length*.4);i<=Math.ceil(n.length*.6);i++){const a=n.substring(0,i).trim(),b=n.substring(i).trim();if(a.length>4&&(b.startsWith(a)||a.endsWith(b)))return a}return n}
+function parseCods(rest){rest=rest.replace(/\s+(Separado|Entregue)\s*$/i,"").trim();const t=rest.split(/\s+/);let li=-1,di=0;for(let j=0;j<t.length;j++){if(/^\d{4,6}$/.test(t[j]))li=j;else if(li>=0&&/^[A-ZÁÉÍÓÚÂÊÎÔÛÇ]{3,}/.test(t[j])){di=j;break}}if(li===-1)return{codFab:"",codProd:"",desc:rest};if(di===0)di=li+1;return{codFab:t.slice(0,li).join(" "),codProd:t[li],desc:t.slice(di).join(" ")}}
+function previewPdf(){byId("importStep1").style.display="none";byId("importStep2").style.display="block";byId("pPedido").textContent=pdfData.pedido||"-";byId("pVend").textContent=pdfData.vendedor||"-";byId("pCliente").value=pdfData.cliente||"";byId("pData").value=new Date().toISOString().split("T")[0];byId("pEnd").textContent=pdfData.endereco||"-";byId("pItens").textContent=pdfData.itens.length;byId("pLista").innerHTML=pdfData.itens.map(it=>`<div class="item"><div class="item-qtd">${esc(it.qty)} ${esc(it.unit)}</div><div class="item-desc">${esc(it.desc)}</div></div>`).join("")}
+async function salvarImport(){if(!pdfData)return;const cliente=byId("pCliente").value.trim();if(!cliente){toast("Informe o cliente.");return}load("Salvando...");try{await db.collection("comprovantes").add({clienteNome:cliente.toUpperCase(),numeroPedido:pdfData.pedido||"",refCodigo:pdfData.ref||"",vendedor:pdfData.vendedor||"",endereco:pdfData.endereco||"",itens:pdfData.itens,dataEntrega:byId("pData").value||"",status:"pendente",criadoPor:auth.currentUser?.uid||"senha",criadoEm:firebase.firestore.FieldValue.serverTimestamp(),assinaturaUrl:null,fotosUrl:[],fotoUrl:null,itensMarcados:null,gps:null,entregueEm:null});fechar("modalImport");toast("Entrega salva.")}catch(e){console.error(e);toast("Erro ao salvar.")}load(false)}
+async function pedirApagar(id){const d=docs.find(x=>x.id===id);if(!d)return;const p=prompt("Digite a senha mestre para apagar:");if(p!==MASTER_PASS){toast("Senha mestre incorreta.");return}if(!confirm(`Apagar a entrega de ${d.clienteNome||"cliente"}?`))return;load("Apagando...");try{await db.collection("comprovantes").doc(id).delete();fechar("modalDetail");toast("Entrega apagada.")}catch(e){console.error(e);toast("Erro ao apagar.")}load(false)}
 
-let unsub=null;
-function escutar(){
-  if(unsub)unsub();
-  unsub=db.collection('comprovantes').orderBy('criadoEm','desc').onSnapshot(snap=>{
-    docs=snap.docs.map(d=>({id:d.id,...d.data()}));
-    atualizarStats();
-    if(perfil==='entregador') renderEnt();
-    else render();
-  });
-}
-
-function atualizarStats(){
-  const pend=docs.filter(d=>d.status==='pendente').length;
-  const ent=docs.filter(d=>d.status==='entregue').length;
-  if(perfil==='entregador'){
-    document.getElementById('ep').textContent=pend;
-    document.getElementById('ee').textContent=ent;
-    document.getElementById('et').textContent=docs.length;
-  } else {
-    document.getElementById('sp').textContent=pend;
-    document.getElementById('se').textContent=ent;
-    document.getElementById('st').textContent=docs.length;
-  }
-}
-
-function tab(t,el){
-  tabAtual=t;
-  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-  el.classList.add('active');
-  render();
-}
-
-function render(){
-  const busca=document.getElementById('sbusca').value.toLowerCase().trim();
-  if(tabAtual==='clientes'){renderClientes(busca);return;}
-  let lista=[...docs];
-  if(tabAtual==='pendentes') lista=lista.filter(d=>d.status==='pendente');
-  if(tabAtual==='entregues') lista=lista.filter(d=>d.status==='entregue');
-  if(busca) lista=lista.filter(d=>(d.clienteNome||'').toLowerCase().includes(busca));
-  const dataFiltro=document.getElementById('sdata')?.value;
-  if(dataFiltro) lista=lista.filter(d=>d.dataEntrega===dataFiltro);
-  const el=document.getElementById('lista');
-  if(!lista.length){el.innerHTML=`<div class="empty"><div class="ic">📭</div><p>Nenhum comprovante encontrado</p></div>`;return;}
-  el.innerHTML=lista.map(d=>cardHtml(d,'abrirDetalhe')).join('');
-}
-
-function renderClientes(busca){
-  const el=document.getElementById('lista');
-  const grupos={};
-  docs.forEach(d=>{const nome=(d.clienteNome||'SEM NOME').toUpperCase();if(!grupos[nome])grupos[nome]=[];grupos[nome].push(d);});
-  let nomes=Object.keys(grupos).sort();
-  if(busca) nomes=nomes.filter(n=>n.toLowerCase().includes(busca));
-  if(!nomes.length){el.innerHTML=`<div class="empty"><div class="ic">📭</div><p>Nenhum cliente encontrado</p></div>`;return;}
-  el.innerHTML=nomes.map(nome=>{
-    const lista=grupos[nome];
-    const pend=lista.filter(d=>d.status==='pendente').length;
-    const ent=lista.filter(d=>d.status==='entregue').length;
-    return `<div class="cli-card" onclick="abrirCliente('${nome.replace(/'/g,"\\'")}')">
-      <div class="cli-nome">${nome}</div>
-      <div class="cli-info"><span>📦 ${lista.length} entrega(s)</span>${pend?`<span style="color:#e67e22;font-weight:600;">🚚 ${pend} pendente(s)</span>`:''}${ent?`<span style="color:#27ae60;font-weight:600;">✅ ${ent} entregue(s)</span>`:''}</div></div>`;
-  }).join('');
-}
-
-function abrirCliente(nome){
-  const lista=docs.filter(d=>(d.clienteNome||'').toUpperCase()===nome).sort((a,b)=>{
-    const da=a.criadoEm?.toDate?a.criadoEm.toDate():new Date(a.criadoEm||0);
-    const db2=b.criadoEm?.toDate?b.criadoEm.toDate():new Date(b.criadoEm||0);
-    return db2-da;
-  });
-  document.getElementById('cli-nome').textContent=nome;
-  document.getElementById('cli-corpo').innerHTML=lista.map(d=>{
-    const isPend=d.status==='pendente';
-    const data=d.criadoEm?(d.criadoEm.toDate?d.criadoEm.toDate():new Date(d.criadoEm)):null;
-    const dataStr=data?data.toLocaleDateString('pt-BR'):'—';
-    const entEm=d.entregueEm?(d.entregueEm.toDate?d.entregueEm.toDate():new Date(d.entregueEm)):null;
-    return `<div class="cli-hist-item ${isPend?'pend':'ent'}" onclick="fModal('mod-cliente');abrirDetalhe('${d.id}')">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-        <div style="font-size:14px;font-weight:700;">${d.numeroPedido?`Pedido #${d.numeroPedido}`:'Sem nº'}</div>
-        <span class="badge ${isPend?'bp':'be'}">${isPend?'🚚 PENDENTE':'✅ ENTREGUE'}</span>
-      </div>
-      <div style="font-size:12px;color:#888;display:flex;gap:10px;flex-wrap:wrap;">
-        <span>📅 Importado: ${dataStr}</span>${entEm?`<span>✅ Entregue: ${entEm.toLocaleDateString('pt-BR')}</span>`:''}
-        <span>📦 ${(d.itens||[]).length} itens</span>${d.assinaturaUrl?'<span style="color:#27ae60;">✍️ Assinado</span>':''}${d.fotoUrl?'<span style="color:#27ae60;">📷 Com foto</span>':''}
-      </div></div>`;
-  }).join('');
-  aModal('mod-cliente');
-}
-
-function renderEnt(){
-  const pend=docs.filter(d=>d.status==='pendente');
-  const el=document.getElementById('lista-ent');
-  if(!pend.length){el.innerHTML=`<div class="empty"><div class="ic">🎉</div><p>Nenhuma entrega pendente!</p></div>`;return;}
-  el.innerHTML=pend.map(d=>cardHtml(d,'abrirConf')).join('');
-}
-
-function cardHtml(d,fn){
-  const isPend=d.status==='pendente';
-  const data=d.criadoEm?(d.criadoEm.toDate?d.criadoEm.toDate():new Date(d.criadoEm)):null;
-  return `<div class="card ${isPend?'card-pend':'card-ent'}" onclick="${fn}('${d.id}')">
-    <div class="card-top"><div class="card-nome">${d.clienteNome||'—'}</div><span class="badge ${isPend?'bp':'be'}">${isPend?'🚚 PENDENTE':'✅ ENTREGUE'}</span></div>
-    <div class="card-info">${d.numeroPedido?`<span>📋 Pedido #${d.numeroPedido}</span>`:''}${d.vendedor?`<span>👤 ${d.vendedor}</span>`:''}${d.dataEntrega?`<span>📅 ${new Date(d.dataEntrega+'T12:00:00').toLocaleDateString('pt-BR')}</span>`:`<span>📅 ${data?data.toLocaleDateString('pt-BR'):'—'}</span>`}</div>
-    <div class="card-itens">📦 ${(d.itens||[]).length} itens</div></div>`;
-}
-
-function abrirDetalhe(id){
-  const d=docs.find(x=>x.id===id); if(!d) return;
-  docAberto=d;
-  document.getElementById('d-titulo').textContent=d.clienteNome||'Comprovante';
-  const btnApagarH=document.getElementById('btn-apagar-header');
-  btnApagarH.style.display=perfil==='dono'?'block':'none';
-  const data=d.criadoEm?(d.criadoEm.toDate?d.criadoEm.toDate():new Date(d.criadoEm)):null;
-  let html=`<div style="margin-bottom:12px;"><span class="badge ${d.status==='pendente'?'bp':'be'}">${d.status==='pendente'?'🚚 PENDENTE':'✅ ENTREGUE'}</span></div>
-    <div class="dr"><span class="dl">Pedido Nº</span><span class="dv" style="color:#185FA5;font-weight:800;">${d.numeroPedido||'—'}</span></div>
-    <div class="dr"><span class="dl">Vendedor</span><span class="dv">${d.vendedor||'—'}</span></div>
-    <div class="dr"><span class="dl">Endereço</span><span class="dv">${d.endereco||'—'}</span></div>
-    <div class="dr"><span class="dl">Importado em</span><span class="dv">${data?data.toLocaleString('pt-BR'):'—'}</span></div>`;
-  if(d.itens?.length){
-    const marcState=d.itensMarcados?[...d.itensMarcados]:d.itens.map(()=>false);
-    html+=`<div style="margin:14px 0 8px;font-size:11px;font-weight:700;color:#999;text-transform:uppercase;">📦 ${d.itens.length} Itens</div>
-    <div id="det-itens" style="background:#f5f5f5;border-radius:10px;padding:8px 12px;max-height:240px;overflow-y:auto;">
-    ${d.itens.map((it,i)=>`<div id="dit${i}" style="padding:10px 0;border-bottom:1px solid #eee;display:flex;gap:12px;align-items:flex-start;cursor:pointer;">
-      <div id="dcb${i}" style="width:24px;height:24px;border-radius:6px;border:2px solid ${marcState[i]?'#27ae60':'#ccc'};background:${marcState[i]?'#27ae60':'#fff'};flex-shrink:0;display:flex;align-items:center;justify-content:center;">
-        ${marcState[i]?'<div style="width:5px;height:9px;border:2.5px solid #fff;border-top:none;border-left:none;transform:rotate(45deg);margin-bottom:2px;"></div>':''}
-      </div>
-      <div style="flex:1;"><div style="font-size:13px;${marcState[i]?'text-decoration:line-through;color:#aaa':''}">${it.desc}</div>
-      <div style="font-size:11px;color:#185FA5;font-weight:700;margin-top:2px;">${it.qty} ${it.unit||'UN'}</div>
-      ${it.obs?`<div style="font-size:11px;color:#888;">${it.obs}</div>`:''}</div></div>`).join('')}
-    </div>`;
-    if(d.status==='pendente') html+=`<button id="btn-salvar-marc" style="width:100%;padding:10px;background:#185FA5;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px;">💾 Salvar conferência</button>`;
-    setTimeout(()=>{
-      d.itens.forEach((_,i)=>{
-        const cb=document.getElementById('dcb'+i); if(!cb) return;
-        let _t=false;
-        const toggle=()=>{marcState[i]=!marcState[i];cb.style.borderColor=marcState[i]?'#27ae60':'#ccc';cb.style.background=marcState[i]?'#27ae60':'#fff';cb.innerHTML=marcState[i]?'<div style="width:6px;height:10px;border:2.5px solid #fff;border-top:none;border-left:none;transform:rotate(45deg);margin-bottom:2px;"></div>':'';const txt=document.querySelector(`#dit${i} div:last-child div:first-child`);if(txt)txt.style.textDecoration=marcState[i]?'line-through':'';};
-        cb.addEventListener('touchstart',()=>{_t=true;},{passive:true});
-        cb.addEventListener('touchend',e=>{if(_t){e.preventDefault();_t=false;toggle();}},{passive:false});
-        cb.addEventListener('click',()=>{if(!_t)toggle();_t=false;});
-      });
-      const btnSalvar=document.getElementById('btn-salvar-marc');
-      if(btnSalvar) btnSalvar.addEventListener('click',async()=>{btnSalvar.disabled=true;btnSalvar.textContent='Salvando...';try{await db.collection('comprovantes').doc(d.id).update({itensMarcados:marcState});toast('✅ Conferência salva!');}catch(e){toast('Erro ao salvar');}btnSalvar.disabled=false;btnSalvar.textContent='💾 Salvar conferência';});
-    },100);
-  }
-  if(d.status==='entregue'){
-    const entEm=d.entregueEm?(d.entregueEm.toDate?d.entregueEm.toDate():new Date(d.entregueEm)):null;
-    html+=`<div style="margin-top:14px;"><div class="dr"><span class="dl">Entregue em</span><span class="dv">${entEm?entEm.toLocaleString('pt-BR'):'—'}</span></div>${d.gps?`<div class="dr"><span class="dl">Localização</span><span class="dv"><a href="https://maps.google.com/?q=${d.gps.lat},${d.gps.lng}" target="_blank" style="color:#185FA5;">📍 Ver no Maps</a></span></div>`:''}</div>`;
-    if(d.assinaturaUrl) html+=`<div style="margin-top:12px;"><div style="font-size:11px;color:#999;font-weight:700;margin-bottom:5px;">✍️ ASSINATURA</div>${d.assinanteNome?`<div style="font-size:12px;color:#555;margin-bottom:6px;">Assinado por: <strong>${d.assinanteNome}</strong> · ${d.assinanteDoc||'—'}</div>`:''}<img src="${d.assinaturaUrl}" class="dimg" onclick="window.open('${d.assinaturaUrl}','_blank')"></div>`;
-    const fotos=d.fotosUrl?.length?d.fotosUrl:(d.fotoUrl?[d.fotoUrl]:[]);
-    const fotosCount=d.fotosCount||fotos.length;
-    if(fotosCount>0){
-      html+=`<div style="margin-top:12px;"><div style="font-size:11px;color:#999;font-weight:700;margin-bottom:8px;">📷 FOTOS DA ENTREGA (${fotosCount})</div>`;
-      if(fotos.length>0){html+=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">${fotos.map(f=>`<img src="${f}" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px;cursor:zoom-in;" onclick="window.open('${f}','_blank')">`).join('')}</div>`;}
-      if(fotosCount>fotos.length) html+=`<div style="font-size:12px;color:#888;margin-top:8px;text-align:center;">+ ${fotosCount-fotos.length} foto(s) salvas em alta resolução no Google Drive</div>`;
-      html+=`</div>`;
-    }
-  }
-  document.getElementById('d-corpo').innerHTML=html;
-  aModal('mod-detalhe');
-}
-
-function apagarAberto(){ if(!docAberto) return; apagarComprovante(docAberto.id,docAberto.clienteNome||'',docAberto.status); }
-
-function abrirConf(id){
-  const d=docs.find(x=>x.id===id); if(!d) return;
-  docAberto=d;
-  document.getElementById('c-pedido').textContent=d.numeroPedido?`#${d.numeroPedido}`:'—';
-  document.getElementById('c-end').textContent=d.endereco||'';
-  marcados=[]; assinado=false; gps=null; fotosB64=[];
-  document.getElementById('ass-nome').value='';
-  document.getElementById('ass-doc').value='';
-  document.getElementById('fotos-grid').innerHTML='';
-  document.getElementById('finput').value='';
-  document.getElementById('fw').classList.remove('ok');
-  document.getElementById('fph').style.cssText='display:flex;flex-direction:column;align-items:center;padding:24px 0;';
-  document.getElementById('gpsinfo').textContent='📍 Buscando localização...';
-  buscarGPS();
-  if(d.itens?.length){
-    marcados=d.itens.map(()=>false);
-    document.getElementById('c-tot').textContent=d.itens.length;
-    document.getElementById('c-marc').textContent=0;
-    document.getElementById('c-itens').style.display='block';
-    document.getElementById('step1-sem-itens').style.display='none';
-    document.getElementById('c-itens').innerHTML=d.itens.map((it,i)=>`<div class="ic-row" id="ir${i}"><div class="cb" id="ib${i}"></div><div class="ii"><div class="id">${it.desc||'—'}</div><div class="iq">${it.qty} ${it.unit||'UN'}</div>${it.obs?`<div class="io">${it.obs}</div>`:''}</div></div>`).join('');
-    setTimeout(()=>{d.itens.forEach((_,i)=>{const cb=document.getElementById('ib'+i);if(!cb)return;let t=false;cb.addEventListener('touchstart',()=>t=true,{passive:true});cb.addEventListener('touchend',e=>{if(t){e.preventDefault();t=false;toggleItem(i);}},{passive:false});cb.addEventListener('click',()=>{if(!t)toggleItem(i);t=false;});});},50);
-    document.getElementById('btn-step1').disabled=true;
-  } else {
-    document.getElementById('c-itens').style.display='none';
-    document.getElementById('step1-sem-itens').style.display='block';
-    document.getElementById('btn-step1').disabled=false;
-    marcados=[];
-  }
-  irStep(1);
-  aModal('mod-conf');
-  setTimeout(()=>{initCanvas();limparAss();},80);
-}
-
-function toggleItem(i){
-  marcados[i]=!marcados[i];
-  const b=document.getElementById('ib'+i);
-  if(marcados[i])b.classList.add('on'); else b.classList.remove('on');
-  const marc=marcados.filter(Boolean).length;
-  document.getElementById('c-marc').textContent=marc;
-  document.getElementById('btn-step1').disabled=marc<marcados.length;
-}
-
-function irStep(n){
-  document.getElementById('step1').style.display=n===1?'block':'none';
-  document.getElementById('step2').style.display=n===2?'block':'none';
-  document.getElementById('step3').style.display=n===3?'block':'none';
-  ['prog1','prog2','prog3'].forEach((id,i)=>{document.getElementById(id).style.background=i<n?'#1a1a1a':'#e0e0e0';});
-  document.getElementById('modal-conf-inner').scrollTop=0;
-}
-
-function avancarStep2(){
-  const total=marcados.length, marc=marcados.filter(Boolean).length;
-  if(total>0&&marc<total){toast(`⚠️ Confira todos os itens (${marc}/${total} marcados)`);return;}
-  irStep(2); tentarLandscape();
-  setTimeout(()=>{initCanvas();limparAss();},150);
-}
-function voltarStep1(){sairLandscape();irStep(1);}
-function avancarStep3(){
-  const nome=document.getElementById('ass-nome').value.trim();
-  const doc2=document.getElementById('ass-doc').value.trim();
-  if(!nome){toast('⚠️ Informe o nome de quem está assinando');document.getElementById('ass-nome').focus();return;}
-  if(!doc2){toast('⚠️ Informe o CPF ou RG');document.getElementById('ass-doc').focus();return;}
-  if(!assinado){toast('⚠️ O cliente precisa assinar');return;}
-  sairLandscape(); irStep(3);
-}
-function voltarStep2(){irStep(2);tentarLandscape();setTimeout(()=>initCanvas(),150);}
-
-async function tentarLandscape(){
-  try{if(screen.orientation?.lock){await screen.orientation.lock('landscape-primary');return;}}catch(e){}
-  if(window.innerHeight>window.innerWidth){const hint=document.getElementById('landscape-hint');hint.style.display='flex';setTimeout(()=>hint.style.display='none',3000);}
-}
-function sairLandscape(){try{if(screen.orientation?.unlock)screen.orientation.unlock();}catch(e){}}
-
-let fotosB64=[];
-async function prevFoto(inp){
-  if(!inp.files?.length)return;
-  load('Processando fotos...');
-  const grid=document.getElementById('fotos-grid');
-  document.getElementById('fph').style.display='none';
-  document.getElementById('fw').classList.add('ok');
-  for(const file of Array.from(inp.files)){
-    const b64=await comprimirImg(file);
-    fotosB64.push(b64);
-    const idx=fotosB64.length-1;
-    const div=document.createElement('div');
-    div.style.cssText='position:relative;border-radius:8px;overflow:hidden;aspect-ratio:1;';
-    div.innerHTML=`<img src="${b64}" style="width:100%;height:100%;object-fit:cover;"><button onclick="removerFoto(${idx})" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">×</button>`;
-    grid.appendChild(div);
-  }
-  inp.value=''; load(false);
-}
-function removerFoto(idx){
-  fotosB64.splice(idx,1);
-  const grid=document.getElementById('fotos-grid');
-  Array.from(grid.children)[idx]?.remove();
-  if(fotosB64.length===0){document.getElementById('fph').style.display='flex';document.getElementById('fph').style.flexDirection='column';document.getElementById('fph').style.alignItems='center';document.getElementById('fw').classList.remove('ok');}
-}
-
-function buscarGPS(){
-  if(!navigator.geolocation){document.getElementById('gpsinfo').textContent='📍 GPS não disponível';return;}
-  navigator.geolocation.getCurrentPosition(p=>{gps={lat:p.coords.latitude,lng:p.coords.longitude};document.getElementById('gpsinfo').textContent='📍 Localização obtida ✅';},()=>{document.getElementById('gpsinfo').textContent='📍 Localização não obtida';},{timeout:10000,enableHighAccuracy:true});
-}
-
-function initCanvas(){
-  const c=document.getElementById('cv');
-  c.width=c.offsetWidth||320;
-  ctx=c.getContext('2d');
-  ctx.strokeStyle='#1a1a1a';ctx.lineWidth=2.5;ctx.lineCap='round';ctx.lineJoin='round';
-  const p=e=>{const r=c.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return{x:t.clientX-r.left,y:t.clientY-r.top};};
-  c.ontouchstart=e=>{e.preventDefault();draw=true;const pt=p(e);ctx.beginPath();ctx.moveTo(pt.x,pt.y);};
-  c.ontouchmove=e=>{e.preventDefault();if(!draw)return;const pt=p(e);ctx.lineTo(pt.x,pt.y);ctx.stroke();assinado=true;c.classList.add('s');};
-  c.ontouchend=()=>draw=false;
-  c.onmousedown=e=>{draw=true;const pt=p(e);ctx.beginPath();ctx.moveTo(pt.x,pt.y);};
-  c.onmousemove=e=>{if(!draw)return;const pt=p(e);ctx.lineTo(pt.x,pt.y);ctx.stroke();assinado=true;c.classList.add('s');};
-  c.onmouseup=()=>draw=false;
-}
-function limparAss(){if(!ctx)return;const c=document.getElementById('cv');ctx.clearRect(0,0,c.width,c.height);c.classList.remove('s');assinado=false;}
-
-async function confirmar(){
-  if(!docAberto)return;
-  if(!assinado){toast('⚠️ O cliente precisa assinar');return;}
-  const btn=document.getElementById('btnconf');
-  btn.disabled=true;
-  try{
-    const hoje=new Date().toISOString().split('T')[0];
-    const agora=new Date();
-    const cliente=docAberto.clienteNome||'SEM-NOME';
-    const codCli=docAberto.refCodigo||'SEM-COD';
-    const pedido=docAberto.numeroPedido||'';
-    const assNome=document.getElementById('ass-nome').value.trim();
-    const assDoc=document.getElementById('ass-doc').value.trim();
-    load('Salvando assinatura...');
-    const assB64full=document.getElementById('cv').toDataURL('image/png');
-    let thumbPreview=null;
-    if(fotosB64.length>0) thumbPreview=await reduzirParaThumb(fotosB64[0]);
-    load('Gerando relatório PDF...');
-    const relatorioB64=await gerarRelatorioPDF({doc:docAberto,fotos:fotosB64,ass:assB64full,assNome,assDoc,gps,marcados,entregador:nomeMe,agora});
-    const dadosFirestore={status:'entregue',assinaturaUrl:assB64full,fotosUrl:thumbPreview?[thumbPreview]:[],fotoUrl:thumbPreview||null,fotosCount:fotosB64.length,itensMarcados:marcados,gps:gps||null,entregueEm:firebase.firestore.FieldValue.serverTimestamp(),driveCliente:`${cliente} — COD ${codCli}`,assinanteNome:assNome,assinanteDoc:assDoc,entregadorNome:nomeMe};
-    if(!navigator.onLine){
-      load('Sem internet — salvando localmente...');
-      offlineAdd({docId:docAberto.id,dados:{...dadosFirestore,entregueEm:new Date().toISOString()},relatorioB64,assB64:assB64full.split(',')[1],fotosB64,drive:{cliente,codCli,pedido,hoje}});
-      fModal('mod-conf');load(false);
-      toast('⚡ Sem internet — entrega salva localmente! Será enviada quando conectar.');
-      return;
-    }
-    load('Registrando entrega...');
-    await db.collection('comprovantes').doc(docAberto.id).update(dadosFirestore);
-    load('Enviando para o Drive...');
-    enviarDriveBackground({tipo:'relatorio',base64:relatorioB64,mimeType:'application/pdf',cliente,codCli,pedido,data:hoje});
-    enviarDriveBackground({tipo:'assinatura',base64:assB64full.split(',')[1],mimeType:'image/png',cliente,codCli,pedido,data:hoje});
-    fotosB64.forEach((f,i)=>enviarDriveBackground({tipo:`foto_${i+1}`,base64:f.split(',')[1],mimeType:'image/jpeg',cliente,codCli,pedido,data:hoje}));
-    fModal('mod-conf');
-    toast(`✅ Entrega finalizada! ${fotosB64.length} foto(s) enviadas ao Drive.`);
-  }catch(e){console.error(e);toast('Erro ao finalizar. Tente novamente.');}
-  btn.disabled=false;load(false);
-}
-
-async function gerarRelatorioPDF({doc,fotos,ass,assNome,assDoc,gps,marcados,entregador,agora}){
-  const{jsPDF}=window.jspdf;
-  const pdf=new jsPDF({unit:'mm',format:'a4'});
-  const W=210,M=15,TW=W-M*2;let y=M;
-  const checkPage=(need=20)=>{if(y+need>282){pdf.addPage();y=M;}};
-  const sf=(s='',sz=10)=>{pdf.setFont('helvetica',s==='B'?'bold':s==='I'?'italic':'normal').setFontSize(sz);};
-  const sc=(r,g,b)=>pdf.setTextColor(r,g,b);
-  pdf.setFillColor(26,26,26);pdf.rect(0,0,W,30,'F');
-  sf('B',18);sc(232,197,71);pdf.text('ARQ LUZ',M,13);
-  sf('',8);sc(160,160,160);pdf.text('ILUMINAÇÃO PLANEJADA — VOTUPORANGA/SP',M,20);
-  sf('B',13);sc(255,255,255);pdf.text('COMPROVANTE DE ENTREGA',W-M,13,{align:'right'});
-  sf('',9);sc(200,200,200);pdf.text(agora.toLocaleString('pt-BR'),W-M,20,{align:'right'});
-  y=38;
-  sf('B',11);sc(26,26,26);pdf.text('DADOS DA ENTREGA',M,y);y+=6;
-  pdf.setDrawColor(220,220,220);pdf.setLineWidth(0.3);pdf.line(M,y,W-M,y);y+=5;
-  const row=(lbl,val)=>{sf('B',9);sc(100,100,100);const lw=pdf.getTextWidth(lbl+':  ');pdf.text(lbl+': ',M,y);sf('',10);sc(26,26,26);const ls=pdf.splitTextToSize(String(val||'—'),TW-lw-2);pdf.text(ls,M+lw,y);y+=ls.length*5+2;};
-  row('Cliente',(doc.clienteNome||'—').toUpperCase());
-  row('Cód. Cliente',doc.refCodigo||'—');
-  row('Pedido Nº',doc.numeroPedido?'#'+doc.numeroPedido:'—');
-  if(doc.endereco)row('Endereço',doc.endereco);
-  row('Data',agora.toLocaleDateString('pt-BR'));
-  row('Hora',agora.toLocaleTimeString('pt-BR'));
-  row('Entregador',entregador||'—');
-  if(gps){sf('',9);sc(59,130,246);pdf.text(`GPS: ${gps.lat.toFixed(6)}, ${gps.lng.toFixed(6)}`,M,y);y+=5;}
-  y+=4;checkPage(20);
-  pdf.line(M,y,W-M,y);y+=5;
-  sf('B',11);sc(26,26,26);pdf.text(`ITENS ENTREGUES — ${(doc.itens||[]).length} produto(s)`,M,y);y+=7;
-  if(doc.itens?.length){doc.itens.forEach((it,i)=>{checkPage(8);const ok=marcados[i];pdf.setFillColor(ok?34:240,ok?197:240,ok?94:240);pdf.setDrawColor(ok?34:200,ok?197:200,ok?94:200);pdf.setLineWidth(0.4);pdf.roundedRect(M,y-4,5,5,1,1,ok?'FD':'D');if(ok){sf('B',8);sc(255,255,255);pdf.text('✓',M+0.8,y-0.2);}sf('',9);sc(ok?26:160,26,ok?26:160);const desc=`${it.qty} ${it.unit||'UN'}  ${it.desc}`;const ls=pdf.splitTextToSize(desc,TW-8);pdf.text(ls,M+7,y);y+=ls.length*5+1;});}
-  else{sf('I',9);sc(150,150,150);pdf.text('Sem lista de itens cadastrada.',M,y);y+=6;}
-  y+=4;
-  if(fotos.length){checkPage(50);pdf.line(M,y,W-M,y);y+=5;sf('B',11);sc(26,26,26);pdf.text(`REGISTRO FOTOGRÁFICO — ${fotos.length} foto(s)`,M,y);y+=5;sf('I',8);sc(130,130,130);pdf.text('Fotos em alta resolução disponíveis na pasta do Drive.',M,y);y+=7;const sz=40,gap=4,cols=Math.floor(TW/(sz+gap));let col=0;for(const foto of fotos){if(col===0)checkPage(sz+gap+2);const x=M+col*(sz+gap);try{pdf.addImage(foto,'JPEG',x,y,sz,sz,undefined,'FAST');pdf.setDrawColor(200,200,200);pdf.setLineWidth(0.2);pdf.rect(x,y,sz,sz);}catch(e){}col++;if(col>=cols){col=0;y+=sz+gap;}}if(col>0)y+=sz+gap;y+=4;}
-  checkPage(65);pdf.line(M,y,W-M,y);y+=5;sf('B',11);sc(26,26,26);pdf.text('ASSINATURA DO RECEBEDOR',M,y);y+=6;row('Assinado por',assNome||'—');row('CPF / RG',assDoc||'—');y+=3;
-  if(ass){try{pdf.setFillColor(252,252,252);pdf.setDrawColor(180,180,180);pdf.setLineWidth(0.3);pdf.rect(M,y,85,32,'FD');pdf.addImage(ass,'PNG',M,y,85,32,undefined,'FAST');y+=35;}catch(e){}}
-  pdf.setDrawColor(26,26,26);pdf.setLineWidth(0.4);pdf.line(M,y+8,M+85,y+8);
-  sf('',8);sc(100,100,100);pdf.text(assNome||'______________________________',M,y+13);y+=18;
-  const total=pdf.getNumberOfPages();
-  for(let p=1;p<=total;p++){pdf.setPage(p);pdf.setFillColor(26,26,26);pdf.rect(0,287,W,10,'F');sf('',7);sc(150,150,150);pdf.text(`Arq Luz Iluminação — Votuporanga/SP — ${agora.toLocaleString('pt-BR')}`,W/2,293,{align:'center'});sf('',7);sc(100,100,100);pdf.text(`${p}/${total}`,W-M,293,{align:'right'});}
-  return pdf.output('datauristring').split(',')[1];
-}
-
-function enviarDriveBackground(dados){
-  const xhr=new XMLHttpRequest();
-  xhr.open('POST',DRIVE_URL,true);
-  xhr.setRequestHeader('Content-Type','text/plain');
-  xhr.onload=()=>console.log('Drive OK:',dados.tipo);
-  xhr.onerror=()=>console.warn('Drive erro:',dados.tipo);
-  xhr.send(JSON.stringify(dados));
-}
-
-async function comprimirImg(file){
-  return new Promise(res=>{const img=new Image(),url=URL.createObjectURL(file);img.onload=()=>{const r=Math.min(800/img.width,800/img.height,1);const c=document.createElement('canvas');c.width=img.width*r;c.height=img.height*r;c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);res(c.toDataURL('image/jpeg',.75));};img.src=url;});
-}
-async function reduzirParaThumb(b64){
-  return new Promise(res=>{const img=new Image();img.onload=()=>{const r=Math.min(300/img.width,300/img.height,1);const c=document.createElement('canvas');c.width=img.width*r;c.height=img.height*r;c.getContext('2d').drawImage(img,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.4));};img.src=b64;});
-}
-
-function abrirImport(){resetImp();aModal('mod-import');}
-function resetImp(){pdfData=null;document.getElementById('imp1').style.display='block';document.getElementById('imp2').style.display='none';document.getElementById('implod').style.display='none';document.getElementById('impzone').style.display='block';document.getElementById('impfile').value='';}
-function onDrop(e){e.preventDefault();document.getElementById('impzone').style.borderColor='#c8c4be';if(e.dataTransfer.files[0])lerPDF(e.dataTransfer.files[0]);}
-function onFile(inp){if(inp.files[0])lerPDF(inp.files[0]);}
-
-async function lerPDF(file){
-  if(!file.name.toLowerCase().endsWith('.pdf')){toast('⚠️ Selecione um .pdf');return;}
-  document.getElementById('impzone').style.display='none';
-  document.getElementById('implod').style.display='block';
-  try{
-    const ab=await file.arrayBuffer(),pdf=await pdfjsLib.getDocument({data:ab}).promise;
-    const lines=[];
-    for(let i=1;i<=pdf.numPages;i++){const pg=await pdf.getPage(i),ct=await pg.getTextContent(),byY={};ct.items.forEach(it=>{const y=Math.round(it.transform[5]);if(!byY[y])byY[y]=[];byY[y].push({x:it.transform[4],t:it.str.trim()});});Object.keys(byY).sort((a,b)=>b-a).forEach(y=>{const ln=byY[y].sort((a,b)=>a.x-b.x).map(i=>i.t).filter(Boolean).join(' ');if(ln)lines.push(ln);});}
-    pdfData=parsePDF(lines);
-    mostrarPreview(pdfData);
-    document.getElementById('implod').style.display='none';
-    document.getElementById('imp2').style.display='block';
-  }catch(err){document.getElementById('implod').style.display='none';document.getElementById('impzone').style.display='block';toast('❌ Erro ao ler PDF: '+err.message);}
-}
-
-function limparNomeDuplicado(nome){nome=nome.replace(/\s+/g,' ').trim();for(let i=Math.floor(nome.length*.4);i<=Math.ceil(nome.length*.6);i++){const p1=nome.substring(0,i).trim(),p2=nome.substring(i).trim();if(p1.length>4&&(p2.startsWith(p1)||p1.endsWith(p2)))return p1;}return nome;}
-function parseCods(rest){rest=rest.replace(/\s+(Separado|Entregue)\s*$/i,'').trim();const t=rest.split(/\s+/);let li=-1,di=0;for(let j=0;j<t.length;j++){if(/^\d{4,6}$/.test(t[j]))li=j;else if(li>=0&&/^[A-ZÁÉÍÓÚÂÊÎÔÛÇ]{3,}/.test(t[j])){di=j;break;}}if(li===-1)return{codFab:'',codProd:'',desc:rest};if(di===0)di=li+1;return{codFab:t.slice(0,li).join(' ').trim(),codProd:t[li],desc:t.slice(di).join(' ').trim()};}
-
-function parsePDF(lines){
-  const d={pedido:'',ref:'',cliente:'',endereco:'',vendedor:'',itens:[]};
-  let last=null,inIt=false,nextCliente=false,nextEndereco=false;
-  const units=['UN','MT','RL','PC','CX','KG','PT','M','CM','LT'];
-  for(let i=0;i<lines.length;i++){
-    const ln=lines[i];let m;
-    if(nextCliente&&ln.trim().length>2){if(!d.cliente)d.cliente=limparNomeDuplicado(ln.trim());nextCliente=false;continue;}
-    if(nextEndereco&&ln.trim().length>2){d.endereco=ln.trim().replace(/\s+/g,' ');nextEndereco=false;continue;}
-    if(m=ln.match(/PEDIDO[:\s#]+(\d+)/i))d.pedido=m[1];
-    if(m=ln.match(/Cód\.?Cliente[:\s]+(\S+)/i))d.ref=m[1].trim();
-    if(m=ln.match(/Nome\s*[:\s]+(.+)/i)){const v=limparNomeDuplicado(m[1].trim());if(v&&v.length>2&&!d.cliente)d.cliente=v;else if(v.length<=2)nextCliente=true;}else if(ln.match(/^Nome\s*:?\s*$/i))nextCliente=true;
-    if(m=ln.match(/Endere[çc]o\s*[:\s]+(.+?)(?:\s+Bairro|$)/i)){const v=m[1].trim();if(v&&v.length>2)d.endereco=v;else nextEndereco=true;}
-    if(m=ln.match(/Vendedor[:\s]+(.+)/i))d.vendedor=m[1].trim();
-    if(ln.match(/Qtde.*Descri/i)){inIt=true;continue;}
-    if(ln.match(/^Total[:\s\d]/i)){inIt=false;continue;}
-    if(inIt){const pat=new RegExp('^(\\d+)\\s+('+units.join('|')+')\\s+(.+)','i');if(m=ln.match(pat)){const p=parseCods(m[3]);last={qty:m[1],unit:m[2].toUpperCase(),codFab:p.codFab,codProd:p.codProd,desc:p.desc,obs:''};d.itens.push(last);}else if(ln.match(/^obs[:\s]/i)&&last)last.obs=ln.replace(/^obs[:\s]*/i,'').trim();}
-  }
-  return d;
-}
-
-function mostrarPreview(d){
-  document.getElementById('ipedido').textContent=d.pedido||'—';
-  document.getElementById('ivendedor').textContent=d.vendedor||'—';
-  document.getElementById('icliente').value=d.cliente||'';
-  document.getElementById('iendereco').textContent=d.endereco||'';
-  document.getElementById('idata').value=new Date().toISOString().split('T')[0];
-  document.getElementById('itotal').textContent=d.itens.length;
-  document.getElementById('ilitens').innerHTML=d.itens.map(it=>`<div style="padding:6px 0;border-bottom:1px solid #eee;display:flex;gap:8px;"><span style="color:#185FA5;font-weight:700;min-width:28px;">${it.qty}</span><div><div style="font-size:13px;">${it.desc}</div>${it.obs?`<div style="font-size:11px;color:#888;">${it.obs}</div>`:''}</div></div>`).join('');
-}
-
-async function salvar(){
-  const cliente=document.getElementById('icliente').value.trim();
-  if(!cliente){toast('⚠️ Informe o nome do cliente');document.getElementById('icliente').focus();return;}
-  if(!pdfData)return;
-  pdfData.cliente=cliente;
-  load('Salvando...');
-  try{
-    await db.collection('comprovantes').add({clienteNome:cliente.toUpperCase(),numeroPedido:pdfData.pedido||'',refCodigo:pdfData.ref||'',vendedor:pdfData.vendedor||'',endereco:pdfData.endereco||'',itens:pdfData.itens,dataEntrega:document.getElementById('idata').value||'',status:'pendente',criadoPor:me.uid,criadoEm:firebase.firestore.FieldValue.serverTimestamp(),assinaturaUrl:null,fotosUrl:[],fotoUrl:null,itensMarcados:null,gps:null,entregueEm:null});
-    fModal('mod-import');toast(`✅ Pedido #${pdfData.pedido} salvo com ${pdfData.itens.length} itens!`);
-  }catch(e){console.error(e);toast('Erro ao salvar. Tente novamente.');}
-  load(false);
-}
-
-async function apagarComprovante(id,clienteNome,status){
-  const msg=status==='entregue'?`⚠️ Apagar o comprovante de "${clienteNome}"?\n\nAs fotos e assinatura serão removidas do sistema.\n(Os arquivos no Drive permanecem.)`:`Apagar o comprovante pendente de "${clienteNome}"?`;
-  if(!confirm(msg))return;
-  if(status==='entregue'){if(!confirm('Tem certeza? Esta ação não pode ser desfeita.'))return;}
-  load('Apagando...');
-  try{await db.collection('comprovantes').doc(id).delete();fModal('mod-detalhe');toast('🗑 Comprovante apagado.');}
-  catch(e){console.error(e);toast('Erro ao apagar. Tente novamente.');}
-  load(false);
-}
-
-function tela(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
-function aModal(id){document.getElementById(id).classList.add('active');document.body.style.overflow='hidden';}
-function fModal(id){document.getElementById(id).classList.remove('active');document.body.style.overflow='';}
-function load(msg){const el=document.getElementById('lod');if(!msg){el.classList.remove('on');return;}document.getElementById('lmsg').textContent=msg;el.classList.add('on');}
-let _tt;
-function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('on'),3500);}
-document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)fModal(o.id);}));
-
-// ══════════════════════════════════════════════════════
-// MOTOR OFFLINE
-// ══════════════════════════════════════════════════════
-const OFFLINE_KEY='arqluz_offline_queue';
-function offlineQueue(){try{return JSON.parse(localStorage.getItem(OFFLINE_KEY)||'[]');}catch{return[];}}
-function offlineSave(queue){localStorage.setItem(OFFLINE_KEY,JSON.stringify(queue));}
-function offlineAdd(item){const q=offlineQueue();q.push({...item,_ts:Date.now(),_id:crypto.randomUUID()});offlineSave(q);atualizarBadgeOffline();}
-function offlineRemove(id){offlineSave(offlineQueue().filter(x=>x._id!==id));atualizarBadgeOffline();}
-
-function atualizarBadgeOffline(){
-  const online=navigator.onLine,q=offlineQueue(),n=q.length;
-  ['badge-offline','badge-offline2'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.toggle('on',!online);});
-  ['badge-sync','badge-sync2'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.toggle('on',n>0&&online);});
-  document.querySelectorAll('#sync-count,#sync-count2').forEach(el=>el.textContent=n);
-}
-
-async function sincronizarPendentes(){
-  const q=offlineQueue();
-  if(!q.length){toast('Nada pendente para sincronizar.');return;}
-  if(!navigator.onLine){toast('⚡ Ainda sem internet.');return;}
-  load(`Sincronizando ${q.length} entrega(s)...`);
-  let ok=0,erros=0;
-  for(const item of q){
-    try{
-      await db.collection('comprovantes').doc(item.docId).update(item.dados);
-      const{cliente,codCli,pedido,hoje}=item.drive;
-      if(item.relatorioB64)enviarDriveBackground({tipo:'relatorio',base64:item.relatorioB64,mimeType:'application/pdf',cliente,codCli,pedido,data:hoje});
-      if(item.assB64)enviarDriveBackground({tipo:'assinatura',base64:item.assB64,mimeType:'image/png',cliente,codCli,pedido,data:hoje});
-      (item.fotosB64||[]).forEach((f,i)=>enviarDriveBackground({tipo:`foto_${i+1}`,base64:f.split(',')[1],mimeType:'image/jpeg',cliente,codCli,pedido,data:hoje}));
-      offlineRemove(item._id);ok++;
-    }catch(e){console.error('Sync erro:',e);erros++;}
-  }
-  load(false);atualizarBadgeOffline();
-  if(erros===0)toast(`✅ ${ok} entrega(s) sincronizadas com sucesso!`);
-  else toast(`⚠️ ${ok} ok, ${erros} com erro. Tente novamente.`);
-}
-
-window.addEventListener('online',()=>{atualizarBadgeOffline();sincronizarPendentes();});
-window.addEventListener('offline',()=>{atualizarBadgeOffline();toast('⚡ Sem internet — entregas serão salvas localmente.');});
-atualizarBadgeOffline();
-
-// ══════════════════════════════════════════════════════
-// PWA — INSTALL PROMPT
-// ══════════════════════════════════════════════════════
-let _deferredPrompt = null;
-
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  _deferredPrompt = e;
-  // Mostra banner após 3 segundos (não interrompe o login)
-  setTimeout(() => {
-    if (_deferredPrompt) document.getElementById('pwa-banner').classList.add('on');
-  }, 3000);
-});
-
-async function pwaInstalar() {
-  if (!_deferredPrompt) return;
-  document.getElementById('pwa-banner').classList.remove('on');
-  _deferredPrompt.prompt();
-  const { outcome } = await _deferredPrompt.userChoice;
-  console.log('[PWA] Install outcome:', outcome);
-  _deferredPrompt = null;
-}
-
-function pwaDismiss() {
-  document.getElementById('pwa-banner').classList.remove('on');
-  _deferredPrompt = null;
-}
-
-window.addEventListener('appinstalled', () => {
-  toast('✅ App instalado na tela inicial!');
-  document.getElementById('pwa-banner').classList.remove('on');
-});
-
-// ── REGISTRAR SERVICE WORKER ───────────────────────────
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/arqluz-entregas/sw.js')
-      .then(reg => console.log('[PWA] SW registrado:', reg.scope))
-      .catch(err => console.warn('[PWA] SW erro:', err));
-  });
-}
+async function comprimir(file){return new Promise(res=>{const img=new Image(),url=URL.createObjectURL(file);img.onload=()=>{const r=Math.min(900/img.width,900/img.height,1),c=document.createElement("canvas");c.width=img.width*r;c.height=img.height*r;c.getContext("2d").drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);res(c.toDataURL("image/jpeg",.76))};img.src=url})}
+async function thumbImg(src){return new Promise(res=>{const img=new Image();img.onload=()=>{const r=Math.min(300/img.width,300/img.height,1),c=document.createElement("canvas");c.width=img.width*r;c.height=img.height*r;c.getContext("2d").drawImage(img,0,0,c.width,c.height);res(c.toDataURL("image/jpeg",.42))};img.src=src})}
+function abrir(id){byId(id).classList.add("on");document.body.style.overflow="hidden"}function fechar(id){byId(id).classList.remove("on");document.body.style.overflow=""}
+function load(msg){byId("loadmsg").textContent=msg||"";byId("load").classList.toggle("on",!!msg)}let tt;function toast(m){const e=byId("toast");e.textContent=m;e.classList.add("on");clearTimeout(tt);tt=setTimeout(()=>e.classList.remove("on"),3300)}
+function byId(id){return document.getElementById(id)}function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}function escAttr(s){return esc(s).replace(/`/g,"&#96;")}function toDate(v){return v?.toDate?v.toDate():(v?new Date(v):null)}function brDate(v){const [a,m,d]=String(v).split("-");return d&&m&&a?`${d}/${m}/${a}`:v}
+document.querySelectorAll(".overlay").forEach(o=>o.addEventListener("click",e=>{if(e.target===o)fechar(o.id)}));
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(console.warn));
 </script>
 </body>
 </html>
