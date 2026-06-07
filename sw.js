@@ -1,4 +1,4 @@
-const CACHE_NAME = "arqluz-entregas-v2";
+const CACHE_NAME = "arqluz-entregas-v3";
 const ASSETS = [
   "./",
   "./index.html",
@@ -31,16 +31,12 @@ self.addEventListener("activate", event => {
 
 self.addEventListener("fetch", event => {
   const url = new URL(event.request.url);
-
   if (
     url.hostname.includes("firestore.googleapis.com") ||
     url.hostname.includes("identitytoolkit.googleapis.com") ||
     url.hostname.includes("securetoken.googleapis.com") ||
     url.hostname.includes("script.google.com")
-  ) {
-    return;
-  }
-
+  ) { return; }
   event.respondWith(
     fetch(event.request)
       .then(response => {
