@@ -1,0 +1,13 @@
+{
+  "appId": "com.arqluz.entregas",
+  "appName": "Arq Luz Entregas",
+  "webDir": ".",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": true,
+    "backgroundColor": "#171717"
+  }
+}
