@@ -111,7 +111,9 @@
 <div class="overlay" id="modalFinish"><div class="modal">
   <div class="mh"><h2>Finalizar entrega</h2><button class="x" onclick="fechar('modalFinish')">x</button></div>
   <div id="finishInfo" style="background:#f7f7f7;border-radius:12px;padding:12px;margin-bottom:14px"></div>
-  <h3 style="font-size:14px;margin-bottom:8px">1. Assinatura</h3>
+  <h3 style="font-size:14px;margin-bottom:8px">1. Itens da entrega</h3>
+  <div id="finishItems" style="max-height:220px;overflow:auto;border-top:1px solid #eee;margin-bottom:14px"></div>
+  <h3 style="font-size:14px;margin-bottom:8px">2. Assinatura</h3>
   <div class="fg"><label>Nome de quem recebeu</label><input id="assNome"></div>
   <div class="fg"><label>CPF ou RG</label><input id="assDoc"></div>
   <canvas id="canvas"></canvas>
