@@ -3,10 +3,11 @@
   "appName": "Arq Luz Entregas",
   "webDir": "www",
   "server": {
-    "androidScheme": "https"
+    "url": "https://entregas.arqluziluminacao.com",
+    "cleartext": false
   },
   "android": {
-    "allowMixedContent": true,
+    "allowMixedContent": false,
     "backgroundColor": "#171717"
   }
 }
